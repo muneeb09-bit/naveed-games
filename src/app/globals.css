@@ -1294,135 +1294,57 @@ a {
   cursor: grabbing;
 }
 
-.hero-3d__render-wrap {
-  position: relative;
+.hero-3d__svg {
   width: 100%;
   height: auto;
-  transform-style: preserve-3d;
-  border-radius: 24px;
-}
-
-.hero-3d__render-img {
-  width: 100%;
-  height: auto;
-  max-height: 58vh;
-  object-fit: contain;
-  display: block;
-  pointer-events: none;
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.9))
-          drop-shadow(0 0 45px rgba(0, 162, 255, 0.35));
-  mask-image: radial-gradient(ellipse 95% 85% at 50% 48%, black 65%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 95% 85% at 50% 48%, black 65%, transparent 100%);
-}
-
-/* Specular Light Dynamic Movement */
-.hero-3d__specular {
-  position: absolute;
-  top: 15%;
-  left: 25%;
-  width: 50%;
-  height: 35%;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.35) 0%, rgba(0, 240, 255, 0.15) 40%, transparent 70%);
-  filter: blur(20px);
-  pointer-events: none;
-  mix-blend-mode: overlay;
-  opacity: 0.7;
-}
-
-/* ── Interactive Clickable Hotspots Overlay ── */
-.hero-3d__hotspots {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.hero-3d__button-hitbox {
-  position: absolute;
-  background: transparent;
-  border: none;
-  cursor: pointer;
+  max-height: 60vh;
+  overflow: visible;
+  user-select: none;
   pointer-events: auto;
-  border-radius: 50%;
-  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-  outline: none;
+  filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.95))
+          drop-shadow(0 0 35px rgba(0, 162, 255, 0.3));
+  transition: filter 0.3s ease;
+  will-change: transform;
 }
 
-.hero-3d__button-hitbox:hover {
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+.hero-3d__interactive-part {
+  transform-origin: center;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease;
+  will-change: transform;
 }
 
-.hero-3d__btn--active {
-  transform: scale(0.88) translateZ(-6px) !important;
-  background: rgba(0, 240, 255, 0.3) !important;
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.8) !important;
+.hero-3d__interactive-part:hover {
+  filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.8));
+  transform: scale(1.05);
 }
 
-/* D-Pad Buttons (Left) */
-.hero-3d__dpad-btn {
-  width: 5%;
-  height: 8%;
-  border-radius: 4px;
+.hero-3d__part--pressed {
+  transform: scale(0.92) translateZ(-6px) !important;
+  filter: drop-shadow(0 0 20px #00f0ff) !important;
 }
-.hero-3d__dpad--up { top: 21%; left: 26.5%; }
-.hero-3d__dpad--down { top: 31%; left: 26.5%; }
-.hero-3d__dpad--left { top: 26%; left: 23%; }
-.hero-3d__dpad--right { top: 26%; left: 30%; }
 
-/* Action Face Buttons (Right: △ ◯ ✕ ▢) */
-.hero-3d__face-btn {
-  width: 5.5%;
-  height: 9%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.hero-3d__stick-group {
+  transform-origin: center;
+  will-change: transform;
 }
-.hero-3d__face--triangle { top: 20%; right: 28%; }
-.hero-3d__face--circle { top: 28%; right: 23.5%; }
-.hero-3d__face--cross { top: 34%; right: 28%; }
-.hero-3d__face--square { top: 28%; right: 32.5%; }
 
-.hero-3d__face-glow {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+.hero-3d__lightbar-path {
+  animation: ps5LightPulse 4s ease-in-out infinite alternate;
 }
-.hero-3d__face-btn:hover .hero-3d__face-glow,
-.hero-3d__face-btn.hero-3d__btn--active .hero-3d__face-glow {
-  opacity: 1;
-  transform: scale(1.2);
-}
-.hero-3d__glow--cyan { background: radial-gradient(circle, rgba(0, 240, 255, 0.6) 0%, transparent 70%); }
-.hero-3d__glow--amber { background: radial-gradient(circle, rgba(245, 158, 11, 0.6) 0%, transparent 70%); }
-.hero-3d__glow--blue { background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 70%); }
-.hero-3d__glow--pink { background: radial-gradient(circle, rgba(236, 72, 153, 0.6) 0%, transparent 70%); }
 
-/* Thumbsticks */
-.hero-3d__thumbstick {
-  width: 12%;
-  height: 19%;
-  border-radius: 50%;
-}
-.hero-3d__thumbstick--left { top: 35%; left: 33%; }
-.hero-3d__thumbstick--right { top: 35%; right: 33%; }
-
-/* Touchpad & PS Home */
-.hero-3d__touchpad {
-  top: 15%;
-  left: 38%;
-  width: 24%;
-  height: 17%;
-  border-radius: 8px;
-}
-.hero-3d__ps-logo {
-  top: 41%;
-  left: 47%;
-  width: 6%;
-  height: 9%;
-  border-radius: 50%;
+@keyframes ps5LightPulse {
+  0% {
+    stroke: #00a2ff;
+    opacity: 0.85;
+  }
+  50% {
+    stroke: #00f0ff;
+    opacity: 1;
+  }
+  100% {
+    stroke: #3b82f6;
+    opacity: 0.9;
+  }
 }
 
 /* Floating Particles & Sparkles */
