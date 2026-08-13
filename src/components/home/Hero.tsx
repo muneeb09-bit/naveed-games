@@ -1,11 +1,12 @@
 'use client';
 
-import { useRef, useMemo, useState, useEffect } from 'react';
+import { useRef, useMemo, useState, useEffect, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Button } from '@/components/ui/Button';
-import { ArrowRight, CaretRight, Sparkle, ShieldCheck, WhatsappLogo, GameController, Lightning } from '@phosphor-icons/react';
+import { ArrowRight, CaretRight, Sparkle, MagnifyingGlass, GameController, Lightning } from '@phosphor-icons/react';
 import Link from 'next/link';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -58,10 +59,12 @@ const HERO_FEATURED = [
 ];
 
 export function Hero() {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const particles = useMemo(() => getParticlePositions(24), []);
   const [activeSlide, setActiveSlide] = useState(0);
   const [consoleMode, setConsoleMode] = useState<'ps' | 'xbox'>('ps');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -73,6 +76,19 @@ export function Hero() {
     }, 5000);
     return () => clearInterval(timer);
   }, []);
+
+  const handleSearchSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/shop');
+    }
+  };
+
+  const navigateToSearch = (term: string) => {
+    router.push(`/shop?search=${encodeURIComponent(term)}`);
+  };
 
   useGSAP(
     () => {
@@ -91,7 +107,7 @@ export function Hero() {
 
           if (reduceMotion) {
             gsap.set(
-              '.hero__subtitle, .hero__title-word, .hero__tag, .hero__cta, .hero__showcase-card',
+              '.hero__subtitle, .hero__title-word, .hero__search-form, .hero__showcase-card',
               { autoAlpha: 1, y: 0 }
             );
             return;
@@ -109,8 +125,7 @@ export function Hero() {
             { yPercent: 100, duration: 0.8, stagger: 0.1, ease: 'power4.out' },
             0.3
           );
-          tl.from('.hero__tag', { autoAlpha: 0, y: 10, stagger: 0.05 }, 0.6);
-          tl.from('.hero__cta', { autoAlpha: 0, y: 15 }, 0.8);
+          tl.from('.hero__search-form', { autoAlpha: 0, y: 15 }, 0.6);
           tl.from('.hero__showcase', { autoAlpha: 0, x: 30, duration: 1 }, 0.4);
 
           // Ambient floating loop for PlayStation △ ◯ ✕ ▢ and Xbox symbols
@@ -162,7 +177,7 @@ export function Hero() {
         heroEl.addEventListener('mouseleave', handleMouseLeave);
 
         // Hover scale feedback on interactive elements
-        const interactiveItems = heroEl.querySelectorAll('a, button, .hero__tag, .hero__showcase-card');
+        const interactiveItems = heroEl.querySelectorAll('a, button, input, .hero__showcase-card');
         interactiveItems.forEach((item) => {
           item.addEventListener('mouseenter', () => {
             gsap.to(ring, { scale: 1.6, borderColor: 'rgba(59, 130, 246, 0.9)', duration: 0.2 });
@@ -236,30 +251,25 @@ export function Hero() {
 
       <div className="hero__glow" />
 
-      {/* Floating PlayStation & Xbox Sacred Symbols (GSAP Animated) */}
+      {/* Floating PlayStation & Xbox Sacred Symbols */}
       <div className="hero__symbols-layer">
-        {/* PlayStation Triangle △ */}
         <svg className="hero__ps-symbol hero__ps-symbol--triangle" viewBox="0 0 40 40" style={{ top: '15%', left: '8%' }}>
           <polygon points="20,4 36,36 4,36" fill="none" stroke="#00f0ff" strokeWidth="2.5" opacity="0.4" />
         </svg>
 
-        {/* PlayStation Circle ◯ */}
         <svg className="hero__ps-symbol hero__ps-symbol--circle" viewBox="0 0 40 40" style={{ top: '65%', left: '12%' }}>
           <circle cx="20" cy="20" r="15" fill="none" stroke="#f59e0b" strokeWidth="2.5" opacity="0.35" />
         </svg>
 
-        {/* PlayStation Cross ✕ */}
         <svg className="hero__ps-symbol hero__ps-symbol--cross" viewBox="0 0 40 40" style={{ top: '22%', right: '12%' }}>
           <line x1="8" y1="8" x2="32" y2="32" stroke="#3b82f6" strokeWidth="3" opacity="0.4" />
           <line x1="32" y1="8" x2="8" y2="32" stroke="#3b82f6" strokeWidth="3" opacity="0.4" />
         </svg>
 
-        {/* PlayStation Square ▢ */}
         <svg className="hero__ps-symbol hero__ps-symbol--square" viewBox="0 0 40 40" style={{ top: '70%', right: '18%' }}>
           <rect x="7" y="7" width="26" height="26" fill="none" stroke="#ec4899" strokeWidth="2.5" opacity="0.35" />
         </svg>
 
-        {/* Xbox Sphere Glow */}
         <div className="hero__ps-symbol hero__xbox-ring" style={{ top: '45%', right: '8%' }} />
       </div>
 
@@ -323,47 +333,43 @@ export function Hero() {
             </h1>
 
             <p className="hero__description">
-              Peshawar&apos;s leading gaming store. Genuine PS5 Pro, Xbox Series X, Custom Gaming PCs, VR & Accessories with nationwide Cash on Delivery.
+              Peshawar&apos;s leading gaming store. Search genuine PS5 Pro, Xbox Series X, Custom Gaming PCs, VR & Accessories with nationwide Cash on Delivery.
             </p>
 
-            <div className="hero__tags">
-              <span className="hero__tag">PS5 Pro</span>
-              <span className="hero__tag">Xbox Series X</span>
-              <span className="hero__tag">Custom RTX PCs</span>
-              <span className="hero__tag">Meta Quest VR</span>
-              <span className="hero__tag">Racing Simulators</span>
-            </div>
-
-            <div className="hero__cta">
-              <Link href="/shop">
-                <Button variant="primary" size="lg">
-                  Shop Storefront
+            {/* Interactive Hero Search Form */}
+            <form onSubmit={handleSearchSubmit} className="hero__search-form">
+              <div className="hero__search-input-wrap">
+                <MagnifyingGlass size={20} className="hero__search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search PS5 Pro, Xbox, Gaming PCs, VR..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="hero__search-input"
+                />
+                <button type="submit" className="hero__search-submit-btn">
+                  <span>Search</span>
                   <ArrowRight size={16} weight="bold" />
-                </Button>
-              </Link>
-              <a
-                href="https://wa.me/923339348891"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="button button--secondary button--lg"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-              >
-                <WhatsappLogo size={18} weight="fill" style={{ color: 'var(--whatsapp)' }} />
-                Instant Inquiry
-              </a>
-            </div>
+                </button>
+              </div>
 
-            {/* Trust Badges */}
-            <div className="hero__trust-strip">
-              <div className="hero__trust-item">
-                <ShieldCheck size={16} weight="fill" style={{ color: consoleMode === 'ps' ? '#3b82f6' : '#22c55e' }} />
-                <span>100% Genuine Products</span>
+              {/* Popular Quick Search Pills */}
+              <div className="hero__search-pills">
+                <span className="hero__search-label">Popular:</span>
+                <button type="button" onClick={() => navigateToSearch('PS5 Pro')} className="hero__search-pill">
+                  PS5 Pro
+                </button>
+                <button type="button" onClick={() => navigateToSearch('Xbox')} className="hero__search-pill">
+                  Xbox Series X
+                </button>
+                <button type="button" onClick={() => navigateToSearch('RTX 4090')} className="hero__search-pill">
+                  RTX 4090 PC
+                </button>
+                <button type="button" onClick={() => navigateToSearch('VR')} className="hero__search-pill">
+                  Meta Quest VR
+                </button>
               </div>
-              <div className="hero__trust-item">
-                <Sparkle size={16} weight="fill" style={{ color: consoleMode === 'ps' ? '#3b82f6' : '#22c55e' }} />
-                <span>Official Warranty & Cash on Delivery</span>
-              </div>
-            </div>
+            </form>
           </div>
 
           {/* Right Column 3D Showcase Banner Card */}
