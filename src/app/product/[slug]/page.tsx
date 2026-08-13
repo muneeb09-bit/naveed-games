@@ -1,12 +1,9 @@
 import { redirect } from 'next/navigation';
-import { products } from '@/data/products';
+
+export const dynamicParams = true;
 
 interface Props {
   params: Promise<{ slug: string }>;
-}
-
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
 }
 
 export default async function ProductRedirectPage({ params }: Props) {

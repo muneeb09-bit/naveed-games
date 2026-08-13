@@ -65,10 +65,26 @@ export default function AdminProductsPage() {
               status: (data.status as Product['status']) || 'published',
             }));
 
-            // Deduplicate
+            // Deduplicate by slug (prefer DB versions)
             const dbSlugs = new Set(mapped.map((p) => p.slug));
-            const mergedLocal = [...customProds, ...initialProducts].filter((p) => !dbSlugs.has(p.slug));
-            setProductList([...mapped, ...mergedLocal]);
+            const seen = new Set<string>();
+            const uniqueMapped: Product[] = [];
+            mapped.forEach((p) => {
+              if (!seen.has(p.slug)) {
+                seen.add(p.slug);
+                uniqueMapped.push(p);
+              }
+            });
+
+            const localOnly: Product[] = [];
+            [...customProds, ...initialProducts].forEach((p) => {
+              if (!dbSlugs.has(p.slug) && !seen.has(p.slug)) {
+                seen.add(p.slug);
+                localOnly.push(p);
+              }
+            });
+
+            setProductList([...uniqueMapped, ...localOnly]);
             return;
           }
         }
@@ -76,19 +92,16 @@ export default function AdminProductsPage() {
         console.warn('Could not fetch Supabase products catalog:', err);
       }
 
-      // Fallback: merge custom local storage products with static catalog
-      if (customProds.length > 0) {
-        const combined = [...initialProducts];
-        customProds.forEach((c) => {
-          const idx = combined.findIndex((p) => p.id === c.id || p.slug === c.slug);
-          if (idx >= 0) {
-            combined[idx] = c;
-          } else {
-            combined.unshift(c);
-          }
-        });
-        setProductList(combined);
-      }
+      // Fallback: merge custom local storage products with static catalog (deduplicated by slug)
+      const seen = new Set<string>();
+      const combined: Product[] = [];
+      [...customProds, ...initialProducts].forEach((p) => {
+        if (!seen.has(p.slug)) {
+          seen.add(p.slug);
+          combined.push(p);
+        }
+      });
+      setProductList(combined);
     }
 
     loadProducts();
