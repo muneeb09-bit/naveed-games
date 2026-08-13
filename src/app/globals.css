@@ -1185,6 +1185,106 @@ a {
   overflow: hidden;
   background: var(--bg-primary);
   padding: 48px 0;
+  perspective: 1000px;
+}
+
+/* ── PlayStation vs Xbox Theme Variables ── */
+.hero--ps {
+  --hero-accent: #3b82f6;
+  --hero-glow-bg: rgba(59, 130, 246, 0.16);
+}
+
+.hero--xbox {
+  --hero-accent: #22c55e;
+  --hero-glow-bg: rgba(34, 197, 94, 0.16);
+}
+
+.hero--xbox .hero__subtitle {
+  color: #22c55e !important;
+}
+
+.hero--xbox .hero__showcase-badge {
+  background: #22c55e !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.6) !important;
+}
+
+.hero--xbox .hero__showcase-cat {
+  color: #22c55e !important;
+}
+
+.hero--xbox .hero__showcase-btn {
+  color: #22c55e !important;
+}
+
+.hero--xbox .hero__showcase-dot--active {
+  background: #22c55e !important;
+}
+
+/* ── Interactive Mode Bar ── */
+.hero__mode-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  padding: 4px 6px;
+  margin-bottom: 20px;
+  width: fit-content;
+}
+
+.hero__mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.hero__mode-btn--active-ps {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+}
+
+.hero__mode-btn--active-xbox {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+}
+
+/* ── Sacred Symbols Layer (PS △ ◯ ✕ ▢ & Xbox) ── */
+.hero__symbols-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero__ps-symbol {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  will-change: transform;
+}
+
+.hero__xbox-ring {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px dashed rgba(34, 197, 94, 0.35);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
 }
 
 /* ── Custom Subtle Gaming Cursor ── */

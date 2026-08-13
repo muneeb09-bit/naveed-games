@@ -5,7 +5,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Button } from '@/components/ui/Button';
-import { ArrowRight, CaretRight, Sparkle, ShieldCheck, WhatsappLogo } from '@phosphor-icons/react';
+import { ArrowRight, CaretRight, Sparkle, ShieldCheck, WhatsappLogo, GameController, Lightning } from '@phosphor-icons/react';
 import Link from 'next/link';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -30,18 +30,20 @@ const HERO_FEATURED = [
     title: 'PlayStation 5 Pro',
     category: 'Flagship Console',
     price: 'Rs. 249,999',
-    badge: 'NEW ARRIVAL',
+    badge: 'PS5 PRO ARRIVAL',
     image: '/images/products/ps5-pro-1.jpg',
     tagline: '67% More Compute Units • 2TB Custom SSD • PSSR AI Upscaling',
+    theme: 'ps',
   },
   {
     slug: 'xbox-series-x',
     title: 'Xbox Series X (1TB)',
     category: 'Next-Gen Power',
     price: 'Rs. 164,999',
-    badge: 'BESTSELLER',
+    badge: 'XBOX VELOCITY',
     image: '/images/products/xbox-series-x-1.jpg',
     tagline: '12 TFLOPS Raw GPU Power • 4K Gaming at 120 FPS',
+    theme: 'xbox',
   },
   {
     slug: 'rtx-4090-pc',
@@ -51,6 +53,7 @@ const HERO_FEATURED = [
     badge: 'EXTREME PERFORMANCE',
     image: '/images/products/pc-1.jpg',
     tagline: 'Intel Core i9 14900K • 64GB DDR5 • Liquid Cooled',
+    theme: 'ps',
   },
 ];
 
@@ -58,16 +61,24 @@ export function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const particles = useMemo(() => getParticlePositions(24), []);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [consoleMode, setConsoleMode] = useState<'ps' | 'xbox'>('ps');
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % HERO_FEATURED.length);
-    }, 4500);
+      setActiveSlide((prev) => {
+        const next = (prev + 1) % HERO_FEATURED.length;
+        setConsoleMode(HERO_FEATURED[next].theme as 'ps' | 'xbox');
+        return next;
+      });
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
 
   useGSAP(
     () => {
+      const heroEl = containerRef.current;
+      if (!heroEl) return;
+
       const mm = gsap.matchMedia();
 
       mm.add(
@@ -76,7 +87,7 @@ export function Hero() {
           reduceMotion: '(prefers-reduced-motion: reduce)',
         },
         (context) => {
-          const { reduceMotion } = contextConditions(context);
+          const { reduceMotion } = context.conditions || {};
 
           if (reduceMotion) {
             gsap.set(
@@ -86,6 +97,7 @@ export function Hero() {
             return;
           }
 
+          // Main Entrance Timeline
           const tl = gsap.timeline({
             defaults: { duration: 0.8, ease: 'power3.out' },
           });
@@ -100,14 +112,22 @@ export function Hero() {
           tl.from('.hero__tag', { autoAlpha: 0, y: 10, stagger: 0.05 }, 0.6);
           tl.from('.hero__cta', { autoAlpha: 0, y: 15 }, 0.8);
           tl.from('.hero__showcase', { autoAlpha: 0, x: 30, duration: 1 }, 0.4);
+
+          // Ambient floating loop for PlayStation △ ◯ ✕ ▢ and Xbox symbols
+          gsap.to('.hero__ps-symbol', {
+            y: 'random(-20, 20)',
+            rotation: 'random(-30, 30)',
+            duration: 'random(5, 9)',
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+            stagger: { amount: 2, from: 'random' },
+          });
         }
       );
 
       // Custom Gaming Cursor Follower (Desktop only)
       mm.add('(min-width: 1024px)', () => {
-        const heroEl = containerRef.current;
-        if (!heroEl) return;
-
         const dot = heroEl.querySelector('.hero__cursor-dot');
         const ring = heroEl.querySelector('.hero__cursor-ring');
         if (!dot || !ring) return;
@@ -154,6 +174,29 @@ export function Hero() {
           });
         });
 
+        // 3D Parallax Tilt Effect on Showcase Card
+        const card = heroEl.querySelector('.hero__showcase-card') as HTMLElement;
+        if (card) {
+          const handleTilt = (e: MouseEvent) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            gsap.to(card, {
+              rotateY: (x / rect.width) * 14,
+              rotateX: -(y / rect.height) * 14,
+              duration: 0.4,
+              ease: 'power2.out',
+            });
+          };
+
+          const resetTilt = () => {
+            gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'power2.out' });
+          };
+
+          card.addEventListener('mousemove', handleTilt);
+          card.addEventListener('mouseleave', resetTilt);
+        }
+
         return () => {
           heroEl.removeEventListener('mousemove', handleMouseMove);
           heroEl.removeEventListener('mouseenter', handleMouseEnter);
@@ -164,15 +207,24 @@ export function Hero() {
     { scope: containerRef }
   );
 
-  function contextConditions(context: gsap.Context) {
-    return context.conditions || { reduceMotion: false };
-  }
+  const switchTheme = (mode: 'ps' | 'xbox') => {
+    setConsoleMode(mode);
+    const accentColor = mode === 'ps' ? '#3b82f6' : '#22c55e';
+    const glowColor = mode === 'ps' ? 'rgba(59, 130, 246, 0.18)' : 'rgba(34, 197, 94, 0.18)';
+
+    gsap.to('.hero__glow', {
+      background: `radial-gradient(circle, ${glowColor} 0%, transparent 70%)`,
+      duration: 0.6,
+    });
+    gsap.to('.hero__cursor-ring', { borderColor: accentColor, duration: 0.4 });
+    gsap.to('.hero__cursor-dot', { backgroundColor: accentColor, duration: 0.4 });
+  };
 
   const current = HERO_FEATURED[activeSlide];
 
   return (
-    <section className="hero" ref={containerRef}>
-      {/* Subtle Custom Gaming Cursor */}
+    <section className={`hero hero--${consoleMode}`} ref={containerRef}>
+      {/* Custom Gaming Cursor */}
       <div className="hero__cursor-ring" />
       <div className="hero__cursor-dot" />
 
@@ -183,6 +235,33 @@ export function Hero() {
       </div>
 
       <div className="hero__glow" />
+
+      {/* Floating PlayStation & Xbox Sacred Symbols (GSAP Animated) */}
+      <div className="hero__symbols-layer">
+        {/* PlayStation Triangle △ */}
+        <svg className="hero__ps-symbol hero__ps-symbol--triangle" viewBox="0 0 40 40" style={{ top: '15%', left: '8%' }}>
+          <polygon points="20,4 36,36 4,36" fill="none" stroke="#00f0ff" strokeWidth="2.5" opacity="0.4" />
+        </svg>
+
+        {/* PlayStation Circle ◯ */}
+        <svg className="hero__ps-symbol hero__ps-symbol--circle" viewBox="0 0 40 40" style={{ top: '65%', left: '12%' }}>
+          <circle cx="20" cy="20" r="15" fill="none" stroke="#f59e0b" strokeWidth="2.5" opacity="0.35" />
+        </svg>
+
+        {/* PlayStation Cross ✕ */}
+        <svg className="hero__ps-symbol hero__ps-symbol--cross" viewBox="0 0 40 40" style={{ top: '22%', right: '12%' }}>
+          <line x1="8" y1="8" x2="32" y2="32" stroke="#3b82f6" strokeWidth="3" opacity="0.4" />
+          <line x1="32" y1="8" x2="8" y2="32" stroke="#3b82f6" strokeWidth="3" opacity="0.4" />
+        </svg>
+
+        {/* PlayStation Square ▢ */}
+        <svg className="hero__ps-symbol hero__ps-symbol--square" viewBox="0 0 40 40" style={{ top: '70%', right: '18%' }}>
+          <rect x="7" y="7" width="26" height="26" fill="none" stroke="#ec4899" strokeWidth="2.5" opacity="0.35" />
+        </svg>
+
+        {/* Xbox Sphere Glow */}
+        <div className="hero__ps-symbol hero__xbox-ring" style={{ top: '45%', right: '8%' }} />
+      </div>
 
       {/* Ambient Particle Grid */}
       <div className="hero__particles">
@@ -205,8 +284,29 @@ export function Hero() {
         <div className="hero__grid">
           {/* Left Main Copy */}
           <div className="hero__left">
+            {/* PlayStation vs Xbox Interactive Mode Toggle */}
+            <div className="hero__mode-bar">
+              <button
+                type="button"
+                className={`hero__mode-btn ${consoleMode === 'ps' ? 'hero__mode-btn--active-ps' : ''}`}
+                onClick={() => switchTheme('ps')}
+              >
+                <GameController size={14} weight="fill" />
+                <span>PlayStation Mode</span>
+              </button>
+
+              <button
+                type="button"
+                className={`hero__mode-btn ${consoleMode === 'xbox' ? 'hero__mode-btn--active-xbox' : ''}`}
+                onClick={() => switchTheme('xbox')}
+              >
+                <Lightning size={14} weight="fill" />
+                <span>Xbox Velocity</span>
+              </button>
+            </div>
+
             <div className="hero__subtitle">
-              <Sparkle size={14} weight="fill" style={{ color: 'var(--accent)' }} />
+              <Sparkle size={14} weight="fill" style={{ color: consoleMode === 'ps' ? '#3b82f6' : '#22c55e' }} />
               <span>Naveed Games — Premier Hardware Destination</span>
             </div>
 
@@ -256,17 +356,17 @@ export function Hero() {
             {/* Trust Badges */}
             <div className="hero__trust-strip">
               <div className="hero__trust-item">
-                <ShieldCheck size={16} weight="fill" style={{ color: 'var(--accent)' }} />
+                <ShieldCheck size={16} weight="fill" style={{ color: consoleMode === 'ps' ? '#3b82f6' : '#22c55e' }} />
                 <span>100% Genuine Products</span>
               </div>
               <div className="hero__trust-item">
-                <Sparkle size={16} weight="fill" style={{ color: 'var(--accent)' }} />
+                <Sparkle size={16} weight="fill" style={{ color: consoleMode === 'ps' ? '#3b82f6' : '#22c55e' }} />
                 <span>Official Warranty & Cash on Delivery</span>
               </div>
             </div>
           </div>
 
-          {/* Right Column Showcase Banner Card */}
+          {/* Right Column 3D Showcase Banner Card */}
           <div className="hero__showcase">
             <div className="hero__showcase-card">
               <div className="hero__showcase-badge">{current.badge}</div>
@@ -295,7 +395,10 @@ export function Hero() {
                     key={idx}
                     type="button"
                     className={`hero__showcase-dot ${idx === activeSlide ? 'hero__showcase-dot--active' : ''}`}
-                    onClick={() => setActiveSlide(idx)}
+                    onClick={() => {
+                      setActiveSlide(idx);
+                      setConsoleMode(HERO_FEATURED[idx].theme as 'ps' | 'xbox');
+                    }}
                     aria-label={`Slide ${idx + 1}`}
                   />
                 ))}
