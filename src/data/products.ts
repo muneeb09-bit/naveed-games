@@ -909,3 +909,49 @@ export function getPriceRange(): { min: number; max: number } {
   return { min: Math.min(...prices), max: Math.max(...prices) };
 }
 
+// Helper to save custom created/edited products to local storage & in-memory array
+export function registerCustomProduct(product: Product) {
+  const existingIdx = products.findIndex((p) => p.id === product.id || p.slug === product.slug);
+  if (existingIdx >= 0) {
+    products[existingIdx] = product;
+  } else {
+    products.unshift(product);
+  }
+
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('ng_custom_products');
+      let customList: Product[] = stored ? JSON.parse(stored) : [];
+      const idx = customList.findIndex((p) => p.id === product.id || p.slug === product.slug);
+      if (idx >= 0) {
+        customList[idx] = product;
+      } else {
+        customList.unshift(product);
+      }
+      localStorage.setItem('ng_custom_products', JSON.stringify(customList));
+    } catch {
+      // Ignore quota errors
+    }
+  }
+}
+
+// Hydrate custom products on browser environment initialization
+if (typeof window !== 'undefined') {
+  try {
+    const stored = localStorage.getItem('ng_custom_products');
+    if (stored) {
+      const customList: Product[] = JSON.parse(stored);
+      customList.forEach((product) => {
+        const existingIdx = products.findIndex((p) => p.id === product.id || p.slug === product.slug);
+        if (existingIdx >= 0) {
+          products[existingIdx] = product;
+        } else {
+          products.unshift(product);
+        }
+      });
+    }
+  } catch {
+    // Ignore hydration errors
+  }
+}
+

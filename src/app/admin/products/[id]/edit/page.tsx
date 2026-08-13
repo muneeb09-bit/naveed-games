@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { use } from 'react';
 import { categories } from '@/data/categories';
 import { brands } from '@/data/brands';
-import { products } from '@/data/products';
+import { products, registerCustomProduct } from '@/data/products';
+import type { Product } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { ImageUploader } from '@/components/admin/ImageUploader';
@@ -100,50 +101,90 @@ export default function EditProductPage({ params }: Props) {
 
     setLoading(true);
 
+    const slug = formData.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+
+    const updatedProd: Product = {
+      id: initial?.id || id,
+      slug,
+      name: formData.name,
+      brand: formData.brand || 'Sony',
+      category: selectedCategoryObj?.name || 'Consoles',
+      categorySlug: formData.categorySlug,
+      subcategoryId: formData.subcategorySlug || undefined,
+      price: Number(formData.price),
+      originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
+      salePrice: formData.salePrice ? Number(formData.salePrice) : undefined,
+      costPrice: formData.costPrice ? Number(formData.costPrice) : undefined,
+      discount: initial?.discount || 0,
+      shortDescription: formData.shortDescription || formData.name,
+      description: formData.description || formData.name,
+      rating: initial?.rating || 5.0,
+      reviewCount: initial?.reviewCount || 1,
+      inStock: Number(formData.stockQuantity) > 0,
+      stockQuantity: Number(formData.stockQuantity),
+      sku: formData.sku,
+      condition: formData.condition as any,
+      platform: formData.platform || undefined,
+      status: formData.status as any,
+      featured: formData.featured,
+      bestseller: formData.bestseller,
+      isNew: formData.isNew,
+      images: images.length > 0 ? images : ['/images/products/placeholder.jpg'],
+      specs: specs.filter((s) => s.label && s.value),
+      warranty: formData.warranty,
+      deliveryInfo: formData.deliveryInfo,
+      tags: [formData.categorySlug, formData.brand.toLowerCase(), formData.name.toLowerCase()],
+    };
+
+    // 1. Instant local registration in memory & localStorage (< 1ms)
+    registerCustomProduct(updatedProd);
+
+    // 2. Background Supabase sync
     try {
       const supabase = createClient();
       if (supabase && id.length > 15) {
-        const slug = formData.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)+/g, '');
-
-        await supabase
-          .from('products')
-          .update({
-            slug,
-            name: formData.name,
-            brand_name: formData.brand,
-            category_slug: formData.categorySlug,
-            price: Number(formData.price),
-            original_price: formData.originalPrice ? Number(formData.originalPrice) : null,
-            sale_price: formData.salePrice ? Number(formData.salePrice) : null,
-            cost_price: formData.costPrice ? Number(formData.costPrice) : null,
-            short_description: formData.shortDescription || formData.name,
-            description: formData.description || formData.name,
-            stock_quantity: Number(formData.stockQuantity),
-            in_stock: Number(formData.stockQuantity) > 0,
-            sku: formData.sku,
-            condition: formData.condition,
-            platform: formData.platform || null,
-            status: formData.status,
-            featured: formData.featured,
-            bestseller: formData.bestseller,
-            is_new: formData.isNew,
-            images,
-            specs: specs.filter((s) => s.label && s.value),
-            warranty: formData.warranty,
-            delivery_info: formData.deliveryInfo,
-          })
-          .eq('id', id);
+        await Promise.race([
+          supabase
+            .from('products')
+            .update({
+              slug,
+              name: formData.name,
+              brand_name: formData.brand,
+              category_slug: formData.categorySlug,
+              price: Number(formData.price),
+              original_price: formData.originalPrice ? Number(formData.originalPrice) : null,
+              sale_price: formData.salePrice ? Number(formData.salePrice) : null,
+              cost_price: formData.costPrice ? Number(formData.costPrice) : null,
+              short_description: formData.shortDescription || formData.name,
+              description: formData.description || formData.name,
+              stock_quantity: Number(formData.stockQuantity),
+              in_stock: Number(formData.stockQuantity) > 0,
+              sku: formData.sku,
+              condition: formData.condition,
+              platform: formData.platform || null,
+              status: formData.status,
+              featured: formData.featured,
+              bestseller: formData.bestseller,
+              is_new: formData.isNew,
+              images: updatedProd.images,
+              specs: specs.filter((s) => s.label && s.value),
+              warranty: formData.warranty,
+              delivery_info: formData.deliveryInfo,
+            })
+            .eq('id', id),
+          new Promise((resolve) => setTimeout(resolve, 800)),
+        ]);
       }
     } catch (err) {
-      console.warn('Supabase product edit warning:', err);
+      console.warn('Supabase product edit background warning:', err);
     }
 
-    alert(`Product "${formData.name}" updated successfully!`);
     setLoading(false);
     router.push('/admin/products');
+    router.refresh();
   };
 
   return (
