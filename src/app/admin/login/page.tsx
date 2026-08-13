@@ -10,7 +10,7 @@ import Link from 'next/link';
 export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('mujahid@naveedgames.com');
-  const [password, setPassword] = useState('admin123');
+  const [password, setPassword] = useState('Pakistan.123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -28,8 +28,8 @@ export default function AdminLoginPage() {
           password,
         });
 
-        // If Supabase Auth is enabled & user exists, proceed. If user isn't created in Supabase yet, allow fallback for admin123
-        if (authError && password !== 'admin123' && password !== 'admin') {
+        // If Supabase Auth is enabled & user exists, proceed. If user isn't created in Supabase yet, allow fallback for Pakistan.123
+        if (authError && password !== 'Pakistan.123' && password !== 'admin123' && password !== 'admin') {
           setError(authError.message);
           setLoading(false);
           return;
@@ -119,7 +119,7 @@ export default function AdminLoginPage() {
               <Lock size={16} weight="bold" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
             </div>
             <div style={{ marginTop: '6px', fontSize: '0.75rem', color: 'var(--muted-light)', background: 'rgba(59, 130, 246, 0.08)', padding: '6px 10px', borderRadius: '4px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-              🔑 Default Admin: <strong>mujahid@naveedgames.com</strong> / <strong>admin123</strong>
+              🔑 Default Admin: <strong>mujahid@naveedgames.com</strong> / <strong>Pakistan.123</strong>
             </div>
           </div>
 
