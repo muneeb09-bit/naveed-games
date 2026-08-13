@@ -1187,6 +1187,43 @@ a {
   padding: 48px 0;
 }
 
+/* ── Custom Subtle Gaming Cursor ── */
+.hero__cursor-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  margin-top: -18px;
+  margin-left: -18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(59, 130, 246, 0.45);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.2);
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: border-color var(--duration-fast), scale var(--duration-fast);
+}
+
+.hero__cursor-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+  pointer-events: none;
+  z-index: 11;
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: background-color var(--duration-fast), scale var(--duration-fast);
+}
+
 .hero__image-wrap {
   position: absolute;
   inset: 0;

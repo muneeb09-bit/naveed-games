@@ -76,7 +76,7 @@ export function Hero() {
           reduceMotion: '(prefers-reduced-motion: reduce)',
         },
         (context) => {
-          const { reduceMotion } = context.conditions!;
+          const { reduceMotion } = contextConditions(context);
 
           if (reduceMotion) {
             gsap.set(
@@ -102,14 +102,80 @@ export function Hero() {
           tl.from('.hero__showcase', { autoAlpha: 0, x: 30, duration: 1 }, 0.4);
         }
       );
+
+      // Custom Gaming Cursor Follower (Desktop only)
+      mm.add('(min-width: 1024px)', () => {
+        const heroEl = containerRef.current;
+        if (!heroEl) return;
+
+        const dot = heroEl.querySelector('.hero__cursor-dot');
+        const ring = heroEl.querySelector('.hero__cursor-ring');
+        if (!dot || !ring) return;
+
+        const xDotTo = gsap.quickSetter(dot, 'x', 'px');
+        const yDotTo = gsap.quickSetter(dot, 'y', 'px');
+
+        const xRingTo = gsap.quickTo(ring, 'x', { duration: 0.3, ease: 'power2.out' });
+        const yRingTo = gsap.quickTo(ring, 'y', { duration: 0.3, ease: 'power2.out' });
+
+        const handleMouseMove = (e: MouseEvent) => {
+          const rect = heroEl.getBoundingClientRect();
+          const relX = e.clientX - rect.left;
+          const relY = e.clientY - rect.top;
+
+          xDotTo(relX);
+          yDotTo(relY);
+          xRingTo(relX);
+          yRingTo(relY);
+        };
+
+        const handleMouseEnter = () => {
+          gsap.to([dot, ring], { autoAlpha: 1, duration: 0.3 });
+        };
+
+        const handleMouseLeave = () => {
+          gsap.to([dot, ring], { autoAlpha: 0, duration: 0.3 });
+        };
+
+        heroEl.addEventListener('mousemove', handleMouseMove);
+        heroEl.addEventListener('mouseenter', handleMouseEnter);
+        heroEl.addEventListener('mouseleave', handleMouseLeave);
+
+        // Hover scale feedback on interactive elements
+        const interactiveItems = heroEl.querySelectorAll('a, button, .hero__tag, .hero__showcase-card');
+        interactiveItems.forEach((item) => {
+          item.addEventListener('mouseenter', () => {
+            gsap.to(ring, { scale: 1.6, borderColor: 'rgba(59, 130, 246, 0.9)', duration: 0.2 });
+            gsap.to(dot, { scale: 1.4, backgroundColor: '#60a5fa', duration: 0.2 });
+          });
+          item.addEventListener('mouseleave', () => {
+            gsap.to(ring, { scale: 1, borderColor: 'rgba(59, 130, 246, 0.4)', duration: 0.2 });
+            gsap.to(dot, { scale: 1, backgroundColor: 'var(--accent)', duration: 0.2 });
+          });
+        });
+
+        return () => {
+          heroEl.removeEventListener('mousemove', handleMouseMove);
+          heroEl.removeEventListener('mouseenter', handleMouseEnter);
+          heroEl.removeEventListener('mouseleave', handleMouseLeave);
+        };
+      });
     },
     { scope: containerRef }
   );
+
+  function contextConditions(context: gsap.Context) {
+    return context.conditions || { reduceMotion: false };
+  }
 
   const current = HERO_FEATURED[activeSlide];
 
   return (
     <section className="hero" ref={containerRef}>
+      {/* Subtle Custom Gaming Cursor */}
+      <div className="hero__cursor-ring" />
+      <div className="hero__cursor-dot" />
+
       {/* Background Gradients & Glow */}
       <div className="hero__image-wrap">
         <div className="hero__image" />
