@@ -23,6 +23,7 @@ interface FilterSidebarProps {
   onFilterChange: (filters: ProductFilters) => void;
   productCount: number;
   categorySlug?: string;
+  hideHeader?: boolean;
 }
 
 export function FilterSidebar({
@@ -30,6 +31,7 @@ export function FilterSidebar({
   onFilterChange,
   productCount,
   categorySlug,
+  hideHeader = false,
 }: FilterSidebarProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(['category', 'brand', 'price', 'availability', 'platform', 'quick'])
@@ -80,26 +82,28 @@ export function FilterSidebar({
   return (
     <aside className="filter-sidebar">
       {/* Sidebar Header */}
-      <div className="filter-sidebar__header">
-        <div className="filter-sidebar__title-wrap">
-          <Funnel size={18} weight="bold" className="filter-sidebar__icon" />
-          <h3 className="filter-sidebar__title">Filters</h3>
-          {activeFilterCount > 0 && (
-            <span className="filter-sidebar__active-badge">{activeFilterCount}</span>
+      {!hideHeader && (
+        <div className="filter-sidebar__header">
+          <div className="filter-sidebar__title-wrap">
+            <Funnel size={18} weight="bold" className="filter-sidebar__icon" />
+            <h3 className="filter-sidebar__title">Filters</h3>
+            {activeFilterCount > 0 && (
+              <span className="filter-sidebar__active-badge">{activeFilterCount}</span>
+            )}
+          </div>
+          {hasActiveFilters && (
+            <button
+              className="filter-sidebar__clear"
+              onClick={clearAllFilters}
+              type="button"
+              title="Reset all filters"
+            >
+              <X size={12} weight="bold" />
+              Clear
+            </button>
           )}
         </div>
-        {hasActiveFilters && (
-          <button
-            className="filter-sidebar__clear"
-            onClick={clearAllFilters}
-            type="button"
-            title="Reset all filters"
-          >
-            <X size={12} weight="bold" />
-            Clear
-          </button>
-        )}
-      </div>
+      )}
 
       {/* Category Filter */}
       {!categorySlug && (

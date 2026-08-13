@@ -157,11 +157,15 @@ export function ShopClient({
           />
           <div className="mobile-filter-drawer">
             <div className="mobile-filter-drawer__header">
-              <h3>Filters</h3>
+              <div className="mobile-filter-drawer__title-wrap">
+                <Funnel size={18} weight="bold" style={{ color: 'var(--accent)' }} />
+                <h3>Filter Products</h3>
+              </div>
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(false)}
                 className="mobile-filter-drawer__close"
+                aria-label="Close filters"
               >
                 ✕
               </button>
@@ -172,6 +176,7 @@ export function ShopClient({
                 onFilterChange={(f) => setFilters(f)}
                 productCount={filteredProducts.length}
                 categorySlug={categorySlug}
+                hideHeader={true}
               />
             </div>
             <div className="mobile-filter-drawer__footer">
