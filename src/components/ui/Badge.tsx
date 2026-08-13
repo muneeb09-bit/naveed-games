@@ -1,9 +1,11 @@
 import { cn } from '@/lib/utils';
+import React from 'react';
 
-interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: 'discount' | 'new' | 'sale' | 'outOfStock' | 'lowStock';
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export function Badge({ variant = 'new', children, className, style, ...props }: BadgeProps) {
