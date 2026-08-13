@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Button } from '@/components/ui/Button';
 import { ArrowRight, CaretRight, Sparkle, MagnifyingGlass, GameController, Lightning } from '@phosphor-icons/react';
 import Link from 'next/link';
 
@@ -130,8 +129,8 @@ export function Hero() {
 
           // Ambient floating loop for PlayStation △ ◯ ✕ ▢ and Xbox symbols
           gsap.to('.hero__ps-symbol', {
-            y: 'random(-20, 20)',
-            rotation: 'random(-30, 30)',
+            y: 'random(-15, 15)',
+            rotation: 'random(-25, 25)',
             duration: 'random(5, 9)',
             repeat: -1,
             yoyo: true,
@@ -141,10 +140,11 @@ export function Hero() {
         }
       );
 
-      // Custom Gaming Cursor Follower (Desktop only)
+      // Custom Gaming Cursor & Symbol Magnetic Cursor Interaction (Desktop only)
       mm.add('(min-width: 1024px)', () => {
         const dot = heroEl.querySelector('.hero__cursor-dot');
         const ring = heroEl.querySelector('.hero__cursor-ring');
+        const symbols = Array.from(heroEl.querySelectorAll<HTMLElement>('.hero__ps-symbol'));
         if (!dot || !ring) return;
 
         const xDotTo = gsap.quickSetter(dot, 'x', 'px');
@@ -152,6 +152,10 @@ export function Hero() {
 
         const xRingTo = gsap.quickTo(ring, 'x', { duration: 0.3, ease: 'power2.out' });
         const yRingTo = gsap.quickTo(ring, 'y', { duration: 0.3, ease: 'power2.out' });
+
+        // Setup GSAP quickTo for symbols interactive cursor reaction
+        const symbolToX = symbols.map((s) => gsap.quickTo(s, 'x', { duration: 0.7, ease: 'power2.out' }));
+        const symbolToY = symbols.map((s) => gsap.quickTo(s, 'y', { duration: 0.7, ease: 'power2.out' }));
 
         const handleMouseMove = (e: MouseEvent) => {
           const rect = heroEl.getBoundingClientRect();
@@ -162,6 +166,31 @@ export function Hero() {
           yDotTo(relY);
           xRingTo(relX);
           yRingTo(relY);
+
+          // Dynamic Cursor Repel + Glow Reaction on PlayStation & Xbox Symbols
+          symbols.forEach((symbol, idx) => {
+            const symRect = symbol.getBoundingClientRect();
+            const symCenterX = symRect.left + symRect.width / 2 - rect.left;
+            const symCenterY = symRect.top + symRect.height / 2 - rect.top;
+
+            const dx = relX - symCenterX;
+            const dy = relY - symCenterY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            // Within 280px radius, symbols push away slightly and glow brighter
+            if (dist < 280) {
+              const power = (1 - dist / 280) * 35;
+              const pushX = -(dx / dist) * power;
+              const pushY = -(dy / dist) * power;
+              symbolToX[idx](pushX);
+              symbolToY[idx](pushY);
+              gsap.to(symbol, { opacity: 0.8, scale: 1.15, duration: 0.3 });
+            } else {
+              symbolToX[idx](0);
+              symbolToY[idx](0);
+              gsap.to(symbol, { opacity: 0.4, scale: 1, duration: 0.6 });
+            }
+          });
         };
 
         const handleMouseEnter = () => {
@@ -170,6 +199,10 @@ export function Hero() {
 
         const handleMouseLeave = () => {
           gsap.to([dot, ring], { autoAlpha: 0, duration: 0.3 });
+          symbols.forEach((_, idx) => {
+            symbolToX[idx](0);
+            symbolToY[idx](0);
+          });
         };
 
         heroEl.addEventListener('mousemove', handleMouseMove);
@@ -251,26 +284,31 @@ export function Hero() {
 
       <div className="hero__glow" />
 
-      {/* Floating PlayStation & Xbox Sacred Symbols */}
+      {/* Floating PlayStation & Xbox Sacred Symbols (Cursor-Interactive) */}
       <div className="hero__symbols-layer">
-        <svg className="hero__ps-symbol hero__ps-symbol--triangle" viewBox="0 0 40 40" style={{ top: '15%', left: '8%' }}>
+        {/* PlayStation Triangle △ (Repositioned to the right side of the screen) */}
+        <svg className="hero__ps-symbol hero__ps-symbol--triangle" viewBox="0 0 40 40" style={{ top: '16%', right: '28%' }}>
           <polygon points="20,4 36,36 4,36" fill="none" stroke="#00f0ff" strokeWidth="2.5" opacity="0.4" />
         </svg>
 
-        <svg className="hero__ps-symbol hero__ps-symbol--circle" viewBox="0 0 40 40" style={{ top: '65%', left: '12%' }}>
+        {/* PlayStation Circle ◯ */}
+        <svg className="hero__ps-symbol hero__ps-symbol--circle" viewBox="0 0 40 40" style={{ top: '65%', left: '8%' }}>
           <circle cx="20" cy="20" r="15" fill="none" stroke="#f59e0b" strokeWidth="2.5" opacity="0.35" />
         </svg>
 
-        <svg className="hero__ps-symbol hero__ps-symbol--cross" viewBox="0 0 40 40" style={{ top: '22%', right: '12%' }}>
+        {/* PlayStation Cross ✕ */}
+        <svg className="hero__ps-symbol hero__ps-symbol--cross" viewBox="0 0 40 40" style={{ top: '22%', right: '10%' }}>
           <line x1="8" y1="8" x2="32" y2="32" stroke="#3b82f6" strokeWidth="3" opacity="0.4" />
           <line x1="32" y1="8" x2="8" y2="32" stroke="#3b82f6" strokeWidth="3" opacity="0.4" />
         </svg>
 
-        <svg className="hero__ps-symbol hero__ps-symbol--square" viewBox="0 0 40 40" style={{ top: '70%', right: '18%' }}>
+        {/* PlayStation Square ▢ */}
+        <svg className="hero__ps-symbol hero__ps-symbol--square" viewBox="0 0 40 40" style={{ top: '72%', right: '16%' }}>
           <rect x="7" y="7" width="26" height="26" fill="none" stroke="#ec4899" strokeWidth="2.5" opacity="0.35" />
         </svg>
 
-        <div className="hero__ps-symbol hero__xbox-ring" style={{ top: '45%', right: '8%' }} />
+        {/* Xbox Sphere Ring */}
+        <div className="hero__ps-symbol hero__xbox-ring" style={{ top: '48%', right: '6%' }} />
       </div>
 
       {/* Ambient Particle Grid */}
