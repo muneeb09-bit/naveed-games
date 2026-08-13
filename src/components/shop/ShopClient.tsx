@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { products, filterProducts, sortProducts } from '@/data/products';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -8,7 +8,7 @@ import { FilterSidebar } from '@/components/shop/FilterSidebar';
 import { SortDropdown } from '@/components/shop/SortDropdown';
 import { ActiveFilters } from '@/components/shop/ActiveFilters';
 import { Funnel, SquaresFour, GridFour, Rows } from '@phosphor-icons/react';
-import type { ProductFilters, SortOption } from '@/types';
+import type { Product, ProductFilters, SortOption } from '@/types';
 
 type ViewMode = 'grid-4' | 'grid-3' | 'list';
 
@@ -34,8 +34,35 @@ export function ShopClient({
   const [viewMode, setViewMode] = useState<ViewMode>('grid-4');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  const [allProductsList, setAllProductsList] = useState<Product[]>(products);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('ng_custom_products');
+        if (stored) {
+          const customList: Product[] = JSON.parse(stored);
+          if (customList.length > 0) {
+            const combined = [...products];
+            customList.forEach((c) => {
+              const idx = combined.findIndex((p) => p.id === c.id || p.slug === c.slug);
+              if (idx >= 0) {
+                combined[idx] = c;
+              } else {
+                combined.unshift(c);
+              }
+            });
+            setAllProductsList(combined);
+          }
+        }
+      } catch {
+        // Ignore
+      }
+    }
+  }, []);
+
   const filteredProducts = useMemo(() => {
-    let result = filterProducts(products, filters);
+    let result = filterProducts(allProductsList, filters);
     if (subcategorySlug) {
       result = result.filter(
         (p) =>
@@ -45,7 +72,7 @@ export function ShopClient({
       );
     }
     return sortProducts(result, sort);
-  }, [filters, sort, subcategorySlug]);
+  }, [allProductsList, filters, sort, subcategorySlug]);
 
   return (
     <div className="shop-layout">

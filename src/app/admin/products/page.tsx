@@ -16,53 +16,78 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     async function loadProducts() {
+      let customProds: Product[] = [];
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('ng_custom_products');
+          if (stored) customProds = JSON.parse(stored);
+        } catch {
+          // Ignore
+        }
+      }
+
       try {
         const supabase = createClient();
-        if (!supabase) return;
+        if (supabase) {
+          const { data: dbProducts, error } = await supabase
+            .from('products')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-        const { data: dbProducts, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false });
+          if (!error && dbProducts && dbProducts.length > 0) {
+            const mapped: Product[] = dbProducts.map((data: Record<string, unknown>) => ({
+              id: data.id as string,
+              slug: data.slug as string,
+              name: data.name as string,
+              brand: (data.brand_name as string) || 'Naveed Games',
+              category: data.category_slug as string,
+              categorySlug: data.category_slug as string,
+              price: Number(data.price),
+              originalPrice: data.original_price ? Number(data.original_price) : undefined,
+              discount: data.discount as number | undefined,
+              description: data.description as string,
+              shortDescription: data.short_description as string,
+              images: (data.images as string[]) || [],
+              rating: Number(data.rating || 5),
+              reviewCount: (data.review_count as number) || 0,
+              inStock: data.in_stock as boolean,
+              stockQuantity: data.stock_quantity as number,
+              sku: data.sku as string,
+              featured: data.featured as boolean,
+              bestseller: data.bestseller as boolean,
+              isNew: data.is_new as boolean,
+              condition: (data.condition as Product['condition']) || 'new',
+              platform: data.platform as string | undefined,
+              specs: (data.specs as Product['specs']) || [],
+              tags: (data.tags as string[]) || [],
+              warranty: data.warranty as string | undefined,
+              deliveryInfo: data.delivery_info as string | undefined,
+              status: (data.status as Product['status']) || 'published',
+            }));
 
-        if (!error && dbProducts && dbProducts.length > 0) {
-          const mapped: Product[] = dbProducts.map((data: Record<string, unknown>) => ({
-            id: data.id as string,
-            slug: data.slug as string,
-            name: data.name as string,
-            brand: (data.brand_name as string) || 'Naveed Games',
-            category: data.category_slug as string,
-            categorySlug: data.category_slug as string,
-            price: Number(data.price),
-            originalPrice: data.original_price ? Number(data.original_price) : undefined,
-            discount: data.discount as number | undefined,
-            description: data.description as string,
-            shortDescription: data.short_description as string,
-            images: (data.images as string[]) || [],
-            rating: Number(data.rating || 5),
-            reviewCount: (data.review_count as number) || 0,
-            inStock: data.in_stock as boolean,
-            stockQuantity: data.stock_quantity as number,
-            sku: data.sku as string,
-            featured: data.featured as boolean,
-            bestseller: data.bestseller as boolean,
-            isNew: data.is_new as boolean,
-            condition: (data.condition as Product['condition']) || 'new',
-            platform: data.platform as string | undefined,
-            specs: (data.specs as Product['specs']) || [],
-            tags: (data.tags as string[]) || [],
-            warranty: data.warranty as string | undefined,
-            deliveryInfo: data.delivery_info as string | undefined,
-            status: (data.status as Product['status']) || 'published',
-          }));
-
-          // Deduplicate by slug (prefer DB versions)
-          const dbSlugs = new Set(mapped.map((p) => p.slug));
-          const localOnly = initialProducts.filter((p) => !dbSlugs.has(p.slug));
-          setProductList([...mapped, ...localOnly]);
+            // Deduplicate
+            const dbSlugs = new Set(mapped.map((p) => p.slug));
+            const mergedLocal = [...customProds, ...initialProducts].filter((p) => !dbSlugs.has(p.slug));
+            setProductList([...mapped, ...mergedLocal]);
+            return;
+          }
         }
       } catch (err) {
         console.warn('Could not fetch Supabase products catalog:', err);
+      }
+
+      // Fallback: merge custom local storage products with static catalog
+      if (customProds.length > 0) {
+        const combined = [...initialProducts];
+        customProds.forEach((c) => {
+          const idx = combined.findIndex((p) => p.id === c.id || p.slug === c.slug);
+          if (idx >= 0) {
+            combined[idx] = c;
+          } else {
+            combined.unshift(c);
+          }
+        });
+        setProductList(combined);
       }
     }
 
@@ -83,7 +108,21 @@ export default function AdminProductsPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete "${name}"?`)) {
-      setProductList(productList.filter((p) => p.id !== id));
+      const updated = productList.filter((p) => p.id !== id);
+      setProductList(updated);
+
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('ng_custom_products');
+          if (stored) {
+            const customList: Product[] = JSON.parse(stored);
+            const filtered = customList.filter((p) => p.id !== id);
+            localStorage.setItem('ng_custom_products', JSON.stringify(filtered));
+          }
+        } catch {
+          // Ignore
+        }
+      }
 
       try {
         const supabase = createClient();
