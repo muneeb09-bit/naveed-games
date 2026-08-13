@@ -52,12 +52,12 @@ export default async function CategoryPage({ params }: Props) {
           <h1 style={{ fontSize: 'clamp(2.25rem, 5vw, 3.5rem)', letterSpacing: '-0.03em' }}>
             {category.name}
           </h1>
-          <p style={{ marginTop: 'var(--space-sm)', fontSize: '0.9375rem' }}>
+          <p style={{ marginTop: 'var(--space-sm)', fontSize: '0.9375rem', color: 'var(--muted-light)' }}>
             {category.description}
           </p>
         </div>
 
-        {/* Subcategories if any */}
+        {/* Subcategories */}
         {category.subcategories && category.subcategories.length > 0 && (
           <div
             style={{
@@ -68,8 +68,9 @@ export default async function CategoryPage({ params }: Props) {
             }}
           >
             {category.subcategories.map((sub) => (
-              <span
+              <Link
                 key={sub.id}
+                href={`/shop/${category.slug}/${sub.slug}`}
                 style={{
                   padding: '6px 14px',
                   background: 'var(--bg-secondary)',
@@ -80,10 +81,12 @@ export default async function CategoryPage({ params }: Props) {
                   color: 'var(--muted-light)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em',
+                  textDecoration: 'none',
+                  transition: 'all var(--duration-fast)',
                 }}
               >
                 {sub.name} ({sub.productCount})
-              </span>
+              </Link>
             ))}
           </div>
         )}
@@ -101,7 +104,7 @@ export default async function CategoryPage({ params }: Props) {
           <p style={{ color: 'var(--muted)', marginBottom: 'var(--space-md)' }}>
             No products currently in this category.
           </p>
-          <Link href="/products" className="button button--secondary">
+          <Link href="/shop" className="button button--secondary">
             Browse All Products
           </Link>
         </div>

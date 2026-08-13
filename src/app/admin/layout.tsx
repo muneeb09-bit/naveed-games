@@ -11,6 +11,8 @@ import {
   House,
   FolderOpen,
   Tag,
+  List,
+  X,
 } from '@phosphor-icons/react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -23,6 +25,7 @@ export default function AdminLayout({
   const router = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthed, setIsAuthed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Allow /admin/login without auth check
   const isLoginPage = pathname === '/admin/login';
@@ -30,7 +33,7 @@ export default function AdminLayout({
   useEffect(() => {
     if (isLoginPage) {
       setAuthChecked(true);
-      setIsAuthed(true); // login page is always accessible
+      setIsAuthed(true);
       return;
     }
 
@@ -38,7 +41,6 @@ export default function AdminLayout({
       try {
         const supabase = createClient();
         if (!supabase) {
-          // If Supabase is not configured, allow access (dev mode)
           setIsAuthed(true);
           setAuthChecked(true);
           return;
@@ -60,6 +62,11 @@ export default function AdminLayout({
     checkAuth();
   }, [isLoginPage, router]);
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
   const handleLogout = async () => {
     try {
       const supabase = createClient();
@@ -67,12 +74,11 @@ export default function AdminLayout({
         await supabase.auth.signOut();
       }
     } catch {
-      // Continue to login page regardless
+      // Continue
     }
     router.push('/admin/login');
   };
 
-  // Show nothing while checking auth (prevents flash of admin content)
   if (!authChecked || (!isAuthed && !isLoginPage)) {
     return (
       <div
@@ -92,14 +98,21 @@ export default function AdminLayout({
     );
   }
 
-  // Login page renders without admin chrome
   if (isLoginPage) {
     return <>{children}</>;
   }
 
+  const navLinks = [
+    { href: '/admin', label: 'Dashboard', icon: Gauge },
+    { href: '/admin/products', label: 'Products', icon: Package },
+    { href: '/admin/categories', label: 'Categories', icon: FolderOpen },
+    { href: '/admin/brands', label: 'Brands', icon: Tag },
+    { href: '/admin/orders', label: 'Orders', icon: ShoppingBagOpen },
+  ];
+
   return (
     <div className="admin-layout">
-      {/* Sidebar */}
+      {/* Desktop Sidebar */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar__brand">
           <Link href="/admin">
@@ -108,26 +121,20 @@ export default function AdminLayout({
         </div>
 
         <nav className="admin-sidebar__nav">
-          <Link href="/admin" className="admin-sidebar__link">
-            <Gauge size={18} weight="bold" />
-            <span>Dashboard</span>
-          </Link>
-          <Link href="/admin/products" className="admin-sidebar__link">
-            <Package size={18} weight="bold" />
-            <span>Products</span>
-          </Link>
-          <Link href="/admin/categories" className="admin-sidebar__link">
-            <FolderOpen size={18} weight="bold" />
-            <span>Categories</span>
-          </Link>
-          <Link href="/admin/brands" className="admin-sidebar__link">
-            <Tag size={18} weight="bold" />
-            <span>Brands</span>
-          </Link>
-          <Link href="/admin/orders" className="admin-sidebar__link">
-            <ShoppingBagOpen size={18} weight="bold" />
-            <span>Orders</span>
-          </Link>
+          {navLinks.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`}
+              >
+                <Icon size={18} weight={isActive ? 'fill' : 'bold'} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="admin-sidebar__footer">
@@ -136,9 +143,8 @@ export default function AdminLayout({
             <span>View Store</span>
           </Link>
           <button
-            className="admin-sidebar__link"
+            className="admin-sidebar__link admin-sidebar__link--logout"
             onClick={handleLogout}
-            style={{ color: 'var(--error)', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
             type="button"
           >
             <SignOut size={18} weight="bold" />
@@ -147,18 +153,87 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <div className="admin-content">
         <header className="admin-header">
-          <div className="admin-header__title">Naveed Games Management System</div>
+          <div className="admin-header__left">
+            <button
+              type="button"
+              className="admin-header__hamburger"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open mobile menu"
+            >
+              <List size={22} weight="bold" />
+            </button>
+            <div className="admin-header__title">Naveed Games Console</div>
+          </div>
+
           <div className="admin-header__user">
             <span className="admin-header__avatar">M</span>
-            <span>Mujahid (Manager)</span>
+            <span className="admin-header__username">Mujahid</span>
           </div>
         </header>
 
         <main className="admin-main">{children}</main>
       </div>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className="admin-mobile-overlay"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <aside className="admin-mobile-drawer">
+            <div className="admin-mobile-drawer__header">
+              <div className="admin-sidebar__brand">
+                <Link href="/admin">
+                  NG<span>ADMIN</span>
+                </Link>
+              </div>
+              <button
+                type="button"
+                className="admin-mobile-drawer__close"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <X size={20} weight="bold" />
+              </button>
+            </div>
+
+            <nav className="admin-sidebar__nav">
+              {navLinks.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`}
+                  >
+                    <Icon size={18} weight={isActive ? 'fill' : 'bold'} />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="admin-sidebar__footer">
+              <Link href="/" className="admin-sidebar__link">
+                <House size={18} weight="bold" />
+                <span>View Store</span>
+              </Link>
+              <button
+                className="admin-sidebar__link admin-sidebar__link--logout"
+                onClick={handleLogout}
+                type="button"
+              >
+                <SignOut size={18} weight="bold" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </aside>
+        </>
+      )}
 
       <style jsx global>{`
         .admin-layout {
@@ -213,9 +288,18 @@ export default function AdminLayout({
           text-decoration: none;
           transition: all var(--duration-fast);
         }
-        .admin-sidebar__link:hover {
+        .admin-sidebar__link:hover,
+        .admin-sidebar__link--active {
           color: var(--white);
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(59, 130, 246, 0.15);
+        }
+        .admin-sidebar__link--logout {
+          color: var(--error);
+          background: none;
+          border: none;
+          cursor: pointer;
+          width: 100%;
+          text-align: left;
         }
 
         .admin-sidebar__footer {
@@ -241,7 +325,22 @@ export default function AdminLayout({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 32px;
+          padding: 0 24px;
+        }
+
+        .admin-header__left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .admin-header__hamburger {
+          display: none;
+          background: none;
+          border: none;
+          color: var(--white);
+          cursor: pointer;
+          padding: 4px;
         }
 
         .admin-header__title {
@@ -259,7 +358,7 @@ export default function AdminLayout({
           gap: 10px;
           font-size: 0.8125rem;
           color: var(--white);
-          font-weight: 500;
+          font-weight: 600;
         }
 
         .admin-header__avatar {
@@ -276,13 +375,52 @@ export default function AdminLayout({
         }
 
         .admin-main {
-          padding: 32px;
+          padding: 24px;
           flex: 1;
+        }
+
+        /* Mobile Admin Drawer */
+        .admin-mobile-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 150;
+          background: rgba(0, 0, 0, 0.8);
+          backdrop-filter: blur(8px);
+        }
+
+        .admin-mobile-drawer {
+          position: fixed;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 260px;
+          z-index: 151;
+          background: var(--graphite);
+          border-right: 1px solid var(--graphite-border);
+          display: flex;
+          flex-direction: column;
+        }
+
+        .admin-mobile-drawer__header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-right: 16px;
+        }
+
+        .admin-mobile-drawer__close {
+          background: none;
+          border: none;
+          color: var(--muted);
+          cursor: pointer;
         }
 
         @media (max-width: 768px) {
           .admin-sidebar { display: none; }
           .admin-content { margin-left: 0; }
+          .admin-header__hamburger { display: flex; }
+          .admin-header__username { display: none; }
+          .admin-main { padding: 16px; }
         }
       `}</style>
     </div>

@@ -33,7 +33,8 @@ export const products: Product[] = [
       { label: 'Resolution', value: 'Up to 8K, 4K/120fps' },
       { label: 'Disc Drive', value: 'Optional (sold separately)' },
     ],
-    tags: ['ps5', 'sony', 'console', 'gaming'],
+    subcategoryId: 'sub-1',
+    tags: ['ps5-pro', 'ps5', 'sony', 'console', 'gaming', 'playstation'],
     warranty: '1 Year Official Warranty',
     deliveryInfo: 'Ships within 1-2 business days',
   },
@@ -44,6 +45,7 @@ export const products: Product[] = [
     brand: 'Sony',
     category: 'Consoles',
     categorySlug: 'consoles',
+    subcategoryId: 'sub-2',
     price: 174999,
     originalPrice: 189999,
     discount: 8,
@@ -67,7 +69,7 @@ export const products: Product[] = [
       { label: 'Resolution', value: 'Up to 4K/120fps' },
       { label: 'Disc Drive', value: 'Ultra HD Blu-ray' },
     ],
-    tags: ['ps5', 'sony', 'console'],
+    tags: ['ps5-slim', 'ps5', 'sony', 'console', 'playstation'],
     warranty: '1 Year Official Warranty',
     deliveryInfo: 'Ships within 1-2 business days',
   },
@@ -78,6 +80,7 @@ export const products: Product[] = [
     brand: 'Microsoft',
     category: 'Consoles',
     categorySlug: 'consoles',
+    subcategoryId: 'sub-4',
     price: 164999,
     description: 'The fastest, most powerful Xbox ever. 12 TFLOPS of processing power, true 4K gaming, 1TB SSD for lightning-fast load times and Quick Resume across multiple titles.',
     shortDescription: 'The most powerful Xbox ever made.',
@@ -98,7 +101,7 @@ export const products: Product[] = [
       { label: 'Storage', value: '1TB Custom NVMe SSD' },
       { label: 'Resolution', value: 'Up to 4K/120fps, 8K ready' },
     ],
-    tags: ['xbox', 'microsoft', 'console'],
+    tags: ['xbox-series-x', 'xbox', 'microsoft', 'console'],
     warranty: '1 Year Official Warranty',
     deliveryInfo: 'Ships within 1-2 business days',
   },
@@ -109,6 +112,7 @@ export const products: Product[] = [
     brand: 'Nintendo',
     category: 'Consoles',
     categorySlug: 'consoles',
+    subcategoryId: 'sub-7',
     price: 89999,
     originalPrice: 94999,
     discount: 5,
@@ -131,7 +135,7 @@ export const products: Product[] = [
       { label: 'Battery', value: '4.5-9 hours' },
       { label: 'Weight', value: '420g (with Joy-Cons)' },
     ],
-    tags: ['nintendo', 'switch', 'portable', 'console'],
+    tags: ['nintendo-switch-oled', 'nintendo', 'switch', 'portable', 'console'],
     warranty: '1 Year Official Warranty',
   },
 
@@ -143,6 +147,7 @@ export const products: Product[] = [
     brand: 'Naveed Games',
     category: 'Gaming PCs',
     categorySlug: 'gaming-pcs',
+    subcategoryId: 'sub-72',
     price: 389999,
     description: 'Custom-built gaming PC by Naveed Games. Ryzen 7 7800X3D, RTX 4070 Super 12GB, 32GB DDR5 RAM, 1TB NVMe SSD, liquid CPU cooler, tempered glass case with RGB.',
     shortDescription: 'Custom RTX 4070 Super gaming rig built in-house.',
@@ -165,7 +170,7 @@ export const products: Product[] = [
       { label: 'Cooling', value: '240mm AIO Liquid Cooler' },
       { label: 'PSU', value: '750W 80+ Gold' },
     ],
-    tags: ['gaming-pc', 'custom-build', 'rtx-4070', 'ryzen'],
+    tags: ['rtx-4070-builds', 'gaming-pc', 'custom-build', 'rtx-4070', 'ryzen'],
     warranty: '2 Year Naveed Games Warranty',
     deliveryInfo: 'Built to order — 3-5 business days',
   },
@@ -176,6 +181,7 @@ export const products: Product[] = [
     brand: 'Naveed Games',
     category: 'Gaming PCs',
     categorySlug: 'gaming-pcs',
+    subcategoryId: 'sub-70',
     price: 849999,
     description: 'The ultimate gaming machine. Intel i9-14900K, RTX 4090 24GB, 64GB DDR5, 2TB NVMe SSD, custom liquid cooling loop, premium tempered glass chassis.',
     shortDescription: 'Flagship RTX 4090 ultimate gaming PC.',
@@ -198,7 +204,7 @@ export const products: Product[] = [
       { label: 'Cooling', value: 'Custom Loop Liquid Cooling' },
       { label: 'PSU', value: '1000W 80+ Platinum' },
     ],
-    tags: ['gaming-pc', 'custom-build', 'rtx-4090', 'flagship'],
+    tags: ['rtx-4090-builds', 'gaming-pc', 'custom-build', 'rtx-4090', 'flagship'],
     warranty: '2 Year Naveed Games Warranty',
     deliveryInfo: 'Built to order — 5-7 business days',
   },
@@ -211,6 +217,7 @@ export const products: Product[] = [
     brand: 'Logitech',
     category: 'Racing Simulators',
     categorySlug: 'racing-simulators',
+    subcategoryId: 'sub-60',
     price: 79999,
     originalPrice: 89999,
     discount: 11,
@@ -233,7 +240,7 @@ export const products: Product[] = [
       { label: 'Pedals', value: '3-pedal set included' },
       { label: 'Compatibility', value: 'PS5, PS4, PC' },
     ],
-    tags: ['racing', 'logitech', 'steering-wheel'],
+    tags: ['racing-wheels', 'racing', 'logitech', 'steering-wheel'],
     warranty: '2 Year Logitech Warranty',
   },
   {
@@ -243,6 +250,7 @@ export const products: Product[] = [
     brand: 'Fanatec',
     category: 'Racing Simulators',
     categorySlug: 'racing-simulators',
+    subcategoryId: 'sub-60',
     price: 159999,
     description: 'Direct Drive wheelbase with 8Nm torque, Gran Turismo licensed steering wheel, CSL pedals. The real sim racing experience.',
     shortDescription: 'Direct Drive sim racing bundle with 8Nm torque.',
@@ -263,7 +271,7 @@ export const products: Product[] = [
       { label: 'Pedals', value: 'CSL 2-pedal set' },
       { label: 'Compatibility', value: 'PS5, PS4, PC' },
     ],
-    tags: ['racing', 'fanatec', 'direct-drive', 'sim'],
+    tags: ['racing-wheels', 'racing', 'fanatec', 'direct-drive', 'sim'],
     warranty: '2 Year Fanatec Warranty',
   },
 
@@ -275,6 +283,7 @@ export const products: Product[] = [
     brand: 'Valve',
     category: 'Gaming PCs',
     categorySlug: 'gaming-pcs',
+    subcategoryId: 'sub-74',
     price: 149999,
     description: 'HDR OLED display, 50% bigger battery, faster Wi-Fi 6E, lighter weight. Your entire Steam library in your hands.',
     shortDescription: '7.4" OLED display. Your Steam library, anywhere.',
@@ -296,7 +305,7 @@ export const products: Product[] = [
       { label: 'Storage', value: '512GB NVMe SSD' },
       { label: 'Battery', value: '50Wh, 3-12 hours' },
     ],
-    tags: ['handheld', 'valve', 'steam-deck', 'portable'],
+    tags: ['gaming-laptops', 'handheld', 'valve', 'steam-deck', 'portable'],
     warranty: '1 Year Warranty',
   },
   {
@@ -306,6 +315,7 @@ export const products: Product[] = [
     brand: 'Meta',
     category: 'VR & AR',
     categorySlug: 'vr-ar',
+    subcategoryId: 'sub-40',
     price: 134999,
     description: 'Mixed reality headset with full-color passthrough, Snapdragon XR2 Gen 2 processor, pancake lenses, 4K+ resolution per eye.',
     shortDescription: 'Mixed reality VR headset with full-color passthrough.',
@@ -326,7 +336,7 @@ export const products: Product[] = [
       { label: 'Storage', value: '128GB' },
       { label: 'Tracking', value: 'Inside-out, 6DOF' },
     ],
-    tags: ['vr', 'meta', 'quest', 'mixed-reality'],
+    tags: ['meta-quest-3', 'vr', 'meta', 'quest', 'mixed-reality'],
     warranty: '1 Year Warranty',
   },
   {
@@ -336,6 +346,7 @@ export const products: Product[] = [
     brand: 'ASUS',
     category: 'Gaming PCs',
     categorySlug: 'gaming-pcs',
+    subcategoryId: 'sub-74',
     price: 199999,
     description: 'AMD Z1 Extreme processor, 7" FHD 120Hz display, 24GB LPDDR5X RAM, 1TB SSD, 80Wh battery. The premium Windows handheld.',
     shortDescription: 'Premium Windows gaming handheld with Z1 Extreme.',
@@ -357,7 +368,7 @@ export const products: Product[] = [
       { label: 'Storage', value: '1TB PCIe 4.0 SSD' },
       { label: 'Battery', value: '80Wh' },
     ],
-    tags: ['handheld', 'asus', 'rog', 'windows'],
+    tags: ['gaming-laptops', 'handheld', 'asus', 'rog', 'windows'],
     warranty: '1 Year ASUS Warranty',
   },
 
@@ -369,6 +380,7 @@ export const products: Product[] = [
     brand: 'Rockstar Games',
     category: 'Games',
     categorySlug: 'games',
+    subcategoryId: 'sub-20',
     price: 19999,
     description: 'The most anticipated game of the decade. Experience Vice City like never before in this massive open-world crime epic. PS5 exclusive at launch.',
     shortDescription: 'The most anticipated game ever. PS5.',
@@ -389,7 +401,7 @@ export const products: Product[] = [
       { label: 'Players', value: '1 (Online: TBD)' },
       { label: 'Rating', value: 'Mature 17+' },
     ],
-    tags: ['ps5', 'game', 'rockstar', 'open-world'],
+    tags: ['ps5-games', 'ps5', 'game', 'rockstar', 'open-world', 'playstation', 'sony'],
   },
   {
     id: 'prod-13',
@@ -398,6 +410,7 @@ export const products: Product[] = [
     brand: 'Insomniac Games',
     category: 'Games',
     categorySlug: 'games',
+    subcategoryId: 'sub-20',
     price: 14999,
     originalPrice: 17999,
     discount: 17,
@@ -419,7 +432,7 @@ export const products: Product[] = [
       { label: 'Genre', value: 'Action / Adventure' },
       { label: 'Players', value: '1' },
     ],
-    tags: ['ps5', 'game', 'marvel', 'action'],
+    tags: ['ps5-games', 'ps5', 'game', 'marvel', 'action', 'playstation', 'sony'],
   },
   {
     id: 'prod-14',
@@ -428,6 +441,7 @@ export const products: Product[] = [
     brand: 'Nintendo',
     category: 'Games',
     categorySlug: 'games',
+    subcategoryId: 'sub-24',
     price: 12999,
     description: 'Explore the vast land and skies of Hyrule in this epic adventure. Build, craft, and battle with unprecedented freedom.',
     shortDescription: 'Explore Hyrule across land and sky. Switch.',
@@ -447,7 +461,7 @@ export const products: Product[] = [
       { label: 'Genre', value: 'Action / Adventure' },
       { label: 'Players', value: '1' },
     ],
-    tags: ['switch', 'game', 'nintendo', 'zelda', 'adventure'],
+    tags: ['nintendo-games', 'switch', 'game', 'nintendo', 'zelda', 'adventure'],
   },
 
   // ─── TVS & DISPLAYS ─────────────────────────────────
@@ -458,6 +472,7 @@ export const products: Product[] = [
     brand: 'Samsung',
     category: 'TVs & Displays',
     categorySlug: 'tvs-displays',
+    subcategoryId: 'sub-101',
     price: 389999,
     originalPrice: 429999,
     discount: 9,
@@ -482,7 +497,7 @@ export const products: Product[] = [
       { label: 'HDR', value: 'HDR10+ Gaming' },
       { label: 'Curvature', value: '1800R' },
     ],
-    tags: ['monitor', 'samsung', 'oled', 'ultrawide'],
+    tags: ['monitors-4k-120hz', 'monitor', 'samsung', 'oled', 'ultrawide'],
     warranty: '3 Year Samsung Warranty',
   },
   {
@@ -492,6 +507,7 @@ export const products: Product[] = [
     brand: 'LG',
     category: 'TVs & Displays',
     categorySlug: 'tvs-displays',
+    subcategoryId: 'sub-102',
     price: 219999,
     description: '27-inch QHD OLED, 240Hz, 0.03ms, anti-glare & low reflection coating. G-SYNC and FreeSync Premium Pro.',
     shortDescription: '27" QHD OLED. 240Hz. Anti-glare coating.',
@@ -513,7 +529,7 @@ export const products: Product[] = [
       { label: 'Response', value: '0.03ms (GtG)' },
       { label: 'Adaptive Sync', value: 'G-SYNC + FreeSync Premium Pro' },
     ],
-    tags: ['monitor', 'lg', 'oled', 'gaming'],
+    tags: ['monitors-2k-240hz', 'monitor', 'lg', 'oled', 'gaming'],
     warranty: '3 Year LG Warranty',
   },
 
@@ -525,6 +541,7 @@ export const products: Product[] = [
     brand: 'Sony',
     category: 'Audio',
     categorySlug: 'audio',
+    subcategoryId: 'sub-90',
     price: 34999,
     description: 'Planar magnetic drivers, PlayStation Link wireless, lossless audio, retractable boom mic, 30-hour battery. Designed for PS5.',
     shortDescription: 'Planar magnetic wireless headset for PS5.',
@@ -545,7 +562,7 @@ export const products: Product[] = [
       { label: 'Battery', value: '30 hours' },
       { label: 'Microphone', value: 'Retractable Boom + AI Noise Rejection' },
     ],
-    tags: ['audio', 'headset', 'sony', 'wireless'],
+    tags: ['gaming-headsets', 'audio', 'headset', 'sony', 'wireless', 'playstation'],
     warranty: '1 Year Sony Warranty',
   },
   {
@@ -555,6 +572,7 @@ export const products: Product[] = [
     brand: 'SteelSeries',
     category: 'Audio',
     categorySlug: 'audio',
+    subcategoryId: 'sub-90',
     price: 84999,
     description: 'Premium hi-fi gaming headset with active noise cancellation, hot-swappable batteries, multi-platform 2.4GHz + Bluetooth, 360° Spatial Audio.',
     shortDescription: 'Hi-fi ANC gaming headset with hot-swap batteries.',
@@ -575,7 +593,7 @@ export const products: Product[] = [
       { label: 'Connection', value: '2.4GHz + Bluetooth' },
       { label: 'Battery', value: 'Dual hot-swap, 22hrs each' },
     ],
-    tags: ['audio', 'headset', 'steelseries', 'anc'],
+    tags: ['gaming-headsets', 'audio', 'headset', 'steelseries', 'anc'],
     warranty: '1 Year SteelSeries Warranty',
   },
 
@@ -587,6 +605,7 @@ export const products: Product[] = [
     brand: 'Sony',
     category: 'Controllers',
     categorySlug: 'controllers',
+    subcategoryId: 'sub-30',
     price: 54999,
     description: 'Ultra-customisable pro controller for PS5. Remappable back buttons, adjustable triggers, swappable stick caps, on-controller UI profiles.',
     shortDescription: 'Pro-level PS5 controller with back buttons.',
@@ -607,7 +626,7 @@ export const products: Product[] = [
       { label: 'Trigger Locks', value: '3 presets' },
       { label: 'Battery', value: 'Built-in rechargeable' },
     ],
-    tags: ['controller', 'sony', 'ps5', 'pro'],
+    tags: ['dualsense-controllers', 'controller', 'sony', 'ps5', 'pro', 'playstation'],
     warranty: '1 Year Sony Warranty',
   },
 
@@ -619,6 +638,7 @@ export const products: Product[] = [
     brand: 'Secretlab',
     category: 'Gaming Furniture',
     categorySlug: 'gaming-furniture',
+    subcategoryId: 'sub-35',
     price: 119999,
     originalPrice: 134999,
     discount: 11,
@@ -652,6 +672,7 @@ export const products: Product[] = [
     brand: 'Sony',
     category: 'Collectibles',
     categorySlug: 'collectibles',
+    subcategoryId: 'sub-20',
     price: 44999,
     description: 'Premium 12-inch hand-painted polystone statue of Kratos from God of War Ragnarök. Leviathan Axe and Blades of Chaos included.',
     shortDescription: '12" premium Kratos statue from Ragnarök.',
@@ -670,7 +691,7 @@ export const products: Product[] = [
       { label: 'Material', value: 'Polystone, hand-painted' },
       { label: 'Accessories', value: 'Leviathan Axe, Blades of Chaos' },
     ],
-    tags: ['collectible', 'statue', 'god-of-war', 'kratos'],
+    tags: ['collectible', 'statue', 'god-of-war', 'kratos', 'playstation', 'sony'],
   },
 
   // ─── SMART AI TECH ───────────────────────────────────
@@ -679,8 +700,9 @@ export const products: Product[] = [
     slug: 'ray-ban-meta-wayfarer',
     name: 'Ray-Ban Meta Wayfarer Smart Glasses',
     brand: 'Meta',
-    category: 'Smart AI Tech',
-    categorySlug: 'smart-ai-tech',
+    category: 'VR & AR',
+    categorySlug: 'vr-ar',
+    subcategoryId: 'sub-40',
     price: 84999,
     description: 'Smart glasses with Meta AI, 12MP ultra-wide camera, livestreaming, open-ear speakers, and hands-free calls. Classic Wayfarer design.',
     shortDescription: 'Smart glasses with Meta AI and 12MP camera.',
@@ -700,12 +722,26 @@ export const products: Product[] = [
       { label: 'Audio', value: 'Open-ear speakers' },
       { label: 'Battery', value: 'Up to 4 hours' },
     ],
-    tags: ['smart-glasses', 'meta', 'ai', 'wearable'],
+    tags: ['meta-quest-3', 'smart-glasses', 'meta', 'ai', 'wearable'],
     warranty: '1 Year Warranty',
   },
 ];
 
 // ─── UTILITY FUNCTIONS ─────────────────────────────────
+
+export const BRAND_ALIASES: Record<string, string[]> = {
+  playstation: ['playstation', 'sony'],
+  xbox: ['xbox', 'microsoft'],
+  nintendo: ['nintendo'],
+  dji: ['dji'],
+  meta: ['meta', 'oculus'],
+  traxxas: ['traxxas'],
+  logitech: ['logitech', 'logitech g'],
+  thrustmaster: ['thrustmaster'],
+  sony: ['sony', 'playstation'],
+  'turtle-beach': ['turtle beach', 'turtle-beach'],
+  samsung: ['samsung'],
+};
 
 export function getProductBySlug(slug: string): Product | undefined {
   return products.find((p) => p.slug === slug);
@@ -716,7 +752,18 @@ export function getProductsByCategory(categorySlug: string): Product[] {
 }
 
 export function getProductsByBrand(brandSlug: string): Product[] {
-  return products.filter((p) => p.brand.toLowerCase().replace(/\s+/g, '-') === brandSlug || p.brand.toLowerCase() === brandSlug);
+  const slugLower = brandSlug.toLowerCase();
+  const allowed = BRAND_ALIASES[slugLower] || [slugLower];
+  return products.filter((p) => {
+    const pBrand = p.brand.toLowerCase().replace(/\s+/g, '-');
+    const pBrandRaw = p.brand.toLowerCase();
+    return allowed.some(
+      (alias) =>
+        pBrand === alias ||
+        pBrandRaw === alias ||
+        p.tags.some((t) => t.toLowerCase() === alias)
+    );
+  });
 }
 
 export function getFeaturedProducts(): Product[] {
@@ -755,9 +802,30 @@ export function filterProducts(allProducts: Product[], filters: ProductFilters):
   if (filters.category) {
     result = result.filter((p) => p.categorySlug === filters.category);
   }
+  if (filters.subcategory) {
+    const sub = filters.subcategory;
+    result = result.filter(
+      (p) =>
+        p.subcategoryId === sub ||
+        p.tags.includes(sub) ||
+        p.slug === sub ||
+        p.tags.some((t) => t.replace(/-/g, '') === sub.replace(/-/g, ''))
+    );
+  }
   if (filters.brand && filters.brand.length > 0) {
     result = result.filter((p) =>
-      filters.brand!.some((b) => p.brand.toLowerCase().replace(/\s+/g, '-') === b || p.brand.toLowerCase() === b)
+      filters.brand!.some((b) => {
+        const slugLower = b.toLowerCase();
+        const allowed = BRAND_ALIASES[slugLower] || [slugLower];
+        const pBrand = p.brand.toLowerCase().replace(/\s+/g, '-');
+        const pBrandRaw = p.brand.toLowerCase();
+        return allowed.some(
+          (alias) =>
+            pBrand === alias ||
+            pBrandRaw === alias ||
+            p.tags.some((t) => t.toLowerCase() === alias)
+        );
+      })
     );
   }
   if (filters.priceMin !== undefined) {
@@ -840,3 +908,4 @@ export function getPriceRange(): { min: number; max: number } {
   const prices = products.map((p) => p.price);
   return { min: Math.min(...prices), max: Math.max(...prices) };
 }
+

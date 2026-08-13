@@ -18,7 +18,7 @@ export default function ProductsPage() {
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.03em' }}>
             All Products
           </h1>
-          <p style={{ marginTop: 'var(--space-sm)', fontSize: '0.875rem' }}>
+          <p style={{ marginTop: 'var(--space-sm)', fontSize: '0.875rem', color: 'var(--muted-light)' }}>
             {products.length} products available
           </p>
         </div>
@@ -33,17 +33,17 @@ export default function ProductsPage() {
           }}
         >
           <Link
-            href="/products"
+            href="/shop"
             style={{
               padding: '6px 16px',
               background: 'var(--white)',
               color: 'var(--black)',
               fontFamily: 'var(--font-display)',
               fontSize: '0.75rem',
-              fontWeight: 600,
+              fontWeight: 700,
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
-              border: 'none',
+              borderRadius: '4px',
               textDecoration: 'none',
             }}
           >
@@ -52,10 +52,10 @@ export default function ProductsPage() {
           {categories.map((cat) => (
             <Link
               key={cat.id}
-              href={`/categories/${cat.slug}`}
+              href={`/shop/${cat.slug}`}
               style={{
                 padding: '6px 16px',
-                background: 'transparent',
+                background: 'var(--bg-secondary)',
                 color: 'var(--muted-light)',
                 fontFamily: 'var(--font-display)',
                 fontSize: '0.75rem',
@@ -63,7 +63,9 @@ export default function ProductsPage() {
                 letterSpacing: '0.04em',
                 textTransform: 'uppercase',
                 border: '1px solid var(--graphite-border)',
+                borderRadius: '4px',
                 textDecoration: 'none',
+                transition: 'all var(--duration-fast)',
               }}
             >
               {cat.name}

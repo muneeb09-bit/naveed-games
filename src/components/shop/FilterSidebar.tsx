@@ -5,7 +5,18 @@ import { categories } from '@/data/categories';
 import { brands } from '@/data/brands';
 import { getAvailablePlatforms } from '@/data/products';
 import type { ProductFilters } from '@/types';
-import { CaretDown, CaretUp, X } from '@phosphor-icons/react';
+import {
+  CaretDown,
+  X,
+  Funnel,
+  Check,
+  Tag,
+  CurrencyCircleDollar,
+  Sparkle,
+  Lightning,
+  Flame,
+  CheckCircle,
+} from '@phosphor-icons/react';
 
 interface FilterSidebarProps {
   filters: ProductFilters;
@@ -14,9 +25,14 @@ interface FilterSidebarProps {
   categorySlug?: string;
 }
 
-export function FilterSidebar({ filters, onFilterChange, productCount, categorySlug }: FilterSidebarProps) {
+export function FilterSidebar({
+  filters,
+  onFilterChange,
+  productCount,
+  categorySlug,
+}: FilterSidebarProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(['category', 'brand', 'price', 'availability'])
+    new Set(['category', 'brand', 'price', 'availability', 'platform', 'quick'])
   );
 
   const platforms = useMemo(() => getAvailablePlatforms(), []);
@@ -47,228 +63,311 @@ export function FilterSidebar({ filters, onFilterChange, productCount, categoryS
     onFilterChange({ category: categorySlug });
   };
 
-  const hasActiveFilters = !!(
-    filters.brand?.length ||
-    filters.platform?.length ||
-    filters.condition?.length ||
-    filters.priceMin ||
-    filters.priceMax ||
-    filters.inStock !== undefined ||
-    filters.featured ||
-    filters.isNew
-  );
+  const activeFilterCount = [
+    filters.brand?.length || 0,
+    filters.platform?.length || 0,
+    filters.condition?.length || 0,
+    filters.priceMin ? 1 : 0,
+    filters.priceMax ? 1 : 0,
+    filters.inStock !== undefined ? 1 : 0,
+    filters.featured ? 1 : 0,
+    filters.bestseller ? 1 : 0,
+    filters.isNew ? 1 : 0,
+  ].reduce((a, b) => a + b, 0);
+
+  const hasActiveFilters = activeFilterCount > 0;
 
   return (
     <aside className="filter-sidebar">
+      {/* Sidebar Header */}
       <div className="filter-sidebar__header">
-        <h3 className="filter-sidebar__title">Filters</h3>
-        <span className="filter-sidebar__count">{productCount} products</span>
+        <div className="filter-sidebar__title-wrap">
+          <Funnel size={18} weight="bold" className="filter-sidebar__icon" />
+          <h3 className="filter-sidebar__title">Filters</h3>
+          {activeFilterCount > 0 && (
+            <span className="filter-sidebar__active-badge">{activeFilterCount}</span>
+          )}
+        </div>
+        {hasActiveFilters && (
+          <button
+            className="filter-sidebar__clear"
+            onClick={clearAllFilters}
+            type="button"
+            title="Reset all filters"
+          >
+            <X size={12} weight="bold" />
+            Clear
+          </button>
+        )}
       </div>
 
-      {hasActiveFilters && (
-        <button
-          className="filter-sidebar__clear"
-          onClick={clearAllFilters}
-          type="button"
-        >
-          <X size={12} weight="bold" />
-          Clear All Filters
-        </button>
-      )}
-
-      {/* Category Filter (only show if not already on a category page) */}
+      {/* Category Filter */}
       {!categorySlug && (
         <FilterSection
           title="Category"
+          icon={<Tag size={15} weight="bold" />}
           isOpen={expandedSections.has('category')}
           onToggle={() => toggleSection('category')}
+          activeCount={filters.category ? 1 : 0}
         >
-          {categories.map((cat) => (
-            <label key={cat.slug} className="filter-sidebar__checkbox-label">
-              <input
-                type="radio"
-                name="category"
-                checked={filters.category === cat.slug}
-                onChange={() => updateFilter('category', filters.category === cat.slug ? undefined : cat.slug)}
-                className="filter-sidebar__radio"
-              />
-              <span>{cat.name}</span>
-            </label>
-          ))}
+          <div className="filter-sidebar__options-grid">
+            {categories.map((cat) => {
+              const isSelected = filters.category === cat.slug;
+              return (
+                <button
+                  key={cat.slug}
+                  type="button"
+                  className={`filter-sidebar__chip ${isSelected ? 'filter-sidebar__chip--active' : ''}`}
+                  onClick={() =>
+                    updateFilter('category', isSelected ? undefined : cat.slug)
+                  }
+                >
+                  <span>{cat.name}</span>
+                  {isSelected && <Check size={12} weight="bold" />}
+                </button>
+              );
+            })}
+          </div>
         </FilterSection>
       )}
 
       {/* Brand Filter */}
       <FilterSection
         title="Brand"
+        icon={<Sparkle size={15} weight="bold" />}
         isOpen={expandedSections.has('brand')}
         onToggle={() => toggleSection('brand')}
+        activeCount={filters.brand?.length || 0}
       >
-        {brands.map((brand) => (
-          <label key={brand.slug} className="filter-sidebar__checkbox-label">
-            <input
-              type="checkbox"
-              checked={(filters.brand || []).includes(brand.slug)}
-              onChange={() => toggleArrayFilter('brand', brand.slug)}
-              className="filter-sidebar__checkbox"
-            />
-            <span>{brand.name}</span>
-          </label>
-        ))}
+        <div className="filter-sidebar__options-chips">
+          {brands.map((brand) => {
+            const isChecked = (filters.brand || []).includes(brand.slug);
+            return (
+              <button
+                key={brand.slug}
+                type="button"
+                className={`filter-sidebar__chip ${isChecked ? 'filter-sidebar__chip--active' : ''}`}
+                onClick={() => toggleArrayFilter('brand', brand.slug)}
+              >
+                <span>{brand.name}</span>
+                {isChecked && <Check size={12} weight="bold" />}
+              </button>
+            );
+          })}
+        </div>
       </FilterSection>
 
       {/* Price Range */}
       <FilterSection
         title="Price Range"
+        icon={<CurrencyCircleDollar size={15} weight="bold" />}
         isOpen={expandedSections.has('price')}
         onToggle={() => toggleSection('price')}
+        activeCount={filters.priceMin || filters.priceMax ? 1 : 0}
       >
         <div className="filter-sidebar__price-inputs">
-          <input
-            type="number"
-            placeholder="Min"
-            value={filters.priceMin || ''}
-            onChange={(e) => updateFilter('priceMin', e.target.value ? Number(e.target.value) : undefined)}
-            className="filter-sidebar__price-input"
-          />
+          <div className="filter-sidebar__price-field">
+            <span className="filter-sidebar__price-symbol">Rs</span>
+            <input
+              type="number"
+              placeholder="Min"
+              value={filters.priceMin || ''}
+              onChange={(e) =>
+                updateFilter(
+                  'priceMin',
+                  e.target.value ? Number(e.target.value) : undefined
+                )
+              }
+              className="filter-sidebar__price-input"
+            />
+          </div>
           <span className="filter-sidebar__price-separator">—</span>
-          <input
-            type="number"
-            placeholder="Max"
-            value={filters.priceMax || ''}
-            onChange={(e) => updateFilter('priceMax', e.target.value ? Number(e.target.value) : undefined)}
-            className="filter-sidebar__price-input"
-          />
+          <div className="filter-sidebar__price-field">
+            <span className="filter-sidebar__price-symbol">Rs</span>
+            <input
+              type="number"
+              placeholder="Max"
+              value={filters.priceMax || ''}
+              onChange={(e) =>
+                updateFilter(
+                  'priceMax',
+                  e.target.value ? Number(e.target.value) : undefined
+                )
+              }
+              className="filter-sidebar__price-input"
+            />
+          </div>
         </div>
+
         <div className="filter-sidebar__price-presets">
           {[
-            { label: 'Under 50K', min: 0, max: 50000 },
-            { label: '50K - 150K', min: 50000, max: 150000 },
-            { label: '150K - 300K', min: 150000, max: 300000 },
-            { label: 'Over 300K', min: 300000, max: undefined },
-          ].map((preset) => (
-            <button
-              key={preset.label}
-              className="filter-sidebar__price-preset"
-              onClick={() => {
-                updateFilter('priceMin', preset.min || undefined);
-                onFilterChange({
-                  ...filters,
-                  priceMin: preset.min || undefined,
-                  priceMax: preset.max,
-                });
-              }}
-              type="button"
-            >
-              {preset.label}
-            </button>
-          ))}
+            { label: '< 50K', min: undefined, max: 50000 },
+            { label: '50K – 150K', min: 50000, max: 150000 },
+            { label: '150K – 300K', min: 150000, max: 300000 },
+            { label: '300K+', min: 300000, max: undefined },
+          ].map((preset) => {
+            const isActive =
+              filters.priceMin === preset.min && filters.priceMax === preset.max;
+            return (
+              <button
+                key={preset.label}
+                className={`filter-sidebar__preset-btn ${isActive ? 'filter-sidebar__preset-btn--active' : ''}`}
+                onClick={() => {
+                  onFilterChange({
+                    ...filters,
+                    priceMin: preset.min,
+                    priceMax: preset.max,
+                  });
+                }}
+                type="button"
+              >
+                {preset.label}
+              </button>
+            );
+          })}
         </div>
       </FilterSection>
 
-      {/* Availability */}
+      {/* Availability Switch */}
       <FilterSection
         title="Availability"
+        icon={<CheckCircle size={15} weight="bold" />}
         isOpen={expandedSections.has('availability')}
         onToggle={() => toggleSection('availability')}
+        activeCount={filters.inStock ? 1 : 0}
       >
-        <label className="filter-sidebar__checkbox-label">
-          <input
-            type="checkbox"
-            checked={filters.inStock === true}
-            onChange={() => updateFilter('inStock', filters.inStock ? undefined : true)}
-            className="filter-sidebar__checkbox"
-          />
-          <span>In Stock Only</span>
-        </label>
+        <button
+          type="button"
+          className="filter-sidebar__toggle-row"
+          onClick={() => updateFilter('inStock', filters.inStock ? undefined : true)}
+        >
+          <span className="filter-sidebar__toggle-label">In Stock Only</span>
+          <div
+            className={`filter-sidebar__switch ${filters.inStock ? 'filter-sidebar__switch--on' : ''}`}
+          >
+            <div className="filter-sidebar__switch-handle" />
+          </div>
+        </button>
       </FilterSection>
 
       {/* Platform */}
       <FilterSection
         title="Platform"
+        icon={<Lightning size={15} weight="bold" />}
         isOpen={expandedSections.has('platform')}
         onToggle={() => toggleSection('platform')}
+        activeCount={filters.platform?.length || 0}
       >
-        {platforms.map((platform) => (
-          <label key={platform} className="filter-sidebar__checkbox-label">
-            <input
-              type="checkbox"
-              checked={(filters.platform || []).includes(platform)}
-              onChange={() => toggleArrayFilter('platform', platform)}
-              className="filter-sidebar__checkbox"
-            />
-            <span>{platform}</span>
-          </label>
-        ))}
+        <div className="filter-sidebar__options-chips">
+          {platforms.map((platform) => {
+            const isChecked = (filters.platform || []).includes(platform);
+            return (
+              <button
+                key={platform}
+                type="button"
+                className={`filter-sidebar__chip ${isChecked ? 'filter-sidebar__chip--active' : ''}`}
+                onClick={() => toggleArrayFilter('platform', platform)}
+              >
+                <span>{platform}</span>
+                {isChecked && <Check size={12} weight="bold" />}
+              </button>
+            );
+          })}
+        </div>
       </FilterSection>
 
       {/* Condition */}
       <FilterSection
         title="Condition"
+        icon={<Sparkle size={15} weight="bold" />}
         isOpen={expandedSections.has('condition')}
         onToggle={() => toggleSection('condition')}
+        activeCount={filters.condition?.length || 0}
       >
-        {['new', 'used', 'refurbished', 'pre-owned'].map((cond) => (
-          <label key={cond} className="filter-sidebar__checkbox-label">
-            <input
-              type="checkbox"
-              checked={(filters.condition || []).includes(cond as ProductFilters['condition'] extends (infer U)[] | undefined ? U : never)}
-              onChange={() => toggleArrayFilter('condition', cond)}
-              className="filter-sidebar__checkbox"
-            />
-            <span style={{ textTransform: 'capitalize' }}>{cond.replace('-', ' ')}</span>
-          </label>
-        ))}
+        <div className="filter-sidebar__options-chips">
+          {['new', 'used', 'refurbished', 'pre-owned'].map((cond) => {
+            const isChecked = (filters.condition || []).includes(
+              cond as ProductFilters['condition'] extends (infer U)[] | undefined
+                ? U
+                : never
+            );
+            return (
+              <button
+                key={cond}
+                type="button"
+                className={`filter-sidebar__chip ${isChecked ? 'filter-sidebar__chip--active' : ''}`}
+                onClick={() => toggleArrayFilter('condition', cond)}
+              >
+                <span style={{ textTransform: 'capitalize' }}>
+                  {cond.replace('-', ' ')}
+                </span>
+                {isChecked && <Check size={12} weight="bold" />}
+              </button>
+            );
+          })}
+        </div>
       </FilterSection>
 
-      {/* Quick Filters */}
+      {/* Quick Badges */}
       <FilterSection
-        title="Quick Filters"
+        title="Badges"
+        icon={<Flame size={15} weight="bold" />}
         isOpen={expandedSections.has('quick')}
         onToggle={() => toggleSection('quick')}
+        activeCount={
+          (filters.featured ? 1 : 0) +
+          (filters.bestseller ? 1 : 0) +
+          (filters.isNew ? 1 : 0)
+        }
       >
-        <label className="filter-sidebar__checkbox-label">
-          <input
-            type="checkbox"
-            checked={!!filters.featured}
-            onChange={() => updateFilter('featured', !filters.featured || undefined)}
-            className="filter-sidebar__checkbox"
-          />
-          <span>Featured</span>
-        </label>
-        <label className="filter-sidebar__checkbox-label">
-          <input
-            type="checkbox"
-            checked={!!filters.bestseller}
-            onChange={() => updateFilter('bestseller', !filters.bestseller || undefined)}
-            className="filter-sidebar__checkbox"
-          />
-          <span>Best Sellers</span>
-        </label>
-        <label className="filter-sidebar__checkbox-label">
-          <input
-            type="checkbox"
-            checked={!!filters.isNew}
-            onChange={() => updateFilter('isNew', !filters.isNew || undefined)}
-            className="filter-sidebar__checkbox"
-          />
-          <span>New Arrivals</span>
-        </label>
+        <div className="filter-sidebar__quick-badges">
+          <button
+            type="button"
+            className={`filter-sidebar__badge-btn ${filters.featured ? 'filter-sidebar__badge-btn--active' : ''}`}
+            onClick={() =>
+              updateFilter('featured', !filters.featured || undefined)
+            }
+          >
+            ⭐ Featured
+          </button>
+          <button
+            type="button"
+            className={`filter-sidebar__badge-btn ${filters.bestseller ? 'filter-sidebar__badge-btn--active' : ''}`}
+            onClick={() =>
+              updateFilter('bestseller', !filters.bestseller || undefined)
+            }
+          >
+            🏆 Best Sellers
+          </button>
+          <button
+            type="button"
+            className={`filter-sidebar__badge-btn ${filters.isNew ? 'filter-sidebar__badge-btn--active' : ''}`}
+            onClick={() =>
+              updateFilter('isNew', !filters.isNew || undefined)
+            }
+          >
+            🆕 New Arrivals
+          </button>
+        </div>
       </FilterSection>
     </aside>
   );
 }
 
-// ─── Collapsible Section ───
+// ─── Collapsible Section Component ───
 function FilterSection({
   title,
+  icon,
   isOpen,
   onToggle,
+  activeCount,
   children,
 }: {
   title: string;
+  icon: React.ReactNode;
   isOpen: boolean;
   onToggle: () => void;
+  activeCount?: number;
   children: React.ReactNode;
 }) {
   return (
@@ -278,8 +377,18 @@ function FilterSection({
         onClick={onToggle}
         type="button"
       >
-        <span>{title}</span>
-        {isOpen ? <CaretUp size={14} weight="bold" /> : <CaretDown size={14} weight="bold" />}
+        <div className="filter-sidebar__section-title">
+          <span className="filter-sidebar__section-icon">{icon}</span>
+          <span>{title}</span>
+          {activeCount && activeCount > 0 ? (
+            <span className="filter-sidebar__section-badge">{activeCount}</span>
+          ) : null}
+        </div>
+        <CaretDown
+          size={14}
+          weight="bold"
+          className={`filter-sidebar__caret ${isOpen ? 'filter-sidebar__caret--open' : ''}`}
+        />
       </button>
       {isOpen && <div className="filter-sidebar__section-body">{children}</div>}
     </div>

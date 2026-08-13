@@ -7,10 +7,18 @@ import { ProductCard } from '@/components/product/ProductCard';
 import { FilterSidebar } from '@/components/shop/FilterSidebar';
 import { SortDropdown } from '@/components/shop/SortDropdown';
 import { ActiveFilters } from '@/components/shop/ActiveFilters';
-import { Funnel } from '@phosphor-icons/react';
+import { Funnel, SquaresFour, GridFour, Rows } from '@phosphor-icons/react';
 import type { ProductFilters, SortOption } from '@/types';
 
-export function ShopClient({ categorySlug, subcategorySlug }: { categorySlug?: string; subcategorySlug?: string }) {
+type ViewMode = 'grid-4' | 'grid-3' | 'list';
+
+export function ShopClient({
+  categorySlug,
+  subcategorySlug,
+}: {
+  categorySlug?: string;
+  subcategorySlug?: string;
+}) {
   const searchParams = useSearchParams();
 
   const [filters, setFilters] = useState<ProductFilters>(() => {
@@ -23,14 +31,17 @@ export function ShopClient({ categorySlug, subcategorySlug }: { categorySlug?: s
   });
 
   const [sort, setSort] = useState<SortOption>('relevance');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid-4');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const filteredProducts = useMemo(() => {
     let result = filterProducts(products, filters);
     if (subcategorySlug) {
-      // Filter by subcategory tag or slug match
       result = result.filter(
-        (p) => p.tags.includes(subcategorySlug) || p.tags.some((t) => t.includes(subcategorySlug.replace(/-/g, '')))
+        (p) =>
+          p.subcategoryId === subcategorySlug ||
+          p.tags.includes(subcategorySlug) ||
+          p.tags.some((t) => t.includes(subcategorySlug.replace(/-/g, '')))
       );
     }
     return sortProducts(result, sort);
@@ -48,43 +59,86 @@ export function ShopClient({ categorySlug, subcategorySlug }: { categorySlug?: s
         />
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div className="shop-layout__main">
-        {/* Toolbar */}
+        {/* Toolbar Header */}
         <div className="shop-toolbar">
-          <button
-            className="shop-toolbar__filter-btn"
-            onClick={() => setMobileFiltersOpen(true)}
-            type="button"
-          >
-            <Funnel size={16} weight="bold" />
-            Filters
-          </button>
-          <span className="shop-toolbar__count">
-            {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
-          </span>
-          <SortDropdown value={sort} onChange={setSort} />
+          <div className="shop-toolbar__left">
+            <button
+              className="shop-toolbar__filter-btn"
+              onClick={() => setMobileFiltersOpen(true)}
+              type="button"
+            >
+              <Funnel size={16} weight="bold" />
+              <span>Filters</span>
+            </button>
+            <div className="shop-toolbar__count-badge">
+              <span className="shop-toolbar__count-dot" />
+              <span className="shop-toolbar__count-text">
+                {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
+
+          <div className="shop-toolbar__right">
+            {/* View Mode Switcher */}
+            <div className="shop-toolbar__view-modes" aria-label="Layout view options">
+              <button
+                type="button"
+                className={`shop-toolbar__view-btn ${viewMode === 'grid-4' ? 'shop-toolbar__view-btn--active' : ''}`}
+                onClick={() => setViewMode('grid-4')}
+                title="4 Column Grid"
+              >
+                <SquaresFour size={18} weight="bold" />
+              </button>
+              <button
+                type="button"
+                className={`shop-toolbar__view-btn ${viewMode === 'grid-3' ? 'shop-toolbar__view-btn--active' : ''}`}
+                onClick={() => setViewMode('grid-3')}
+                title="3 Column Grid"
+              >
+                <GridFour size={18} weight="bold" />
+              </button>
+              <button
+                type="button"
+                className={`shop-toolbar__view-btn ${viewMode === 'list' ? 'shop-toolbar__view-btn--active' : ''}`}
+                onClick={() => setViewMode('list')}
+                title="List View"
+              >
+                <Rows size={18} weight="bold" />
+              </button>
+            </div>
+
+            {/* Sort Dropdown */}
+            <SortDropdown value={sort} onChange={setSort} />
+          </div>
         </div>
 
-        {/* Active Filters */}
+        {/* Active Filter Chips */}
         <ActiveFilters
           filters={filters}
           onFilterChange={setFilters}
           categorySlug={categorySlug}
         />
 
-        {/* Product Grid */}
+        {/* Product Grid / List */}
         {filteredProducts.length > 0 ? (
-          <div className="shop-grid">
+          <div className={`shop-grid shop-grid--${viewMode}`}>
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
           <div className="shop-empty">
-            <p>No products match your filters.</p>
+            <div className="shop-empty__icon-wrap">
+              <Funnel size={36} weight="thin" />
+            </div>
+            <h3 className="shop-empty__title">No products found</h3>
+            <p className="shop-empty__desc">
+              Try adjusting your price range, platform selection, or clearing your active filters.
+            </p>
             <button
-              className="button button--secondary"
+              className="button button--primary"
               onClick={() => setFilters({ category: categorySlug })}
               type="button"
             >
@@ -94,26 +148,41 @@ export function ShopClient({ categorySlug, subcategorySlug }: { categorySlug?: s
         )}
       </div>
 
-      {/* Mobile Filter Overlay */}
+      {/* Mobile Filter Overlay & Drawer */}
       {mobileFiltersOpen && (
         <>
-          <div className="mobile-filter-overlay" onClick={() => setMobileFiltersOpen(false)} />
+          <div
+            className="mobile-filter-overlay"
+            onClick={() => setMobileFiltersOpen(false)}
+          />
           <div className="mobile-filter-drawer">
-            <FilterSidebar
-              filters={filters}
-              onFilterChange={(f) => {
-                setFilters(f);
-              }}
-              productCount={filteredProducts.length}
-              categorySlug={categorySlug}
-            />
-            <button
-              className="button button--primary mobile-filter-drawer__apply"
-              onClick={() => setMobileFiltersOpen(false)}
-              type="button"
-            >
-              Show {filteredProducts.length} Results
-            </button>
+            <div className="mobile-filter-drawer__header">
+              <h3>Filters</h3>
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen(false)}
+                className="mobile-filter-drawer__close"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="mobile-filter-drawer__body">
+              <FilterSidebar
+                filters={filters}
+                onFilterChange={(f) => setFilters(f)}
+                productCount={filteredProducts.length}
+                categorySlug={categorySlug}
+              />
+            </div>
+            <div className="mobile-filter-drawer__footer">
+              <button
+                className="button button--primary mobile-filter-drawer__apply"
+                onClick={() => setMobileFiltersOpen(false)}
+                type="button"
+              >
+                Show {filteredProducts.length} Results
+              </button>
+            </div>
           </div>
         </>
       )}

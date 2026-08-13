@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bg)" />
+  <rect width="800" height="600" fill="url(#glow)" />
+
+  <!-- Grid overlay -->
+  <g opacity="0.05" stroke="#ffffff" stroke-width="1">
+    <line x1="0" y1="150" x2="800" y2="150" />
+    <line x1="0" y1="300" x2="800" y2="300" />
+    <line x1="0" y1="450" x2="800" y2="450" />
+    <line x1="200" y1="0" x2="200" y2="600" />
+    <line x1="400" y1="0" x2="400" y2="600" />
+    <line x1="600" y1="0" x2="600" y2="600" />
+  </g>
+
+  <!-- Decorative Badge -->
+  <rect x="60" y="50" width="120" height="28" rx="4" fill="#6366f1" opacity="0.9" />
+  <text x="120" y="69" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" text-anchor="middle" letter-spacing="1.5">SONY</text>
+
+  <!-- Product Icon Graphic Container -->
+  <rect x="250" y="140" width="300" height="260" rx="16" fill="url(#card)" stroke="#334155" stroke-width="2" />
+  <circle cx="400" cy="270" r="70" fill="#6366f1" opacity="0.15" />
+  
+  <!-- Gaming controller / Device Emblem -->
+  <g fill="none" stroke="#818cf8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M360 270 h80 M400 230 v80" />
+    <circle cx="400" cy="270" r="45" stroke="#a5b4fc" stroke-width="3" />
+    <circle cx="400" cy="270" r="10" fill="#a5b4fc" />
+  </g>
+
+  <!-- Title & Label -->
+  <text x="400" y="460" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="800" text-anchor="middle" letter-spacing="-0.5">PS5 Slim Disc</text>
+  <text x="400" y="495" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" text-anchor="middle" letter-spacing="1.5">BOX VIEW</text>
+
+  <!-- Naveed Games Watermark -->
+  <text x="740" y="565" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" text-anchor="end" letter-spacing="1">NAVEED GAMES</text>
+</svg>

@@ -79,7 +79,7 @@ export function EditorialCampaign() {
         </h2>
 
         <div className="editorial__cta">
-          <Link href="/categories/gaming-pcs">
+          <Link href="/shop/gaming-pcs">
             <Button variant="outline" size="lg">
               Explore Gaming PCs
               <ArrowRight size={16} weight="bold" />

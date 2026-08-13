@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, ShoppingBag } from '@phosphor-icons/react';
+import { Heart, ShoppingBag, Eye } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/Badge';
 import { Rating } from '@/components/ui/Rating';
 import { useCartStore } from '@/store/cart';
 import { useWishlistStore } from '@/store/wishlist';
 import { formatPrice } from '@/data/products';
 import type { Product } from '@/types';
+import { useState, useEffect } from 'react';
 
 interface ProductCardProps {
   product: Product;
@@ -19,30 +20,54 @@ export function ProductCard({ product }: ProductCardProps) {
   const toggleWishlist = useWishlistStore((s) => s.toggleItem);
   const isWishlisted = useWishlistStore((s) => s.isInWishlist(product.id));
 
-  const handleAddToCart = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     addItem(product);
     openCart();
   };
 
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+  };
+
   return (
     <article className="product-card">
-      {/* Image */}
+      {/* Holographic Subtle Glow border effect */}
+      <div className="product-card__glow-border" />
+
+      {/* Image Wrap */}
       <div className="product-card__image-wrap">
-        <div
-          className="product-card__image"
-          style={{
-            background: `linear-gradient(135deg, var(--graphite) 0%, var(--graphite-light) 100%)`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--muted)',
-            fontSize: '0.75rem',
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-          }}
+        <Link
+          href={`/products/${product.slug}`}
+          className="product-card__image-link"
         >
-          {product.brand}
-        </div>
+          <div className="product-card__image-container">
+            {product.images?.[0] && (
+              <img
+                src={product.images[0]}
+                alt={product.name}
+                className="product-card__img"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                  const fallback = (e.target as HTMLElement).nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+            )}
+            <div className="product-card__fallback">
+              <span>{product.brand}</span>
+            </div>
+          </div>
+        </Link>
 
         {/* Badges */}
         <div className="product-card__badges">
@@ -52,55 +77,70 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        {/* Wishlist */}
+        {/* Quick Wishlist Button */}
         <button
-          className={`product-card__wishlist ${isWishlisted ? 'product-card__wishlist--active' : ''}`}
-          onClick={() => toggleWishlist(product)}
-          aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          className={`product-card__wishlist ${mounted && isWishlisted ? 'product-card__wishlist--active' : ''}`}
+          onClick={handleWishlistToggle}
+          aria-label={mounted && isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           type="button"
         >
-          <Heart size={16} weight={isWishlisted ? 'fill' : 'bold'} />
+          <Heart size={16} weight={mounted && isWishlisted ? 'fill' : 'bold'} />
         </button>
       </div>
 
       {/* Body */}
       <div className="product-card__body">
-        <span className="product-card__brand">{product.brand}</span>
+        <div className="product-card__meta">
+          <span className="product-card__brand">{product.brand}</span>
+          {product.platform && (
+            <span className="product-card__platform">{product.platform}</span>
+          )}
+        </div>
+
         <h3 className="product-card__name">
           <Link href={`/products/${product.slug}`}>{product.name}</Link>
         </h3>
 
-        <Rating value={product.rating} count={product.reviewCount} size={12} />
-
-        <div className="product-card__pricing">
-          <span className="product-card__price">
-            {formatPrice(product.price)}
-          </span>
-          {product.originalPrice && (
-            <span className="product-card__original-price">
-              {formatPrice(product.originalPrice)}
-            </span>
-          )}
+        <div className="product-card__rating-row">
+          <Rating value={product.rating} count={product.reviewCount} size={12} />
         </div>
 
-        {product.inStock ? (
-          product.stockQuantity <= 3 ? (
-            <span className="product-card__stock product-card__stock--low">
-              Only {product.stockQuantity} left
+        <div className="product-card__footer-row">
+          <div className="product-card__pricing">
+            <span className="product-card__price">
+              {formatPrice(product.price)}
             </span>
-          ) : (
-            <span className="product-card__stock product-card__stock--in">
-              In Stock
-            </span>
-          )
-        ) : (
-          <span className="product-card__stock product-card__stock--out">
-            Out of Stock
-          </span>
-        )}
+            {product.originalPrice && (
+              <span className="product-card__original-price">
+                {formatPrice(product.originalPrice)}
+              </span>
+            )}
+          </div>
+
+          <div className="product-card__stock-status">
+            {product.inStock ? (
+              product.stockQuantity <= 3 ? (
+                <span className="product-card__stock product-card__stock--low">
+                  <span className="stock-dot stock-dot--low" />
+                  {product.stockQuantity} left
+                </span>
+              ) : (
+                <span className="product-card__stock product-card__stock--in">
+                  <span className="stock-dot stock-dot--in" />
+                  In Stock
+                </span>
+              )
+            ) : (
+              <span className="product-card__stock product-card__stock--out">
+                <span className="stock-dot stock-dot--out" />
+                Sold Out
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Add to Cart */}
+      {/* Quick Add to Cart Action */}
       <div className="product-card__actions">
         <button
           className="button button--secondary product-card__add-to-cart"
@@ -108,8 +148,8 @@ export function ProductCard({ product }: ProductCardProps) {
           disabled={!product.inStock}
           type="button"
         >
-          <ShoppingBag size={14} weight="bold" />
-          Add to Cart
+          <ShoppingBag size={15} weight="bold" />
+          <span>Add to Cart</span>
         </button>
       </div>
     </article>
