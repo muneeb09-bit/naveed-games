@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { categories } from '@/data/categories';
+import { departments } from '@/data/departments';
 import { brands } from '@/data/brands';
 import { registerCustomProduct } from '@/data/products';
 import type { Product } from '@/types';
@@ -15,11 +15,14 @@ import Link from 'next/link';
 export default function NewProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  const [departmentSlug, setDepartmentSlug] = useState('gaming');
+  const [categorySlug, setCategorySlug] = useState('playstation');
+  const [subcategorySlug, setSubcategorySlug] = useState('consoles');
+
   const [formData, setFormData] = useState({
     name: '',
-    brand: brands[0]?.name || 'Sony',
-    categorySlug: 'consoles',
-    subcategorySlug: '',
+    brand: brands[0]?.name || 'PlayStation',
     price: '',
     originalPrice: '',
     salePrice: '',
@@ -30,8 +33,9 @@ export default function NewProductPage() {
     shortDescription: '',
     description: '',
     condition: 'new' as const,
-    platform: '',
+    platform: 'PS5',
     status: 'published' as const,
+    dealType: '' as string,
     warranty: '1 Year Official Warranty',
     deliveryInfo: 'Ships within 1-2 business days',
     featured: false,
@@ -39,14 +43,28 @@ export default function NewProductPage() {
     isNew: true,
   });
 
-  const selectedCategoryObj = categories.find((c) => c.slug === formData.categorySlug);
+  const selectedDepartmentObj = departments.find((d) => d.slug === departmentSlug) || departments[0];
+  const selectedCategoryObj = selectedDepartmentObj.categories.find((c) => c.slug === categorySlug) || selectedDepartmentObj.categories[0];
+
+  const handleDepartmentChange = (newDeptSlug: string) => {
+    setDepartmentSlug(newDeptSlug);
+    const deptObj = departments.find((d) => d.slug === newDeptSlug) || departments[0];
+    const firstCat = deptObj.categories[0];
+    setCategorySlug(firstCat?.slug || '');
+    setSubcategorySlug(firstCat?.subcategories[0]?.slug || '');
+  };
+
+  const handleCategoryChange = (newCatSlug: string) => {
+    setCategorySlug(newCatSlug);
+    const catObj = selectedDepartmentObj.categories.find((c) => c.slug === newCatSlug);
+    setSubcategorySlug(catObj?.subcategories[0]?.slug || '');
+  };
 
   const [images, setImages] = useState<string[]>(['/images/products/placeholder.jpg']);
-  const [newImageUrl, setNewImageUrl] = useState('');
 
   const [specs, setSpecs] = useState<Array<{ label: string; value: string }>>([
-    { label: 'Platform / Type', value: '' },
-    { label: 'Storage / Spec', value: '' },
+    { label: 'Platform / Type', value: 'PlayStation 5' },
+    { label: 'Storage / Spec', value: '1TB Custom SSD' },
   ]);
 
   const handleAddSpec = () => {
@@ -61,17 +79,6 @@ export default function NewProductPage() {
     const updated = [...specs];
     updated[index][field] = text;
     setSpecs(updated);
-  };
-
-  const handleAddImage = () => {
-    if (newImageUrl.trim()) {
-      setImages([...images, newImageUrl.trim()]);
-      setNewImageUrl('');
-    }
-  };
-
-  const handleRemoveImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,10 +99,14 @@ export default function NewProductPage() {
       id: `prod-${Date.now()}`,
       slug,
       name: formData.name,
-      brand: formData.brand || 'Sony',
-      category: selectedCategoryObj?.name || 'Consoles',
-      categorySlug: formData.categorySlug,
-      subcategoryId: formData.subcategorySlug || undefined,
+      brand: formData.brand || 'PlayStation',
+      department: selectedDepartmentObj.name,
+      departmentSlug,
+      category: selectedCategoryObj?.name || 'PlayStation',
+      categorySlug,
+      subcategoryId: subcategorySlug || undefined,
+      subcategorySlug: subcategorySlug || undefined,
+      dealType: formData.dealType as any || undefined,
       price: Number(formData.price),
       originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
       salePrice: formData.salePrice ? Number(formData.salePrice) : undefined,
@@ -118,13 +129,13 @@ export default function NewProductPage() {
       specs: specs.filter((s) => s.label && s.value),
       warranty: formData.warranty,
       deliveryInfo: formData.deliveryInfo,
-      tags: [formData.categorySlug, formData.brand.toLowerCase(), formData.name.toLowerCase()],
+      tags: [departmentSlug, categorySlug, formData.brand.toLowerCase(), formData.name.toLowerCase()],
     };
 
     // 1. Instant local registration in memory & localStorage (< 1ms)
     registerCustomProduct(newProdObj);
 
-    // 2. Supabase insert in background
+    // 2. Supabase insert background task
     try {
       const supabase = createClient();
       if (supabase) {
@@ -133,7 +144,7 @@ export default function NewProductPage() {
             slug,
             name: formData.name,
             brand_name: formData.brand || 'Naveed Games',
-            category_slug: formData.categorySlug,
+            category_slug: categorySlug,
             price: Number(formData.price),
             original_price: formData.originalPrice ? Number(formData.originalPrice) : null,
             sale_price: formData.salePrice ? Number(formData.salePrice) : null,
@@ -168,7 +179,7 @@ export default function NewProductPage() {
   };
 
   return (
-    <div style={{ maxWidth: '800px' }}>
+    <div style={{ maxWidth: '840px' }}>
       <div style={{ marginBottom: '24px' }}>
         <Link
           href="/admin/products"
@@ -199,14 +210,61 @@ export default function NewProductPage() {
             <input
               type="text"
               className="checkout__input"
-              placeholder="e.g. PlayStation 5 Slim 1TB Disc Edition"
+              placeholder="e.g. PlayStation 5 Pro 2TB Digital Console"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+          {/* Cascading Dependent Dropdowns */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
+            <div className="checkout__field">
+              <label className="checkout__label">Department *</label>
+              <select
+                className="checkout__input"
+                value={departmentSlug}
+                onChange={(e) => handleDepartmentChange(e.target.value)}
+              >
+                {departments.map((d) => (
+                  <option key={d.id} value={d.slug}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="checkout__field">
+              <label className="checkout__label">Category *</label>
+              <select
+                className="checkout__input"
+                value={categorySlug}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+              >
+                {selectedDepartmentObj.categories.map((cat) => (
+                  <option key={cat.id} value={cat.slug}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="checkout__field">
+              <label className="checkout__label">Subcategory</label>
+              <select
+                className="checkout__input"
+                value={subcategorySlug}
+                onChange={(e) => setSubcategorySlug(e.target.value)}
+              >
+                <option value="">None</option>
+                {selectedCategoryObj?.subcategories?.map((sub) => (
+                  <option key={sub.id} value={sub.slug}>
+                    {sub.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="checkout__field">
               <label className="checkout__label">Brand *</label>
               <select
@@ -221,40 +279,9 @@ export default function NewProductPage() {
                 ))}
               </select>
             </div>
-
-            <div className="checkout__field">
-              <label className="checkout__label">Category *</label>
-              <select
-                className="checkout__input"
-                value={formData.categorySlug}
-                onChange={(e) => setFormData({ ...formData, categorySlug: e.target.value, subcategorySlug: '' })}
-              >
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.slug}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="checkout__field">
-              <label className="checkout__label">Subcategory</label>
-              <select
-                className="checkout__input"
-                value={formData.subcategorySlug}
-                onChange={(e) => setFormData({ ...formData, subcategorySlug: e.target.value })}
-              >
-                <option value="">None</option>
-                {selectedCategoryObj?.subcategories?.map((sub) => (
-                  <option key={sub.id} value={sub.slug}>
-                    {sub.name}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
             <div className="checkout__field">
               <label className="checkout__label">Condition</label>
               <select
@@ -270,18 +297,34 @@ export default function NewProductPage() {
             </div>
 
             <div className="checkout__field">
-              <label className="checkout__label">Platform</label>
+              <label className="checkout__label">Platform / Model</label>
               <input
                 type="text"
                 className="checkout__input"
-                placeholder="e.g. PS5, PC, Switch"
+                placeholder="e.g. PS5, Xbox, PC"
                 value={formData.platform}
                 onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
               />
             </div>
 
             <div className="checkout__field">
-              <label className="checkout__label">Status</label>
+              <label className="checkout__label">Deals Classification</label>
+              <select
+                className="checkout__input"
+                value={formData.dealType}
+                onChange={(e) => setFormData({ ...formData, dealType: e.target.value })}
+              >
+                <option value="">None</option>
+                <option value="flash-deal">⚡ Flash Deal</option>
+                <option value="bundle-deal">📦 Bundle Deal</option>
+                <option value="clearance">🏷️ Clearance</option>
+                <option value="open-box">♻️ Open Box</option>
+                <option value="seasonal-sale">🎉 Seasonal Sale</option>
+              </select>
+            </div>
+
+            <div className="checkout__field">
+              <label className="checkout__label">Publish Status</label>
               <select
                 className="checkout__input"
                 value={formData.status}
@@ -384,30 +427,30 @@ export default function NewProductPage() {
 
         {/* Descriptions & Specs */}
         <div className="admin-form-card">
-          <h2 className="admin-form-card__title">Descriptions & Specs</h2>
+          <h2 className="admin-form-card__title">Descriptions & Specs Sheet</h2>
 
           <div className="checkout__field">
             <label className="checkout__label">Short Teaser Description</label>
             <input
               type="text"
               className="checkout__input"
-              placeholder="One line summary for hero and cards"
+              placeholder="One line summary for storefront card"
               value={formData.shortDescription}
               onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
             />
           </div>
 
           <div className="checkout__field">
-            <label className="checkout__label">Full Product Description</label>
+            <label className="checkout__label">Full Description</label>
             <textarea
               className="checkout__textarea"
-              placeholder="Detailed description of features, compatibility, included accessories..."
+              placeholder="Detailed overview of hardware specifications, box contents..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
           </div>
 
-          {/* Dynamic Specifications list */}
+          {/* Dynamic Specifications */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <label className="checkout__label">Specifications Sheet</label>
@@ -425,14 +468,14 @@ export default function NewProductPage() {
                 <input
                   type="text"
                   className="checkout__input"
-                  placeholder="Spec Label (e.g. CPU)"
+                  placeholder="Spec Label (e.g. Storage)"
                   value={spec.label}
                   onChange={(e) => handleSpecChange(i, 'label', e.target.value)}
                 />
                 <input
                   type="text"
                   className="checkout__input"
-                  placeholder="Spec Value (e.g. Ryzen 7)"
+                  placeholder="Spec Value (e.g. 2TB NVMe SSD)"
                   value={spec.value}
                   onChange={(e) => handleSpecChange(i, 'value', e.target.value)}
                 />
@@ -448,7 +491,7 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Buttons & Status Badges */}
+        {/* Action Buttons */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Link href="/admin/products" className="button button--ghost">
             Cancel

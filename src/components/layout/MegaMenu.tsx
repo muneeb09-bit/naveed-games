@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { CaretRight } from '@phosphor-icons/react';
-import { categories } from '@/data/categories';
+import { CaretRight, Sparkle } from '@phosphor-icons/react';
+import { departments } from '@/data/departments';
 import { brands } from '@/data/brands';
 
 interface MegaMenuProps {
@@ -13,12 +13,13 @@ interface MegaMenuProps {
 }
 
 export function MegaMenu({ isOpen, onClose, activeTab }: MegaMenuProps) {
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [activeDeptSlug, setActiveDeptSlug] = useState<string>(departments[0].slug);
+  const [hoveredCategorySlug, setHoveredCategorySlug] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
-      setHoveredCategory(null);
+      setHoveredCategorySlug(null);
     }
   }, [isOpen]);
 
@@ -36,24 +37,48 @@ export function MegaMenu({ isOpen, onClose, activeTab }: MegaMenuProps) {
 
   if (!isOpen) return null;
 
-  const activeCategory = hoveredCategory
-    ? categories.find((c) => c.slug === hoveredCategory)
-    : null;
+  const currentDept = departments.find((d) => d.slug === activeDeptSlug) || departments[0];
+  const currentCategory = hoveredCategorySlug
+    ? currentDept.categories.find((c) => c.slug === hoveredCategorySlug)
+    : currentDept.categories[0];
 
   return (
     <div className="mega-menu" ref={menuRef}>
       <div className="mega-menu__inner container">
         {activeTab === 'shop' ? (
           <>
-            {/* Categories column */}
+            {/* Column 1: Departments */}
+            <div className="mega-menu__depts">
+              <div className="mega-menu__section-label">Departments</div>
+              {departments.map((dept) => (
+                <button
+                  key={dept.slug}
+                  type="button"
+                  className={`mega-menu__dept-item ${activeDeptSlug === dept.slug ? 'mega-menu__dept-item--active' : ''}`}
+                  onMouseEnter={() => {
+                    setActiveDeptSlug(dept.slug);
+                    setHoveredCategorySlug(dept.categories[0]?.slug || null);
+                  }}
+                  onClick={() => {
+                    setActiveDeptSlug(dept.slug);
+                    setHoveredCategorySlug(dept.categories[0]?.slug || null);
+                  }}
+                >
+                  <span>{dept.name}</span>
+                  <CaretRight size={12} weight="bold" />
+                </button>
+              ))}
+            </div>
+
+            {/* Column 2: Categories */}
             <div className="mega-menu__categories">
-              <div className="mega-menu__section-label">Shop by Category</div>
-              {categories.map((cat) => (
+              <div className="mega-menu__section-label">{currentDept.name} Categories</div>
+              {currentDept.categories.map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/shop/${cat.slug}`}
-                  className={`mega-menu__category-item ${hoveredCategory === cat.slug ? 'mega-menu__category-item--active' : ''}`}
-                  onMouseEnter={() => setHoveredCategory(cat.slug)}
+                  className={`mega-menu__category-item ${currentCategory?.slug === cat.slug ? 'mega-menu__category-item--active' : ''}`}
+                  onMouseEnter={() => setHoveredCategorySlug(cat.slug)}
                   onClick={onClose}
                 >
                   <span>{cat.name}</span>
@@ -64,16 +89,16 @@ export function MegaMenu({ isOpen, onClose, activeTab }: MegaMenuProps) {
               ))}
             </div>
 
-            {/* Subcategories column */}
+            {/* Column 3: Subcategories & Progressive Disclosure */}
             <div className="mega-menu__subcategories">
-              {activeCategory && activeCategory.subcategories && activeCategory.subcategories.length > 0 ? (
+              {currentCategory && currentCategory.subcategories && currentCategory.subcategories.length > 0 ? (
                 <>
-                  <div className="mega-menu__section-label">{activeCategory.name}</div>
+                  <div className="mega-menu__section-label">{currentCategory.name}</div>
                   <div className="mega-menu__sub-grid">
-                    {activeCategory.subcategories.map((sub) => (
+                    {currentCategory.subcategories.map((sub) => (
                       <Link
                         key={sub.slug}
-                        href={`/shop/${activeCategory.slug}/${sub.slug}`}
+                        href={`/shop/${currentCategory.slug}/${sub.slug}`}
                         className="mega-menu__sub-item"
                         onClick={onClose}
                       >
@@ -82,38 +107,36 @@ export function MegaMenu({ isOpen, onClose, activeTab }: MegaMenuProps) {
                     ))}
                   </div>
                   <Link
-                    href={`/shop/${activeCategory.slug}`}
+                    href={`/shop/${currentCategory.slug}`}
                     className="mega-menu__view-all"
                     onClick={onClose}
                   >
-                    View All {activeCategory.name} →
+                    Explore All {currentCategory.name} →
                   </Link>
                 </>
               ) : (
                 <div className="mega-menu__section-label" style={{ color: 'var(--muted)' }}>
-                  Hover a category to see subcategories
+                  Select a category to view items
                 </div>
               )}
             </div>
 
-            {/* Featured / Quick links column */}
+            {/* Column 4: Quick Actions & Brands */}
             <div className="mega-menu__featured">
-              <div className="mega-menu__section-label">Quick Links</div>
-              <Link href="/shop?filter=deals" className="mega-menu__quick-link" onClick={onClose}>
-                🔥 Deals & Offers
+              <div className="mega-menu__section-label">Discover</div>
+              <Link href="/deals" className="mega-menu__quick-link" onClick={onClose}>
+                <Sparkle size={14} weight="fill" style={{ color: 'var(--accent)' }} />
+                <span>🔥 Flash Deals & Bundles</span>
               </Link>
-              <Link href="/shop?featured=true" className="mega-menu__quick-link" onClick={onClose}>
-                ⭐ Featured Products
+              <Link href="/shop?condition=used" className="mega-menu__quick-link" onClick={onClose}>
+                ♻️ Pre-Owned & Open Box
               </Link>
-              <Link href="/shop?new=true" className="mega-menu__quick-link" onClick={onClose}>
-                🆕 New Arrivals
-              </Link>
-              <Link href="/shop?bestseller=true" className="mega-menu__quick-link" onClick={onClose}>
-                🏆 Best Sellers
+              <Link href="/brands" className="mega-menu__quick-link" onClick={onClose}>
+                🏆 All Official Brands
               </Link>
 
-              <div className="mega-menu__section-label" style={{ marginTop: '24px' }}>
-                Top Brands
+              <div className="mega-menu__section-label" style={{ marginTop: '20px' }}>
+                Featured Brands
               </div>
               <div className="mega-menu__brand-chips">
                 {brands.slice(0, 6).map((brand) => (
@@ -130,7 +153,7 @@ export function MegaMenu({ isOpen, onClose, activeTab }: MegaMenuProps) {
             </div>
           </>
         ) : (
-          /* Brands tab */
+          /* Brands Tab */
           <div className="mega-menu__brands-grid">
             <div className="mega-menu__section-label" style={{ gridColumn: '1 / -1' }}>
               Shop by Brand

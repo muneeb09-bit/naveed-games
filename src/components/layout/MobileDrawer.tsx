@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { X, CaretDown, CaretUp } from '@phosphor-icons/react';
-import { categories } from '@/data/categories';
+import { departments } from '@/data/departments';
 import { brands } from '@/data/brands';
 
 interface MobileDrawerProps {
@@ -12,8 +12,12 @@ interface MobileDrawerProps {
 }
 
 export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
+  const [expandedDept, setExpandedDept] = useState<string | null>(departments[0].slug);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<'shop' | 'brands'>('shop');
+
+  const toggleDept = (slug: string) => {
+    setExpandedDept(expandedDept === slug ? null : slug);
+  };
 
   const toggleCategory = (slug: string) => {
     setExpandedCategory(expandedCategory === slug ? null : slug);
@@ -38,108 +42,125 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
           </button>
         </div>
 
-        {/* Section Tabs */}
-        <div className="mobile-drawer__tabs">
-          <button
-            className={`mobile-drawer__tab ${activeSection === 'shop' ? 'mobile-drawer__tab--active' : ''}`}
-            onClick={() => setActiveSection('shop')}
-            type="button"
-          >
-            Shop
-          </button>
-          <button
-            className={`mobile-drawer__tab ${activeSection === 'brands' ? 'mobile-drawer__tab--active' : ''}`}
-            onClick={() => setActiveSection('brands')}
-            type="button"
-          >
-            Brands
-          </button>
-        </div>
-
         {/* Content */}
         <div className="mobile-drawer__content">
-          {activeSection === 'shop' ? (
-            <>
-              {/* Quick links */}
-              <div className="mobile-drawer__section">
-                <Link href="/shop" className="mobile-drawer__link mobile-drawer__link--highlight" onClick={onClose}>
-                  All Products
-                </Link>
-                <Link href="/shop?featured=true" className="mobile-drawer__link" onClick={onClose}>
-                  ⭐ Featured
-                </Link>
-                <Link href="/shop?new=true" className="mobile-drawer__link" onClick={onClose}>
-                  🆕 New Arrivals
-                </Link>
-                <Link href="/shop?filter=deals" className="mobile-drawer__link" onClick={onClose}>
-                  🔥 Deals
-                </Link>
-              </div>
+          {/* Main Links */}
+          <div className="mobile-drawer__section">
+            <Link href="/shop" className="mobile-drawer__link mobile-drawer__link--highlight" onClick={onClose}>
+              SHOP (ALL PRODUCTS)
+            </Link>
+            <Link href="/brands" className="mobile-drawer__link" onClick={onClose}>
+              BRANDS
+            </Link>
+            <Link href="/deals" className="mobile-drawer__link" onClick={onClose}>
+              DEALS & OFFERS
+            </Link>
+            <Link href="/shop?condition=used" className="mobile-drawer__link" onClick={onClose}>
+              USED & OPEN BOX
+            </Link>
+            <a
+              href="https://wa.me/923339348891"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mobile-drawer__link"
+              onClick={onClose}
+            >
+              CONTACT WHATSAPP
+            </a>
+          </div>
 
-              <div className="mobile-drawer__divider" />
+          <div className="mobile-drawer__divider" />
 
-              {/* Categories with accordion */}
-              <div className="mobile-drawer__section">
-                <div className="mobile-drawer__section-label">Categories</div>
-                {categories.map((cat) => (
-                  <div key={cat.slug} className="mobile-drawer__accordion">
-                    <div className="mobile-drawer__accordion-header">
-                      <Link
-                        href={`/shop/${cat.slug}`}
-                        className="mobile-drawer__link"
-                        onClick={onClose}
-                      >
-                        {cat.name}
-                      </Link>
-                      {cat.subcategories && cat.subcategories.length > 0 && (
-                        <button
-                          className="mobile-drawer__accordion-toggle"
-                          onClick={() => toggleCategory(cat.slug)}
-                          type="button"
-                          aria-label={`Toggle ${cat.name} subcategories`}
-                        >
-                          {expandedCategory === cat.slug ? (
-                            <CaretUp size={14} weight="bold" />
-                          ) : (
-                            <CaretDown size={14} weight="bold" />
-                          )}
-                        </button>
-                      )}
-                    </div>
+          {/* Departments Accordion */}
+          <div className="mobile-drawer__section">
+            <div className="mobile-drawer__section-label">Departments</div>
+            {departments.map((dept) => (
+              <div key={dept.slug} className="mobile-drawer__accordion">
+                <div className="mobile-drawer__accordion-header">
+                  <span className="mobile-drawer__link" style={{ fontWeight: 700 }}>
+                    {dept.name}
+                  </span>
+                  <button
+                    className="mobile-drawer__accordion-toggle"
+                    onClick={() => toggleDept(dept.slug)}
+                    type="button"
+                    aria-label={`Toggle ${dept.name}`}
+                  >
+                    {expandedDept === dept.slug ? (
+                      <CaretUp size={14} weight="bold" />
+                    ) : (
+                      <CaretDown size={14} weight="bold" />
+                    )}
+                  </button>
+                </div>
 
-                    {expandedCategory === cat.slug && cat.subcategories && (
-                      <div className="mobile-drawer__subcategories">
-                        {cat.subcategories.map((sub) => (
+                {expandedDept === dept.slug && (
+                  <div className="mobile-drawer__subcategories" style={{ paddingLeft: '12px' }}>
+                    {dept.categories.map((cat) => (
+                      <div key={cat.slug} className="mobile-drawer__accordion" style={{ marginBottom: '8px' }}>
+                        <div className="mobile-drawer__accordion-header">
                           <Link
-                            key={sub.slug}
-                            href={`/shop/${cat.slug}/${sub.slug}`}
+                            href={`/shop/${cat.slug}`}
                             className="mobile-drawer__sublink"
                             onClick={onClose}
                           >
-                            {sub.name}
+                            {cat.name}
                           </Link>
-                        ))}
+                          {cat.subcategories && cat.subcategories.length > 0 && (
+                            <button
+                              className="mobile-drawer__accordion-toggle"
+                              onClick={() => toggleCategory(cat.slug)}
+                              type="button"
+                              aria-label={`Toggle ${cat.name}`}
+                            >
+                              {expandedCategory === cat.slug ? (
+                                <CaretUp size={12} weight="bold" />
+                              ) : (
+                                <CaretDown size={12} weight="bold" />
+                              )}
+                            </button>
+                          )}
+                        </div>
+
+                        {expandedCategory === cat.slug && cat.subcategories && (
+                          <div style={{ paddingLeft: '12px', marginTop: '4px' }}>
+                            {cat.subcategories.map((sub) => (
+                              <Link
+                                key={sub.slug}
+                                href={`/shop/${cat.slug}/${sub.slug}`}
+                                className="mobile-drawer__sublink"
+                                style={{ fontSize: '0.8125rem', color: 'var(--muted)' }}
+                                onClick={onClose}
+                              >
+                                • {sub.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            </>
-          ) : (
-            <div className="mobile-drawer__section">
-              <div className="mobile-drawer__section-label">Brands</div>
-              {brands.map((brand) => (
-                <Link
-                  key={brand.slug}
-                  href={`/brand/${brand.slug}`}
-                  className="mobile-drawer__link"
-                  onClick={onClose}
-                >
-                  {brand.name}
-                </Link>
-              ))}
-            </div>
-          )}
+            ))}
+          </div>
+
+          <div className="mobile-drawer__divider" />
+
+          {/* Top Brands Quick Accordion */}
+          <div className="mobile-drawer__section">
+            <div className="mobile-drawer__section-label">Popular Brands</div>
+            {brands.slice(0, 8).map((brand) => (
+              <Link
+                key={brand.slug}
+                href={`/brand/${brand.slug}`}
+                className="mobile-drawer__sublink"
+                onClick={onClose}
+              >
+                {brand.name}
+              </Link>
+            ))}
+          </div>
         </div>
       </aside>
     </>

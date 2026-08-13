@@ -10,9 +10,13 @@ export interface Product {
   name: string;
   brand: string;
   brandId?: string;
+  department?: string;
+  departmentSlug?: string;
   category: string;
   categorySlug: string;
   subcategoryId?: string;
+  subcategorySlug?: string;
+  dealType?: 'flash-deal' | 'bundle-deal' | 'clearance' | 'open-box' | 'seasonal-sale' | string;
   price: number;
   originalPrice?: number;
   salePrice?: number;

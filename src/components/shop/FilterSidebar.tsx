@@ -37,7 +37,45 @@ export function FilterSidebar({
     new Set(['category', 'brand', 'price', 'availability', 'platform', 'quick'])
   );
 
-  const platforms = useMemo(() => getAvailablePlatforms(), []);
+  const allPlatforms = useMemo(() => getAvailablePlatforms(), []);
+
+  // Filter relevant brands dynamically by category context
+  const filteredBrands = useMemo(() => {
+    if (!categorySlug) return brands;
+    const cat = categorySlug.toLowerCase();
+
+    if (cat.includes('dji') || cat.includes('drone') || cat.includes('camera')) {
+      return brands.filter((b) => ['dji', 'gopro', 'sony'].includes(b.slug));
+    }
+    if (cat.includes('phone') || cat.includes('laptop') || cat.includes('smart')) {
+      return brands.filter((b) => ['samsung', 'huawei', 'lenovo', 'meta', 'apple'].includes(b.slug));
+    }
+    if (cat.includes('racing') || cat.includes('rc') || cat.includes('traxxas')) {
+      return brands.filter((b) => ['traxxas', 'logitech', 'thrustmaster', 'pxn'].includes(b.slug));
+    }
+    if (cat.includes('playstation') || cat.includes('ps5') || cat.includes('ps4')) {
+      return brands.filter((b) => ['playstation', 'sony'].includes(b.slug));
+    }
+    if (cat.includes('xbox')) {
+      return brands.filter((b) => ['xbox', 'microsoft'].includes(b.slug));
+    }
+    if (cat.includes('nintendo') || cat.includes('switch')) {
+      return brands.filter((b) => ['nintendo'].includes(b.slug));
+    }
+    return brands;
+  }, [categorySlug]);
+
+  // Filter relevant platforms dynamically by category context
+  const showPlatformFilter = useMemo(() => {
+    if (!categorySlug) return true;
+    const cat = categorySlug.toLowerCase();
+    return (
+      cat.includes('game') ||
+      cat.includes('console') ||
+      cat.includes('controller') ||
+      cat.includes('handheld')
+    );
+  }, [categorySlug]);
 
   const toggleSection = (section: string) => {
     const next = new Set(expandedSections);
@@ -135,31 +173,33 @@ export function FilterSidebar({
         </FilterSection>
       )}
 
-      {/* Brand Filter */}
-      <FilterSection
-        title="Brand"
-        icon={<Sparkle size={15} weight="bold" />}
-        isOpen={expandedSections.has('brand')}
-        onToggle={() => toggleSection('brand')}
-        activeCount={filters.brand?.length || 0}
-      >
-        <div className="filter-sidebar__options-chips">
-          {brands.map((brand) => {
-            const isChecked = (filters.brand || []).includes(brand.slug);
-            return (
-              <button
-                key={brand.slug}
-                type="button"
-                className={`filter-sidebar__chip ${isChecked ? 'filter-sidebar__chip--active' : ''}`}
-                onClick={() => toggleArrayFilter('brand', brand.slug)}
-              >
-                <span>{brand.name}</span>
-                {isChecked && <Check size={12} weight="bold" />}
-              </button>
-            );
-          })}
-        </div>
-      </FilterSection>
+      {/* Relevant Brand Filter */}
+      {filteredBrands.length > 0 && (
+        <FilterSection
+          title="Brand"
+          icon={<Sparkle size={15} weight="bold" />}
+          isOpen={expandedSections.has('brand')}
+          onToggle={() => toggleSection('brand')}
+          activeCount={filters.brand?.length || 0}
+        >
+          <div className="filter-sidebar__options-chips">
+            {filteredBrands.map((brand) => {
+              const isChecked = (filters.brand || []).includes(brand.slug);
+              return (
+                <button
+                  key={brand.slug}
+                  type="button"
+                  className={`filter-sidebar__chip ${isChecked ? 'filter-sidebar__chip--active' : ''}`}
+                  onClick={() => toggleArrayFilter('brand', brand.slug)}
+                >
+                  <span>{brand.name}</span>
+                  {isChecked && <Check size={12} weight="bold" />}
+                </button>
+              );
+            })}
+          </div>
+        </FilterSection>
+      )}
 
       {/* Price Range */}
       <FilterSection
@@ -254,31 +294,33 @@ export function FilterSidebar({
         </button>
       </FilterSection>
 
-      {/* Platform */}
-      <FilterSection
-        title="Platform"
-        icon={<Lightning size={15} weight="bold" />}
-        isOpen={expandedSections.has('platform')}
-        onToggle={() => toggleSection('platform')}
-        activeCount={filters.platform?.length || 0}
-      >
-        <div className="filter-sidebar__options-chips">
-          {platforms.map((platform) => {
-            const isChecked = (filters.platform || []).includes(platform);
-            return (
-              <button
-                key={platform}
-                type="button"
-                className={`filter-sidebar__chip ${isChecked ? 'filter-sidebar__chip--active' : ''}`}
-                onClick={() => toggleArrayFilter('platform', platform)}
-              >
-                <span>{platform}</span>
-                {isChecked && <Check size={12} weight="bold" />}
-              </button>
-            );
-          })}
-        </div>
-      </FilterSection>
+      {/* Platform Filter (Only shown when relevant for gaming categories) */}
+      {showPlatformFilter && (
+        <FilterSection
+          title="Platform"
+          icon={<Lightning size={15} weight="bold" />}
+          isOpen={expandedSections.has('platform')}
+          onToggle={() => toggleSection('platform')}
+          activeCount={filters.platform?.length || 0}
+        >
+          <div className="filter-sidebar__options-chips">
+            {allPlatforms.map((platform) => {
+              const isChecked = (filters.platform || []).includes(platform);
+              return (
+                <button
+                  key={platform}
+                  type="button"
+                  className={`filter-sidebar__chip ${isChecked ? 'filter-sidebar__chip--active' : ''}`}
+                  onClick={() => toggleArrayFilter('platform', platform)}
+                >
+                  <span>{platform}</span>
+                  {isChecked && <Check size={12} weight="bold" />}
+                </button>
+              );
+            })}
+          </div>
+        </FilterSection>
+      )}
 
       {/* Condition */}
       <FilterSection
@@ -358,7 +400,6 @@ export function FilterSidebar({
   );
 }
 
-// ─── Collapsible Section Component ───
 function FilterSection({
   title,
   icon,

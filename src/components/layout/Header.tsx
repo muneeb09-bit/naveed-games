@@ -65,34 +65,37 @@ export function Header() {
             Naveed<span>Games</span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation: SHOP | BRANDS | DEALS | USED | CONTACT */}
           <nav className="header__nav" aria-label="Main navigation">
             <button
               className={`header__nav-link header__nav-link--trigger ${megaMenuOpen && megaMenuTab === 'shop' ? 'header__nav-link--active' : ''}`}
               onClick={() => handleMegaMenu('shop')}
               type="button"
             >
-              Shop
+              SHOP
             </button>
-            <button
-              className={`header__nav-link header__nav-link--trigger ${megaMenuOpen && megaMenuTab === 'brands' ? 'header__nav-link--active' : ''}`}
-              onClick={() => handleMegaMenu('brands')}
-              type="button"
+            <Link
+              href="/brands"
+              className="header__nav-link"
+              onClick={closeMegaMenu}
             >
-              Brands
-            </button>
-            <Link href="/shop/consoles" className="header__nav-link" onClick={closeMegaMenu}>
-              Consoles
+              BRANDS
             </Link>
-            <Link href="/shop/games" className="header__nav-link" onClick={closeMegaMenu}>
-              Games
+            <Link href="/deals" className="header__nav-link" onClick={closeMegaMenu}>
+              DEALS
             </Link>
-            <Link href="/shop/gaming-pcs" className="header__nav-link" onClick={closeMegaMenu}>
-              PCs
+            <Link href="/shop?condition=used" className="header__nav-link" onClick={closeMegaMenu}>
+              USED
             </Link>
-            <Link href="/shop?filter=deals" className="header__nav-link" onClick={closeMegaMenu}>
-              Deals
-            </Link>
+            <a
+              href="https://wa.me/923339348891"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="header__nav-link"
+              onClick={closeMegaMenu}
+            >
+              CONTACT
+            </a>
           </nav>
 
           {/* Actions */}
