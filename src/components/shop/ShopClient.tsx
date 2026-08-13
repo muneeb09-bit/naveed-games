@@ -7,10 +7,10 @@ import { ProductCard } from '@/components/product/ProductCard';
 import { FilterSidebar } from '@/components/shop/FilterSidebar';
 import { SortDropdown } from '@/components/shop/SortDropdown';
 import { ActiveFilters } from '@/components/shop/ActiveFilters';
-import { Funnel, SquaresFour, GridFour, Rows, MagnifyingGlass, X } from '@phosphor-icons/react';
+import { Funnel, SquaresFour, Rows, MagnifyingGlass, X } from '@phosphor-icons/react';
 import type { Product, ProductFilters, SortOption } from '@/types';
 
-type ViewMode = 'grid-4' | 'grid-3' | 'list';
+type ViewMode = 'grid' | 'list';
 
 export function ShopClient({
   categorySlug,
@@ -35,7 +35,7 @@ export function ShopClient({
   });
 
   const [sort, setSort] = useState<SortOption>('relevance');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid-4');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid'); // Default is 'grid'
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [allProductsList, setAllProductsList] = useState<Product[]>(products);
 
@@ -138,7 +138,7 @@ export function ShopClient({
           </div>
         </div>
 
-        {/* Toolbar Header with Filters Button, Counter & View Modes */}
+        {/* Toolbar Header with Filters Button, Counter & Functional View Toggle */}
         <div className="shop-toolbar">
           <div className="shop-toolbar__left">
             <button
@@ -158,31 +158,25 @@ export function ShopClient({
           </div>
 
           <div className="shop-toolbar__right">
-            {/* View Mode Switcher */}
+            {/* View Mode Switcher: Grid vs List (Both fully functional with Grid default) */}
             <div className="shop-toolbar__view-modes" aria-label="Layout view options">
               <button
                 type="button"
-                className={`shop-toolbar__view-btn ${viewMode === 'grid-4' ? 'shop-toolbar__view-btn--active' : ''}`}
-                onClick={() => setViewMode('grid-4')}
-                title="4 Column Grid"
+                className={`shop-toolbar__view-btn ${viewMode === 'grid' ? 'shop-toolbar__view-btn--active' : ''}`}
+                onClick={() => setViewMode('grid')}
+                aria-label="Grid View"
+                title="Grid View"
               >
-                <SquaresFour size={18} weight="bold" />
-              </button>
-              <button
-                type="button"
-                className={`shop-toolbar__view-btn ${viewMode === 'grid-3' ? 'shop-toolbar__view-btn--active' : ''}`}
-                onClick={() => setViewMode('grid-3')}
-                title="3 Column Grid"
-              >
-                <GridFour size={18} weight="bold" />
+                <SquaresFour size={18} weight={viewMode === 'grid' ? 'fill' : 'bold'} />
               </button>
               <button
                 type="button"
                 className={`shop-toolbar__view-btn ${viewMode === 'list' ? 'shop-toolbar__view-btn--active' : ''}`}
                 onClick={() => setViewMode('list')}
+                aria-label="List View"
                 title="List View"
               >
-                <Rows size={18} weight="bold" />
+                <Rows size={18} weight={viewMode === 'list' ? 'fill' : 'bold'} />
               </button>
             </div>
 
@@ -198,7 +192,7 @@ export function ShopClient({
           categorySlug={categorySlug}
         />
 
-        {/* Product Grid / List */}
+        {/* Product Grid / List Container */}
         {filteredProducts.length > 0 ? (
           <div className={`shop-grid shop-grid--${viewMode}`}>
             {filteredProducts.map((product) => (
