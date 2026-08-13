@@ -20,15 +20,36 @@ export function Header() {
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [megaMenuTab, setMegaMenuTab] = useState<'shop' | 'brands'>('shop');
   const [drawerOpen, setDrawerOpen] = useState(false);
+
   const cartItemCount = useCartStore((s) => s.getItemCount());
   const openCart = useCartStore((s) => s.openCart);
   const wishlistCount = useWishlistStore((s) => s.items.length);
 
   useEffect(() => {
     setMounted(true);
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   if (pathname?.startsWith('/admin')) {
@@ -48,7 +69,10 @@ export function Header() {
 
   return (
     <>
-      <header className="header" id="site-header">
+      <header
+        className={`header ${scrolled ? 'header--scrolled' : ''}`}
+        id="site-header"
+      >
         <div className="container header__inner">
           {/* Mobile hamburger */}
           <button
@@ -100,8 +124,21 @@ export function Header() {
 
           {/* Actions */}
           <div className="header__actions">
+            {/* Desktop Instant Search Trigger */}
             <button
-              className="header__action-btn"
+              className="header__search-trigger-pill"
+              onClick={() => { setSearchOpen(true); closeMegaMenu(); }}
+              aria-label="Search catalog (Press Ctrl+K)"
+              type="button"
+            >
+              <MagnifyingGlass size={16} weight="bold" />
+              <span className="header__search-placeholder">Search hardware, brands...</span>
+              <kbd className="header__search-kbd">Ctrl K</kbd>
+            </button>
+
+            {/* Mobile Search Button */}
+            <button
+              className="header__action-btn header__search-mobile-btn"
               onClick={() => { setSearchOpen(true); closeMegaMenu(); }}
               aria-label="Search"
               type="button"

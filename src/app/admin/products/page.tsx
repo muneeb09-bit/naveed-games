@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { products as initialProducts, formatPrice } from '@/data/products';
-import { categories } from '@/data/categories';
+import { departments } from '@/data/departments';
 import { createClient } from '@/lib/supabase/client';
-import { Plus, MagnifyingGlass, Pencil, Trash, Copy, Archive } from '@phosphor-icons/react';
+import { Plus, MagnifyingGlass, Pencil, Trash, Copy, FileText, Check, X, ShieldCheck } from '@phosphor-icons/react';
 import Link from 'next/link';
 import type { Product } from '@/types';
 
@@ -13,6 +13,8 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
+  const [tempPrice, setTempPrice] = useState<string>('');
 
   useEffect(() => {
     async function loadProducts() {
@@ -65,7 +67,7 @@ export default function AdminProductsPage() {
               status: (data.status as Product['status']) || 'published',
             }));
 
-            // Deduplicate by slug (prefer DB versions)
+            // Deduplicate by slug
             const dbSlugs = new Set(mapped.map((p) => p.slug));
             const seen = new Set<string>();
             const uniqueMapped: Product[] = [];
@@ -92,7 +94,7 @@ export default function AdminProductsPage() {
         console.warn('Could not fetch Supabase products catalog:', err);
       }
 
-      // Fallback: merge custom local storage products with static catalog (deduplicated by slug)
+      // Fallback: merge custom local storage products with static catalog
       const seen = new Set<string>();
       const combined: Product[] = [];
       [...customProds, ...initialProducts].forEach((p) => {
@@ -113,167 +115,150 @@ export default function AdminProductsPage() {
       p.brand.toLowerCase().includes(search.toLowerCase()) ||
       p.sku.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
-      categoryFilter === 'all' || p.categorySlug === categoryFilter;
+      categoryFilter === 'all' || p.categorySlug === categoryFilter || p.departmentSlug === categoryFilter;
     const matchesStatus =
       statusFilter === 'all' || (p.status || 'published') === statusFilter;
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Are you sure you want to delete "${name}"?`)) {
-      const updated = productList.filter((p) => p.id !== id);
-      setProductList(updated);
-
-      if (typeof window !== 'undefined') {
-        try {
-          const stored = localStorage.getItem('ng_custom_products');
-          if (stored) {
-            const customList: Product[] = JSON.parse(stored);
-            const filtered = customList.filter((p) => p.id !== id);
-            localStorage.setItem('ng_custom_products', JSON.stringify(filtered));
-          }
-        } catch {
-          // Ignore
-        }
+  const toggleStockStatus = (productId: string) => {
+    const updated = productList.map((p) => {
+      if (p.id === productId) {
+        const nextInStock = !p.inStock;
+        return {
+          ...p,
+          inStock: nextInStock,
+          stockQuantity: nextInStock ? (p.stockQuantity > 0 ? p.stockQuantity : 5) : 0,
+        };
       }
+      return p;
+    });
+    setProductList(updated);
 
+    if (typeof window !== 'undefined') {
       try {
-        const supabase = createClient();
-        if (supabase && id.length > 15) {
-          await supabase.from('products').delete().eq('id', id);
-        }
-      } catch (err) {
-        console.warn('Supabase product delete warning:', err);
+        localStorage.setItem('ng_custom_products', JSON.stringify(updated));
+      } catch {
+        // Ignore
       }
     }
   };
 
-  const handleArchive = async (id: string, name: string) => {
-    setProductList(
-      productList.map((p) =>
-        p.id === id ? { ...p, status: 'archived' as const } : p
-      )
-    );
-
-    try {
-      const supabase = createClient();
-      if (supabase && id.length > 15) {
-        await supabase.from('products').update({ status: 'archived' }).eq('id', id);
-      }
-    } catch (err) {
-      console.warn('Archive warning:', err);
+  const handleSavePrice = (productId: string) => {
+    const newPriceNum = Number(tempPrice);
+    if (!newPriceNum || isNaN(newPriceNum) || newPriceNum <= 0) {
+      setEditingPriceId(null);
+      return;
     }
-    alert(`"${name}" archived.`);
+
+    const updated = productList.map((p) => {
+      if (p.id === productId) {
+        return { ...p, price: newPriceNum };
+      }
+      return p;
+    });
+    setProductList(updated);
+    setEditingPriceId(null);
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('ng_custom_products', JSON.stringify(updated));
+      } catch {
+        // Ignore
+      }
+    }
   };
 
-  const handleDuplicate = (product: Product) => {
-    const dup: Product = {
-      ...product,
-      id: `dup-${Date.now()}`,
-      name: `${product.name} (Copy)`,
-      slug: `${product.slug}-copy-${Date.now()}`,
-      sku: `${product.sku}-COPY`,
-      status: 'draft',
-    };
-    setProductList([dup, ...productList]);
-    alert(`"${product.name}" duplicated as draft.`);
-  };
-
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, { bg: string; color: string }> = {
-      published: { bg: 'rgba(34, 197, 94, 0.15)', color: 'var(--success)' },
-      draft: { bg: 'rgba(245, 158, 11, 0.15)', color: 'var(--warning)' },
-      archived: { bg: 'rgba(107, 114, 128, 0.15)', color: 'var(--muted)' },
-    };
-    const s = styles[status] || styles.published;
-    return (
-      <span
-        style={{
-          padding: '4px 10px',
-          borderRadius: '4px',
-          fontSize: '0.6875rem',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          background: s.bg,
-          color: s.color,
-        }}
-      >
-        {status}
-      </span>
-    );
+  const exportCSV = () => {
+    const headers = ['ID', 'Name', 'Brand', 'Category', 'SKU', 'Price', 'Stock', 'InStock'];
+    const rows = filteredProducts.map((p) => [
+      p.id,
+      `"${p.name.replace(/"/g, '""')}"`,
+      `"${p.brand}"`,
+      p.categorySlug,
+      p.sku,
+      p.price,
+      p.stockQuantity,
+      p.inStock ? 'YES' : 'NO',
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `naveed_games_products_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
     <div>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      {/* Header Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', letterSpacing: '-0.02em', color: 'var(--white)' }}>
-            Product Catalog
+          <h1 style={{ fontSize: '1.75rem', color: 'var(--white)', letterSpacing: '-0.02em' }}>
+            Product Inventory Management
           </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--muted)', marginTop: '4px' }}>
-            {filteredProducts.length} of {productList.length} products
+          <p style={{ fontSize: '0.8125rem', color: 'var(--muted)', marginTop: '4px' }}>
+            {filteredProducts.length} items listed across Gaming, Drones, Smart Tech, and Racing RC
           </p>
         </div>
 
-        <Link
-          href="/admin/products/new"
-          className="button button--primary"
-          style={{ height: '40px', padding: '0 16px', fontSize: '0.8125rem' }}
-        >
-          <Plus size={16} weight="bold" />
-          Add Product
-        </Link>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={exportCSV}
+            style={{ height: '40px', padding: '0 16px', fontSize: '0.8125rem' }}
+          >
+            <FileText size={16} weight="bold" />
+            Export CSV
+          </button>
+
+          <Link href="/admin/products/new" className="button button--primary" style={{ height: '40px', padding: '0 16px', fontSize: '0.8125rem' }}>
+            <Plus size={16} weight="bold" />
+            Add New Product
+          </Link>
+        </div>
       </div>
 
-      {/* Filters Bar */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '16px',
-          flexWrap: 'wrap',
-          marginBottom: '24px',
-          background: 'var(--bg-secondary)',
-          padding: '16px',
-          borderRadius: '8px',
-          border: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div style={{ flex: 1, minWidth: '240px', position: 'relative' }}>
-          <input
-            type="text"
-            className="checkout__input"
-            placeholder="Search by name, brand, SKU..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ paddingLeft: '40px' }}
-          />
+      {/* Filter and Search Bar */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <div style={{ position: 'relative', flex: '1', minWidth: '240px' }}>
           <MagnifyingGlass
             size={18}
             weight="bold"
-            style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }}
+            style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }}
+          />
+          <input
+            type="text"
+            placeholder="Search by title, brand, or SKU..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="checkout__input"
+            style={{ paddingLeft: '40px', height: '44px' }}
           />
         </div>
 
         <select
-          className="checkout__input"
-          style={{ width: '200px' }}
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
+          className="checkout__input"
+          style={{ width: 'auto', minWidth: '180px', height: '44px' }}
         >
-          <option value="all">All Categories</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.slug}>{cat.name}</option>
+          <option value="all">All Departments</option>
+          {departments.map((d) => (
+            <option key={d.slug} value={d.slug}>{d.name}</option>
           ))}
         </select>
 
         <select
-          className="checkout__input"
-          style={{ width: '150px' }}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
+          className="checkout__input"
+          style={{ width: 'auto', minWidth: '140px', height: '44px' }}
         >
-          <option value="all">All Status</option>
+          <option value="all">All Statuses</option>
           <option value="published">Published</option>
           <option value="draft">Draft</option>
           <option value="archived">Archived</option>
@@ -286,82 +271,117 @@ export default function AdminProductsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
             <thead>
               <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--border-subtle)', color: 'var(--muted)', textTransform: 'uppercase', fontSize: '0.6875rem', letterSpacing: '0.06em' }}>
-                <th style={{ padding: '12px 20px' }}>Product</th>
-                <th style={{ padding: '12px 20px' }}>SKU</th>
-                <th style={{ padding: '12px 20px' }}>Category</th>
-                <th style={{ padding: '12px 20px' }}>Price</th>
-                <th style={{ padding: '12px 20px' }}>Stock</th>
-                <th style={{ padding: '12px 20px' }}>Status</th>
-                <th style={{ padding: '12px 20px' }}>Actions</th>
+                <th style={{ padding: '14px 20px' }}>Product</th>
+                <th style={{ padding: '14px 20px' }}>SKU</th>
+                <th style={{ padding: '14px 20px' }}>Price (PKR)</th>
+                <th style={{ padding: '14px 20px' }}>Stock Status</th>
+                <th style={{ padding: '14px 20px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredProducts.map((p) => (
                 <tr key={p.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  <td style={{ padding: '16px 20px' }}>
-                    <div style={{ fontWeight: 600, color: 'var(--white)' }}>{p.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{p.brand}</div>
+                  {/* Product Details */}
+                  <td style={{ padding: '14px 20px', minWidth: '280px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '44px', height: '44px', borderRadius: '4px', overflow: 'hidden', background: 'var(--graphite-light)', flexShrink: 0 }}>
+                        {p.images?.[0] ? (
+                          <img src={p.images[0]} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : null}
+                      </div>
+                      <div>
+                        <Link href={`/products/${p.slug}`} target="_blank" style={{ fontWeight: 600, color: 'var(--white)', textDecoration: 'none' }}>
+                          {p.name}
+                        </Link>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                          {p.brand} • {p.categorySlug}
+                        </div>
+                      </div>
+                    </div>
                   </td>
-                  <td style={{ padding: '16px 20px', fontFamily: 'monospace', color: 'var(--muted-light)', fontSize: '0.8125rem' }}>
+
+                  {/* SKU */}
+                  <td style={{ padding: '14px 20px', fontFamily: 'monospace', fontSize: '0.8125rem', color: 'var(--muted-light)' }}>
                     {p.sku}
                   </td>
-                  <td style={{ padding: '16px 20px', color: 'var(--muted-light)' }}>
-                    {p.categorySlug}
+
+                  {/* Quick Inline Price Edit */}
+                  <td style={{ padding: '14px 20px' }}>
+                    {editingPriceId === p.id ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <input
+                          type="number"
+                          value={tempPrice}
+                          onChange={(e) => setTempPrice(e.target.value)}
+                          className="checkout__input"
+                          style={{ width: '110px', height: '32px', padding: '4px 8px', fontSize: '0.8125rem' }}
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleSavePrice(p.id)}
+                          style={{ background: 'var(--success)', border: 'none', borderRadius: '4px', color: 'white', padding: '6px', cursor: 'pointer' }}
+                          title="Save price"
+                        >
+                          <Check size={14} weight="bold" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingPriceId(null)}
+                          style={{ background: 'transparent', border: '1px solid var(--graphite-border)', borderRadius: '4px', color: 'var(--muted)', padding: '6px', cursor: 'pointer' }}
+                          title="Cancel"
+                        >
+                          <X size={14} weight="bold" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => {
+                          setEditingPriceId(p.id);
+                          setTempPrice(String(p.price));
+                        }}
+                        style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                        title="Click to edit price"
+                      >
+                        <span style={{ fontWeight: 700, color: 'var(--white)' }}>
+                          {formatPrice(p.price)}
+                        </span>
+                        <Pencil size={12} weight="bold" style={{ color: 'var(--muted)' }} />
+                      </div>
+                    )}
                   </td>
-                  <td style={{ padding: '16px 20px', fontWeight: 600, color: 'var(--white)' }}>
-                    {formatPrice(p.price)}
-                  </td>
-                  <td style={{ padding: '16px 20px' }}>
-                    <span
+
+                  {/* Quick Toggle In-Stock */}
+                  <td style={{ padding: '14px 20px' }}>
+                    <button
+                      type="button"
+                      onClick={() => toggleStockStatus(p.id)}
                       style={{
                         padding: '4px 10px',
                         borderRadius: '4px',
-                        fontSize: '0.6875rem',
+                        fontSize: '0.75rem',
                         fontWeight: 700,
-                        textTransform: 'uppercase',
-                        background: p.stockQuantity <= 3 ? 'rgba(245, 158, 11, 0.15)' : 'rgba(34, 197, 94, 0.15)',
-                        color: p.stockQuantity <= 3 ? 'var(--warning)' : 'var(--success)',
+                        cursor: 'pointer',
+                        border: 'none',
+                        background: p.inStock ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                        color: p.inStock ? 'var(--success)' : 'var(--error)',
                       }}
+                      title="Click to toggle In-Stock / Out-of-Stock"
                     >
-                      {p.stockQuantity} in stock
-                    </span>
+                      {p.inStock ? `● In Stock (${p.stockQuantity})` : '✕ Sold Out'}
+                    </button>
                   </td>
-                  <td style={{ padding: '16px 20px' }}>
-                    {getStatusBadge(p.status || 'published')}
-                  </td>
-                  <td style={{ padding: '16px 20px' }}>
-                    <div style={{ display: 'flex', gap: '6px' }}>
+
+                  {/* Actions */}
+                  <td style={{ padding: '14px 20px' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
                       <Link
                         href={`/admin/products/${p.id}/edit`}
-                        style={{ background: 'none', border: 'none', color: 'var(--muted-light)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                        title="Edit product"
+                        className="admin-action-btn"
+                        title="Full Edit"
                       >
-                        <Pencil size={16} weight="bold" />
+                        <Pencil size={14} weight="bold" />
                       </Link>
-                      <button
-                        style={{ background: 'none', border: 'none', color: 'var(--muted-light)', cursor: 'pointer' }}
-                        title="Duplicate product"
-                        onClick={() => handleDuplicate(p)}
-                        type="button"
-                      >
-                        <Copy size={16} weight="bold" />
-                      </button>
-                      <button
-                        style={{ background: 'none', border: 'none', color: 'var(--warning)', cursor: 'pointer' }}
-                        title="Archive product"
-                        onClick={() => handleArchive(p.id, p.name)}
-                        type="button"
-                      >
-                        <Archive size={16} weight="bold" />
-                      </button>
-                      <button
-                        style={{ background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer' }}
-                        title="Delete product"
-                        onClick={() => handleDelete(p.id, p.name)}
-                        type="button"
-                      >
-                        <Trash size={16} weight="bold" />
-                      </button>
                     </div>
                   </td>
                 </tr>

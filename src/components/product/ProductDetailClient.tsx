@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCartStore } from '@/store/cart';
 import { useWishlistStore } from '@/store/wishlist';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +17,10 @@ import {
   ArrowLeft,
   MapPin,
   Clock,
-  ShareNetwork,
+  MagnifyingGlassPlus,
+  X,
+  Check,
+  Storefront,
 } from '@phosphor-icons/react';
 import { generateWhatsAppProductUrl } from '@/lib/whatsapp';
 import type { Product } from '@/types';
@@ -25,7 +28,7 @@ import Link from 'next/link';
 
 interface ProductDetailClientProps {
   product: Product;
-  relatedProducts: Product[];
+  relatedProducts?: Product[];
 }
 
 export function ProductDetailClient({
@@ -34,6 +37,20 @@ export function ProductDetailClient({
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [mounted, setMounted] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  // Variant selection state
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    if (product.variants && product.variants.length > 0) {
+      product.variants.forEach((v) => {
+        if (v.options.length > 0) {
+          initial[v.id] = v.options[0].value;
+        }
+      });
+    }
+    return initial;
+  });
 
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
@@ -44,12 +61,57 @@ export function ProductDetailClient({
     setMounted(true);
   }, []);
 
+  // Calculate dynamic price modifier from selected variants
+  const dynamicPrice = useMemo(() => {
+    let currentPrice = product.price;
+    if (product.variants) {
+      product.variants.forEach((v) => {
+        const selectedVal = selectedVariants[v.id];
+        const option = v.options.find((o) => o.value === selectedVal);
+        if (option && option.priceModifier) {
+          currentPrice += option.priceModifier;
+        }
+      });
+    }
+    return currentPrice;
+  }, [product.price, product.variants, selectedVariants]);
+
+  // Selected variant string summary (e.g. "512GB • Titanium Gray")
+  const variantSummary = useMemo(() => {
+    if (!product.variants || product.variants.length === 0) return '';
+    const parts: string[] = [];
+    product.variants.forEach((v) => {
+      const selectedVal = selectedVariants[v.id];
+      const opt = v.options.find((o) => o.value === selectedVal);
+      if (opt) parts.push(opt.label);
+    });
+    return parts.join(' • ');
+  }, [product.variants, selectedVariants]);
+
+  const handleVariantChange = (variantId: string, optionValue: string) => {
+    setSelectedVariants((prev) => ({
+      ...prev,
+      [variantId]: optionValue,
+    }));
+  };
+
   const handleAddToCart = () => {
-    addItem(product, quantity);
+    addItem(
+      {
+        ...product,
+        price: dynamicPrice,
+      },
+      quantity,
+      selectedVariants
+    );
     openCart();
   };
 
-  const whatsappUrl = generateWhatsAppProductUrl(product.name, product.sku);
+  const currentSku = variantSummary ? `${product.sku}-${Object.values(selectedVariants).join('-')}` : product.sku;
+  const whatsappUrl = generateWhatsAppProductUrl(
+    `${product.name}${variantSummary ? ` (${variantSummary})` : ''}`,
+    currentSku
+  );
 
   return (
     <div className="pdp">
@@ -61,13 +123,25 @@ export function ProductDetailClient({
             <span>Back to Shop</span>
           </Link>
           <span className="pdp__breadcrumb-sep">/</span>
-          <span className="pdp__breadcrumb-curr">{product.brand}</span>
+          {product.category && (
+            <>
+              <Link href={`/shop/${product.categorySlug}`} className="pdp__back-link">
+                {product.category}
+              </Link>
+              <span className="pdp__breadcrumb-sep">/</span>
+            </>
+          )}
+          <span className="pdp__breadcrumb-curr">{product.name}</span>
         </div>
 
         <div className="pdp__grid">
-          {/* Image Gallery */}
+          {/* Left Column: High-Res Image Gallery & Lightbox */}
           <div className="pdp__gallery">
-            <div className="pdp__main-image-wrap">
+            <div
+              className="pdp__main-image-wrap"
+              onClick={() => setLightboxOpen(true)}
+              title="Click to view full screen"
+            >
               <div className="pdp__main-image-container">
                 {product.images?.[selectedImage] ? (
                   <img
@@ -87,9 +161,15 @@ export function ProductDetailClient({
               {/* Floating Quick Action Badges */}
               <div className="pdp__floating-badges">
                 {product.isNew && <Badge variant="new">New</Badge>}
-                {product.discount && (
+                {product.discount ? (
                   <Badge variant="discount">-{product.discount}% OFF</Badge>
-                )}
+                ) : null}
+              </div>
+
+              {/* Zoom prompt icon */}
+              <div className="pdp__zoom-hint">
+                <MagnifyingGlassPlus size={16} weight="bold" />
+                <span>Zoom</span>
               </div>
             </div>
 
@@ -118,12 +198,17 @@ export function ProductDetailClient({
             )}
           </div>
 
-          {/* Product Details Info */}
+          {/* Right Column: Product Information & Purchase Matrix */}
           <div className="pdp__info">
             <div className="pdp__header-meta">
               <span className="pdp__brand">{product.brand}</span>
               {product.platform && (
                 <span className="pdp__platform-chip">{product.platform}</span>
+              )}
+              {product.condition && product.condition !== 'new' && (
+                <span className="pdp__platform-chip" style={{ background: 'rgba(245, 158, 11, 0.15)', color: 'var(--warning)', borderColor: 'rgba(245, 158, 11, 0.3)' }}>
+                  Certified Pre-Owned
+                </span>
               )}
             </div>
 
@@ -131,44 +216,84 @@ export function ProductDetailClient({
 
             <div className="pdp__rating-bar">
               <Rating value={product.rating} count={product.reviewCount} size={16} />
-              <span className="pdp__sku-tag">SKU: {product.sku}</span>
+              <span className="pdp__sku-tag">SKU: {currentSku}</span>
             </div>
 
+            {/* Dynamic Price Display */}
             <div className="pdp__pricing">
-              <span className="pdp__price">{formatPrice(product.price)}</span>
+              <span className="pdp__price">{formatPrice(dynamicPrice)}</span>
               {product.originalPrice && (
                 <>
                   <span className="pdp__original-price">
                     {formatPrice(product.originalPrice)}
                   </span>
-                  <Badge variant="discount">Save {formatPrice(product.originalPrice - product.price)}</Badge>
+                  <Badge variant="discount">
+                    Save {formatPrice(product.originalPrice - dynamicPrice)}
+                  </Badge>
                 </>
               )}
             </div>
 
-            {/* Stock Pill with Glow Dot */}
+            {/* In Stock & Dispatch Status */}
             <div className="pdp__stock-badge">
               {product.inStock ? (
                 product.stockQuantity <= 3 ? (
                   <span className="pdp__stock pdp__stock--low">
                     <span className="stock-dot stock-dot--low" />
-                    Only {product.stockQuantity} items left — order soon!
+                    🔥 Only {product.stockQuantity} units left in stock — order soon!
                   </span>
                 ) : (
                   <span className="pdp__stock pdp__stock--in">
                     <span className="stock-dot stock-dot--in" />
-                    In Stock (Ready to dispatch)
+                    In Stock (Peshawar Express Dispatch Ready)
                   </span>
                 )
               ) : (
                 <span className="pdp__stock pdp__stock--out">
                   <span className="stock-dot stock-dot--out" />
-                  Out of Stock
+                  Currently Out of Stock
                 </span>
               )}
             </div>
 
             <p className="pdp__description">{product.description}</p>
+
+            {/* Interactive Variant Selectors */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="pdp__variants-section">
+                {product.variants.map((v) => (
+                  <div key={v.id} className="pdp__variant-group">
+                    <div className="pdp__variant-label">
+                      <span>{v.name}:</span>
+                      <strong>
+                        {v.options.find((o) => o.value === selectedVariants[v.id])?.label}
+                      </strong>
+                    </div>
+                    <div className="pdp__variant-options">
+                      {v.options.map((opt) => {
+                        const isSelected = selectedVariants[v.id] === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            className={`pdp__variant-btn ${isSelected ? 'pdp__variant-btn--active' : ''}`}
+                            onClick={() => handleVariantChange(v.id, opt.value)}
+                          >
+                            <span>{opt.label}</span>
+                            {opt.priceModifier ? (
+                              <span className="pdp__variant-price-diff">
+                                {opt.priceModifier > 0 ? `+${formatPrice(opt.priceModifier)}` : formatPrice(opt.priceModifier)}
+                              </span>
+                            ) : null}
+                            {isSelected && <Check size={14} weight="bold" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Quantity Selector */}
             <div className="pdp__quantity-row">
@@ -180,7 +305,7 @@ export function ProductDetailClient({
               />
             </div>
 
-            {/* Desktop Actions */}
+            {/* Primary Action Buttons */}
             <div className="pdp__actions">
               <Button
                 variant="primary"
@@ -190,7 +315,7 @@ export function ProductDetailClient({
                 fullWidth
               >
                 <ShoppingBag size={20} weight="bold" />
-                Add to Cart
+                Add to Cart — Cash on Delivery
               </Button>
 
               <Button
@@ -207,41 +332,41 @@ export function ProductDetailClient({
               </Button>
             </div>
 
-            {/* Direct WhatsApp Order CTA */}
+            {/* WhatsApp VIP Quick Order */}
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="pdp__whatsapp-link">
               <Button variant="whatsapp" size="lg" fullWidth>
                 <WhatsappLogo size={20} weight="fill" />
-                Quick Order via WhatsApp
+                Order Directly on WhatsApp (Priority Dispatch)
               </Button>
             </a>
 
-            {/* Local Delivery Info Box */}
+            {/* High-Trust Buyer Assurance Card */}
             <div className="pdp__delivery-box">
               <div className="pdp__delivery-row">
-                <Truck size={20} weight="bold" className="pdp__delivery-icon" />
+                <Truck size={20} weight="bold" className="pdp__delivery-icon" style={{ color: 'var(--accent)' }} />
                 <div className="pdp__delivery-text">
-                  <strong>Peshawar Same-Day Delivery available</strong>
-                  <span>Nationwide 1–3 Business Days Shipping</span>
+                  <strong>Peshawar Same-Day Express Delivery</strong>
+                  <span>1–2 business days nationwide shipping with Cash on Delivery (COD)</span>
                 </div>
               </div>
               <div className="pdp__delivery-row">
-                <ShieldCheck size={20} weight="bold" className="pdp__delivery-icon" />
+                <ShieldCheck size={20} weight="bold" className="pdp__delivery-icon" style={{ color: 'var(--success)' }} />
                 <div className="pdp__delivery-text">
-                  <strong>100% Genuine Guaranteed</strong>
-                  <span>Official Warranty & Inspection on Delivery</span>
+                  <strong>Open & Inspect on Delivery Permitted</strong>
+                  <span>100% Genuine Guaranteed • Official Warranty Slip & Serial Verification</span>
                 </div>
               </div>
               <div className="pdp__delivery-row">
-                <MapPin size={20} weight="bold" className="pdp__delivery-icon" />
+                <Storefront size={20} weight="bold" className="pdp__delivery-icon" style={{ color: '#ec4899' }} />
                 <div className="pdp__delivery-text">
-                  <strong>Store Pickup Available</strong>
-                  <span>Naveed Games, Peshawar City Shop</span>
+                  <strong>Store Pickup in Peshawar</strong>
+                  <span>Naveed Games Flagship Store, Karkhano Market, Peshawar</span>
                 </div>
               </div>
             </div>
 
-            {/* Specifications Accordion */}
-            {product.specs.length > 0 && (
+            {/* Technical Specifications Sheet */}
+            {product.specs && product.specs.length > 0 && (
               <div className="pdp__specs">
                 <h3 className="pdp__specs-title">Technical Specifications</h3>
                 <div className="pdp__specs-table">
@@ -258,10 +383,34 @@ export function ProductDetailClient({
         </div>
       </div>
 
-      {/* Mobile Sticky Bottom Buy Bar (visible on screens <= 1023px) */}
+      {/* Full-Screen High-Res Lightbox Modal */}
+      {lightboxOpen && product.images?.[selectedImage] && (
+        <div className="pdp-lightbox" onClick={() => setLightboxOpen(false)}>
+          <div className="pdp-lightbox__content" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="pdp-lightbox__close"
+              onClick={() => setLightboxOpen(false)}
+              aria-label="Close image preview"
+              type="button"
+            >
+              <X size={24} weight="bold" />
+            </button>
+            <img
+              src={product.images[selectedImage]}
+              alt={product.name}
+              className="pdp-lightbox__image"
+            />
+            <div className="pdp-lightbox__caption">
+              <strong>{product.name}</strong> — Image {selectedImage + 1} of {product.images.length}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Sticky Buy Bar */}
       <div className="pdp__sticky-mobile-bar">
         <div className="pdp__sticky-price-info">
-          <span className="pdp__sticky-price">{formatPrice(product.price)}</span>
+          <span className="pdp__sticky-price">{formatPrice(dynamicPrice)}</span>
           <span className="pdp__sticky-title">{product.name}</span>
         </div>
         <div className="pdp__sticky-actions">

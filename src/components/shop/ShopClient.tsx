@@ -15,15 +15,19 @@ type ViewMode = 'grid-4' | 'grid-3' | 'list';
 export function ShopClient({
   categorySlug,
   subcategorySlug,
+  departmentSlug,
 }: {
   categorySlug?: string;
   subcategorySlug?: string;
+  departmentSlug?: string;
 }) {
   const searchParams = useSearchParams();
 
   const [filters, setFilters] = useState<ProductFilters>(() => {
     const initial: ProductFilters = {};
     if (categorySlug) initial.category = categorySlug;
+    if (searchParams.get('search')) initial.search = searchParams.get('search')!;
+    if (searchParams.get('condition')) initial.condition = [searchParams.get('condition') as any];
     if (searchParams.get('featured') === 'true') initial.featured = true;
     if (searchParams.get('new') === 'true') initial.isNew = true;
     if (searchParams.get('bestseller') === 'true') initial.bestseller = true;
@@ -33,8 +37,20 @@ export function ShopClient({
   const [sort, setSort] = useState<SortOption>('relevance');
   const [viewMode, setViewMode] = useState<ViewMode>('grid-4');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
   const [allProductsList, setAllProductsList] = useState<Product[]>(products);
+
+  // Sync with search parameter when navigating
+  useEffect(() => {
+    const searchVal = searchParams.get('search');
+    const conditionVal = searchParams.get('condition');
+
+    setFilters((prev) => ({
+      ...prev,
+      category: categorySlug || prev.category,
+      search: searchVal || undefined,
+      condition: conditionVal ? [conditionVal as any] : prev.condition,
+    }));
+  }, [searchParams, categorySlug]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -64,11 +80,14 @@ export function ShopClient({
   const filteredProducts = useMemo(() => {
     let result = filterProducts(allProductsList, filters);
     if (subcategorySlug) {
+      const sub = subcategorySlug.toLowerCase().trim();
       result = result.filter(
         (p) =>
-          p.subcategoryId === subcategorySlug ||
-          p.tags.includes(subcategorySlug) ||
-          p.tags.some((t) => t.includes(subcategorySlug.replace(/-/g, '')))
+          p.subcategoryId === sub ||
+          p.subcategorySlug === sub ||
+          p.tags.includes(sub) ||
+          p.slug.includes(sub) ||
+          p.tags.some((t) => t.includes(sub.replace(/-/g, '')))
       );
     }
     return sortProducts(result, sort);
@@ -83,6 +102,7 @@ export function ShopClient({
           onFilterChange={setFilters}
           productCount={filteredProducts.length}
           categorySlug={categorySlug}
+          departmentSlug={departmentSlug}
         />
       </div>
 
@@ -102,7 +122,7 @@ export function ShopClient({
             <div className="shop-toolbar__count-badge">
               <span className="shop-toolbar__count-dot" />
               <span className="shop-toolbar__count-text">
-                {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
+                {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} available
               </span>
             </div>
           </div>
@@ -160,7 +180,7 @@ export function ShopClient({
             <div className="shop-empty__icon-wrap">
               <Funnel size={36} weight="thin" />
             </div>
-            <h3 className="shop-empty__title">No products found</h3>
+            <h3 className="shop-empty__title">No matching products found</h3>
             <p className="shop-empty__desc">
               Try adjusting your price range, platform selection, or clearing your active filters.
             </p>
@@ -169,7 +189,7 @@ export function ShopClient({
               onClick={() => setFilters({ category: categorySlug })}
               type="button"
             >
-              Clear Filters
+              Reset All Filters
             </button>
           </div>
         )}
@@ -203,6 +223,7 @@ export function ShopClient({
                 onFilterChange={(f) => setFilters(f)}
                 productCount={filteredProducts.length}
                 categorySlug={categorySlug}
+                departmentSlug={departmentSlug}
                 hideHeader={true}
               />
             </div>

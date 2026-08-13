@@ -7,7 +7,7 @@ import type { Product, CartItem } from '@/types';
 interface CartState {
   items: CartItem[];
   isOpen: boolean;
-  addItem: (product: Product, quantity?: number) => void;
+  addItem: (product: Product, quantity?: number, selectedVariants?: Record<string, string>) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -24,20 +24,24 @@ export const useCartStore = create<CartState>()(
       items: [],
       isOpen: false,
 
-      addItem: (product, quantity = 1) => {
+      addItem: (product, quantity = 1, selectedVariants) => {
         const items = get().items;
-        const existing = items.find((item) => item.product.id === product.id);
+        const existing = items.find((item) => {
+          if (item.product.id !== product.id) return false;
+          if (!selectedVariants && !item.selectedVariants) return true;
+          return JSON.stringify(item.selectedVariants) === JSON.stringify(selectedVariants);
+        });
 
         if (existing) {
           set({
             items: items.map((item) =>
-              item.product.id === product.id
+              item === existing
                 ? { ...item, quantity: item.quantity + quantity }
                 : item
             ),
           });
         } else {
-          set({ items: [...items, { product, quantity }] });
+          set({ items: [...items, { product, quantity, selectedVariants }] });
         }
       },
 

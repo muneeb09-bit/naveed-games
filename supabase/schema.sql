@@ -1,6 +1,6 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- NAVEED GAMES — Production Supabase Schema
--- Relational database design for premium gaming ecommerce
+-- Relational database design for multi-category gaming, drones, smart tech & RC
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 -- Enable Extensions
@@ -61,9 +61,12 @@ CREATE TABLE IF NOT EXISTS public.products (
   name TEXT NOT NULL,
   brand_name TEXT NOT NULL,
   brand_id UUID REFERENCES public.brands(id) ON DELETE SET NULL,
+  department_name TEXT DEFAULT 'Gaming',
+  department_slug TEXT DEFAULT 'gaming',
   category_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
   category_slug TEXT NOT NULL,
   subcategory_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
+  subcategory_slug TEXT,
   price DECIMAL(12, 2) NOT NULL,
   original_price DECIMAL(12, 2),
   sale_price DECIMAL(12, 2),
@@ -149,6 +152,7 @@ CREATE TABLE IF NOT EXISTS public.reviews (
 
 -- ─── INDEXES FOR FAST READS ───
 CREATE INDEX IF NOT EXISTS idx_products_slug ON public.products(slug);
+CREATE INDEX IF NOT EXISTS idx_products_dept ON public.products(department_slug);
 CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category_slug);
 CREATE INDEX IF NOT EXISTS idx_products_status ON public.products(status);
 CREATE INDEX IF NOT EXISTS idx_products_featured ON public.products(featured) WHERE featured = true;

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { categories } from '@/data/categories';
 import { brands } from '@/data/brands';
 import { getAvailablePlatforms } from '@/data/products';
+import { departments } from '@/data/departments';
 import type { ProductFilters } from '@/types';
 import {
   CaretDown,
@@ -23,6 +23,7 @@ interface FilterSidebarProps {
   onFilterChange: (filters: ProductFilters) => void;
   productCount: number;
   categorySlug?: string;
+  departmentSlug?: string;
   hideHeader?: boolean;
 }
 
@@ -31,6 +32,7 @@ export function FilterSidebar({
   onFilterChange,
   productCount,
   categorySlug,
+  departmentSlug,
   hideHeader = false,
 }: FilterSidebarProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -39,43 +41,49 @@ export function FilterSidebar({
 
   const allPlatforms = useMemo(() => getAvailablePlatforms(), []);
 
-  // Filter relevant brands dynamically by category context
-  const filteredBrands = useMemo(() => {
-    if (!categorySlug) return brands;
-    const cat = categorySlug.toLowerCase();
+  // Context-aware dynamic brand filtering based on current category / department
+  const dynamicBrands = useMemo(() => {
+    const slug = (categorySlug || departmentSlug || '').toLowerCase();
 
-    if (cat.includes('dji') || cat.includes('drone') || cat.includes('camera')) {
-      return brands.filter((b) => ['dji', 'gopro', 'sony'].includes(b.slug));
+    if (slug.includes('drone') || slug.includes('creator') || slug.includes('camera') || slug.includes('vlog')) {
+      return brands.filter((b) => ['dji', 'sony'].includes(b.slug));
     }
-    if (cat.includes('phone') || cat.includes('laptop') || cat.includes('smart')) {
-      return brands.filter((b) => ['samsung', 'huawei', 'lenovo', 'meta', 'apple'].includes(b.slug));
+    if (slug.includes('smart') || slug.includes('vr') || slug.includes('robot') || slug.includes('glasses') || slug.includes('phone')) {
+      return brands.filter((b) => ['meta', 'ray-ban', 'livingai', 'keyi-tech', 'samsung', 'huawei'].includes(b.slug));
     }
-    if (cat.includes('racing') || cat.includes('rc') || cat.includes('traxxas')) {
-      return brands.filter((b) => ['traxxas', 'logitech', 'thrustmaster', 'pxn'].includes(b.slug));
+    if (slug.includes('racing') || slug.includes('rc') || slug.includes('wheel') || slug.includes('seat')) {
+      return brands.filter((b) => ['traxxas', 'logitech', 'thrustmaster', 'playseat', 'pxn'].includes(b.slug));
     }
-    if (cat.includes('playstation') || cat.includes('ps5') || cat.includes('ps4')) {
-      return brands.filter((b) => ['playstation', 'sony'].includes(b.slug));
+    if (slug.includes('playstation') || slug.includes('ps5')) {
+      return brands.filter((b) => ['playstation', 'sony', 'scuf'].includes(b.slug));
     }
-    if (cat.includes('xbox')) {
-      return brands.filter((b) => ['xbox', 'microsoft'].includes(b.slug));
+    if (slug.includes('xbox')) {
+      return brands.filter((b) => ['xbox', 'scuf'].includes(b.slug));
     }
-    if (cat.includes('nintendo') || cat.includes('switch')) {
+    if (slug.includes('nintendo') || slug.includes('switch')) {
       return brands.filter((b) => ['nintendo'].includes(b.slug));
     }
-    return brands;
-  }, [categorySlug]);
+    if (slug.includes('handheld')) {
+      return brands.filter((b) => ['lenovo', 'asus', 'nintendo'].includes(b.slug));
+    }
 
-  // Filter relevant platforms dynamically by category context
+    return brands;
+  }, [categorySlug, departmentSlug]);
+
+  // Show platform filter only when relevant for gaming/handheld categories
   const showPlatformFilter = useMemo(() => {
-    if (!categorySlug) return true;
-    const cat = categorySlug.toLowerCase();
+    if (!categorySlug && !departmentSlug) return true;
+    const slug = (categorySlug || departmentSlug || '').toLowerCase();
     return (
-      cat.includes('game') ||
-      cat.includes('console') ||
-      cat.includes('controller') ||
-      cat.includes('handheld')
+      slug.includes('game') ||
+      slug.includes('playstation') ||
+      slug.includes('xbox') ||
+      slug.includes('nintendo') ||
+      slug.includes('controller') ||
+      slug.includes('handheld') ||
+      slug.includes('vr')
     );
-  }, [categorySlug]);
+  }, [categorySlug, departmentSlug]);
 
   const toggleSection = (section: string) => {
     const next = new Set(expandedSections);
@@ -134,37 +142,37 @@ export function FilterSidebar({
               className="filter-sidebar__clear"
               onClick={clearAllFilters}
               type="button"
-              title="Reset all filters"
+              title="Reset all active filters"
             >
               <X size={12} weight="bold" />
-              Clear
+              Clear All
             </button>
           )}
         </div>
       )}
 
-      {/* Category Filter */}
+      {/* Department & Category Quick Filters (shown when on root /shop) */}
       {!categorySlug && (
         <FilterSection
-          title="Category"
+          title="Departments"
           icon={<Tag size={15} weight="bold" />}
           isOpen={expandedSections.has('category')}
           onToggle={() => toggleSection('category')}
           activeCount={filters.category ? 1 : 0}
         >
           <div className="filter-sidebar__options-grid">
-            {categories.map((cat) => {
-              const isSelected = filters.category === cat.slug;
+            {departments.map((dept) => {
+              const isSelected = filters.category === dept.slug;
               return (
                 <button
-                  key={cat.slug}
+                  key={dept.slug}
                   type="button"
                   className={`filter-sidebar__chip ${isSelected ? 'filter-sidebar__chip--active' : ''}`}
                   onClick={() =>
-                    updateFilter('category', isSelected ? undefined : cat.slug)
+                    updateFilter('category', isSelected ? undefined : dept.slug)
                   }
                 >
-                  <span>{cat.name}</span>
+                  <span>{dept.name}</span>
                   {isSelected && <Check size={12} weight="bold" />}
                 </button>
               );
@@ -173,8 +181,8 @@ export function FilterSidebar({
         </FilterSection>
       )}
 
-      {/* Relevant Brand Filter */}
-      {filteredBrands.length > 0 && (
+      {/* Relevant Brand Filters */}
+      {dynamicBrands.length > 0 && (
         <FilterSection
           title="Brand"
           icon={<Sparkle size={15} weight="bold" />}
@@ -183,7 +191,7 @@ export function FilterSidebar({
           activeCount={filters.brand?.length || 0}
         >
           <div className="filter-sidebar__options-chips">
-            {filteredBrands.map((brand) => {
+            {dynamicBrands.map((brand) => {
               const isChecked = (filters.brand || []).includes(brand.slug);
               return (
                 <button
@@ -201,7 +209,7 @@ export function FilterSidebar({
         </FilterSection>
       )}
 
-      {/* Price Range */}
+      {/* Price Range Filter & Quick Presets */}
       <FilterSection
         title="Price Range"
         icon={<CurrencyCircleDollar size={15} weight="bold" />}
@@ -272,7 +280,7 @@ export function FilterSidebar({
         </div>
       </FilterSection>
 
-      {/* Availability Switch */}
+      {/* In-Stock Toggle */}
       <FilterSection
         title="Availability"
         icon={<CheckCircle size={15} weight="bold" />}
@@ -294,7 +302,7 @@ export function FilterSidebar({
         </button>
       </FilterSection>
 
-      {/* Platform Filter (Only shown when relevant for gaming categories) */}
+      {/* Gaming Platform Filter */}
       {showPlatformFilter && (
         <FilterSection
           title="Platform"
@@ -322,7 +330,7 @@ export function FilterSidebar({
         </FilterSection>
       )}
 
-      {/* Condition */}
+      {/* Condition (New vs Certified Pre-Owned) */}
       <FilterSection
         title="Condition"
         icon={<Sparkle size={15} weight="bold" />}
@@ -332,11 +340,7 @@ export function FilterSidebar({
       >
         <div className="filter-sidebar__options-chips">
           {['new', 'used', 'refurbished', 'pre-owned'].map((cond) => {
-            const isChecked = (filters.condition || []).includes(
-              cond as ProductFilters['condition'] extends (infer U)[] | undefined
-                ? U
-                : never
-            );
+            const isChecked = (filters.condition || []).includes(cond as any);
             return (
               <button
                 key={cond}
@@ -354,9 +358,9 @@ export function FilterSidebar({
         </div>
       </FilterSection>
 
-      {/* Quick Badges */}
+      {/* Highlights & Badges */}
       <FilterSection
-        title="Badges"
+        title="Highlights"
         icon={<Flame size={15} weight="bold" />}
         isOpen={expandedSections.has('quick')}
         onToggle={() => toggleSection('quick')}
