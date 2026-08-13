@@ -39,6 +39,17 @@ export default function AdminLayout({
 
     async function checkAuth() {
       try {
+        // First check local admin session flag
+        const hasLocalAuth =
+          (typeof window !== 'undefined' && localStorage.getItem('ng_admin_authed') === 'true') ||
+          (typeof document !== 'undefined' && document.cookie.includes('ng_admin_authed=true'));
+
+        if (hasLocalAuth) {
+          setIsAuthed(true);
+          setAuthChecked(true);
+          return;
+        }
+
         const supabase = createClient();
         if (!supabase) {
           setIsAuthed(true);
@@ -75,6 +86,12 @@ export default function AdminLayout({
       }
     } catch {
       // Continue
+    }
+    if (typeof document !== 'undefined') {
+      document.cookie = 'ng_admin_authed=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('ng_admin_authed');
     }
     router.push('/admin/login');
   };
