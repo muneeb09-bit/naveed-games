@@ -6,6 +6,7 @@ import { categories } from '@/data/categories';
 import { brands } from '@/data/brands';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 import { ArrowLeft, Plus, Trash } from '@phosphor-icons/react';
 import Link from 'next/link';
 
@@ -331,33 +332,12 @@ export default function NewProductPage() {
 
         {/* Product Images */}
         <div className="admin-form-card">
-          <h2 className="admin-form-card__title">Images</h2>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
-            {images.map((img, idx) => (
-              <div key={idx} style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
-                <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveImage(idx)}
-                  style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.7)', color: 'var(--error)', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <input
-              type="text"
-              className="checkout__input"
-              placeholder="Image URL (e.g. /images/products/ps5-pro-1.jpg)"
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
-            />
-            <Button type="button" variant="secondary" onClick={handleAddImage}>
-              Add Image
-            </Button>
-          </div>
+          <h2 className="admin-form-card__title">Product Images</h2>
+          <ImageUploader
+            images={images}
+            onChange={(imgs) => setImages(imgs)}
+            multiple={true}
+          />
         </div>
 
         {/* Descriptions & Specs */}
