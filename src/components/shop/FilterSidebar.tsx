@@ -16,6 +16,7 @@ import {
   Lightning,
   Flame,
   CheckCircle,
+  MagnifyingGlass,
 } from '@phosphor-icons/react';
 
 interface FilterSidebarProps {
@@ -150,6 +151,37 @@ export function FilterSidebar({
           )}
         </div>
       )}
+
+      {/* Search Filter Input */}
+      <div className="filter-sidebar__search-wrap">
+        <MagnifyingGlass size={16} weight="bold" style={{ color: 'var(--accent)' }} />
+        <input
+          type="text"
+          placeholder="Filter by keyword..."
+          value={filters.search || ''}
+          onChange={(e) =>
+            onFilterChange({ ...filters, search: e.target.value || undefined })
+          }
+          className="filter-sidebar__search-input"
+        />
+        {filters.search && (
+          <button
+            type="button"
+            onClick={() => onFilterChange({ ...filters, search: undefined })}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--muted)',
+              cursor: 'pointer',
+              display: 'flex',
+              padding: '2px',
+            }}
+            aria-label="Clear keyword"
+          >
+            <X size={14} weight="bold" />
+          </button>
+        )}
+      </div>
 
       {/* Department & Category Quick Filters (shown when on root /shop) */}
       {!categorySlug && (

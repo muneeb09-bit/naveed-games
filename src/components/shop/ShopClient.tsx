@@ -7,7 +7,7 @@ import { ProductCard } from '@/components/product/ProductCard';
 import { FilterSidebar } from '@/components/shop/FilterSidebar';
 import { SortDropdown } from '@/components/shop/SortDropdown';
 import { ActiveFilters } from '@/components/shop/ActiveFilters';
-import { Funnel, SquaresFour, GridFour, Rows } from '@phosphor-icons/react';
+import { Funnel, SquaresFour, GridFour, Rows, MagnifyingGlass, X } from '@phosphor-icons/react';
 import type { Product, ProductFilters, SortOption } from '@/types';
 
 type ViewMode = 'grid-4' | 'grid-3' | 'list';
@@ -108,7 +108,37 @@ export function ShopClient({
 
       {/* Main Content Area */}
       <div className="shop-layout__main">
-        {/* Toolbar Header */}
+        {/* Catalog Search Bar (Above Filters & Toolbar) */}
+        <div className="shop-search-bar">
+          <div className="shop-search-bar__inner">
+            <MagnifyingGlass size={18} weight="bold" className="shop-search-bar__icon" />
+            <input
+              type="text"
+              placeholder={
+                categorySlug
+                  ? `Search inside ${categorySlug.replace(/-/g, ' ')}...`
+                  : 'Search products by title, brand, platform, or keyword...'
+              }
+              value={filters.search || ''}
+              onChange={(e) =>
+                setFilters({ ...filters, search: e.target.value || undefined })
+              }
+              className="shop-search-bar__input"
+            />
+            {filters.search && (
+              <button
+                type="button"
+                onClick={() => setFilters({ ...filters, search: undefined })}
+                className="shop-search-bar__clear"
+                aria-label="Clear search query"
+              >
+                <X size={16} weight="bold" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Toolbar Header with Filters Button, Counter & View Modes */}
         <div className="shop-toolbar">
           <div className="shop-toolbar__left">
             <button
@@ -182,7 +212,7 @@ export function ShopClient({
             </div>
             <h3 className="shop-empty__title">No matching products found</h3>
             <p className="shop-empty__desc">
-              Try adjusting your price range, platform selection, or clearing your active filters.
+              Try adjusting your search query, price range, platform selection, or clearing your active filters.
             </p>
             <button
               className="button button--primary"
