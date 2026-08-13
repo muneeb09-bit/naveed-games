@@ -27,6 +27,10 @@ export function MobileNav() {
     setMounted(true);
   }, []);
 
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <>
       <nav className="bottom-nav" aria-label="Mobile navigation">

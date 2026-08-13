@@ -12,10 +12,12 @@ import { useCartStore } from '@/store/cart';
 import { useWishlistStore } from '@/store/wishlist';
 import { useState, useEffect, useCallback } from 'react';
 import { SearchModal } from './SearchModal';
+import { usePathname } from 'next/navigation';
 import { MegaMenu } from './MegaMenu';
 import { MobileDrawer } from './MobileDrawer';
 
 export function Header() {
+  const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
@@ -28,6 +30,10 @@ export function Header() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   const handleMegaMenu = useCallback((tab: 'shop' | 'brands') => {
     if (megaMenuOpen && megaMenuTab === tab) {

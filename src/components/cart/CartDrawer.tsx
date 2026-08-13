@@ -6,9 +6,11 @@ import { QuantitySelector } from '@/components/ui/QuantitySelector';
 import { Button } from '@/components/ui/Button';
 import { formatPrice } from '@/data/products';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 export function CartDrawer() {
+  const pathname = usePathname();
   const { items, isOpen, closeCart, removeItem, updateQuantity, getSubtotal } =
     useCartStore();
 
@@ -25,7 +27,7 @@ export function CartDrawer() {
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (pathname?.startsWith('/admin') || !isOpen) return null;
 
   return (
     <>

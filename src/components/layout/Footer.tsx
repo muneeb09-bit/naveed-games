@@ -1,7 +1,15 @@
+'use client';
+
 import Link from 'next/link';
-import { WhatsappLogo, MapPin, Phone } from '@phosphor-icons/react/dist/ssr';
+import { usePathname } from 'next/navigation';
+import { WhatsappLogo, MapPin, Phone } from '@phosphor-icons/react';
 
 export function Footer() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
   return (
     <footer className="footer" id="site-footer">
       <div className="container">
