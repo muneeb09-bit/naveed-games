@@ -1511,9 +1511,6 @@ a {
     padding: 32px 0;
   }
 }
-  opacity: 0;
-  will-change: opacity, transform;
-}
 
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
