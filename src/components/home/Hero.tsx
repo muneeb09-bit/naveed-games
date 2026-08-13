@@ -30,30 +30,40 @@ const HERO_FEATURED = [
     title: 'PlayStation 5 Pro',
     category: 'Flagship Console',
     price: 'Rs. 249,999',
-    badge: 'PS5 PRO ARRIVAL',
+    badge: 'FLAGSHIP GAMING',
     image: '/images/products/ps5-pro-1.jpg',
     tagline: '67% More Compute Units • 2TB Custom SSD • PSSR AI Upscaling',
     theme: 'ps',
   },
   {
-    slug: 'xbox-series-x',
-    title: 'Xbox Series X (1TB)',
-    category: 'Next-Gen Power',
-    price: 'Rs. 164,999',
-    badge: 'XBOX VELOCITY',
-    image: '/images/products/xbox-series-x-1.jpg',
-    tagline: '12 TFLOPS Raw GPU Power • 4K Gaming at 120 FPS',
-    theme: 'xbox',
+    slug: 'dji-mini-4-pro-fly-more-combo',
+    title: 'DJI Mini 4 Pro (Fly More Combo)',
+    category: 'Aerial Creator Studio',
+    price: 'Rs. 314,999',
+    badge: 'DRONE INNOVATION',
+    image: '/images/products/dji-mini-4-pro-1.jpg',
+    tagline: 'Under 249g • 4K/60fps HDR • Omnidirectional Sensing • RC 2 Screen',
+    theme: 'ps',
   },
   {
-    slug: 'rtx-4090-pc',
-    title: 'Custom RTX 4090 Gaming Rig',
-    category: 'Ultra Gaming PC',
-    price: 'Rs. 899,999',
-    badge: 'EXTREME PERFORMANCE',
-    image: '/images/products/pc-1.jpg',
-    tagline: 'Intel Core i9 14900K • 64GB DDR5 • Liquid Cooled',
+    slug: 'meta-quest-3-512gb',
+    title: 'Meta Quest 3 (512GB)',
+    category: 'Spatial Mixed Reality',
+    price: 'Rs. 174,999',
+    badge: 'SMART SPATIAL TECH',
+    image: '/images/products/meta-quest-3-1.jpg',
+    tagline: '4K+ Infinite Display • Snapdragon XR2 Gen 2 • Full-Color Passthrough',
     theme: 'ps',
+  },
+  {
+    slug: 'traxxas-xrt-8s-brushless-race-truck',
+    title: 'Traxxas XRT 8S (60+ MPH)',
+    category: 'Extreme 4WD Brushless',
+    price: 'Rs. 369,999',
+    badge: 'EXTREME RC MONSTER',
+    image: '/images/products/traxxas-xrt-1.jpg',
+    tagline: '8S Velineon 1200XL Power • All-Metal Drivetrain • 60+ MPH Top Speed',
+    theme: 'xbox',
   },
 ];
 
@@ -397,14 +407,17 @@ export function Hero() {
                 <button type="button" onClick={() => navigateToSearch('PS5 Pro')} className="hero__search-pill">
                   PS5 Pro
                 </button>
-                <button type="button" onClick={() => navigateToSearch('Xbox')} className="hero__search-pill">
-                  Xbox Series X
+                <button type="button" onClick={() => navigateToSearch('DJI')} className="hero__search-pill">
+                  DJI Drones
                 </button>
-                <button type="button" onClick={() => navigateToSearch('RTX 4090')} className="hero__search-pill">
-                  RTX 4090 PC
+                <button type="button" onClick={() => navigateToSearch('Quest')} className="hero__search-pill">
+                  Meta Quest 3
                 </button>
-                <button type="button" onClick={() => navigateToSearch('VR')} className="hero__search-pill">
-                  Meta Quest VR
+                <button type="button" onClick={() => navigateToSearch('Traxxas')} className="hero__search-pill">
+                  Traxxas RC
+                </button>
+                <button type="button" onClick={() => navigateToSearch('Logitech')} className="hero__search-pill">
+                  G923 Racing Wheel
                 </button>
               </div>
             </form>
