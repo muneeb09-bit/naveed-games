@@ -150,32 +150,72 @@ export function Hero() {
         }
       );
 
-      // Custom Gaming Cursor & Symbol Magnetic Cursor Interaction (Desktop only)
+      // Custom PS5 DualSense Controller Cursor & Physics (Desktop only)
       mm.add('(min-width: 1024px)', () => {
-        const dot = heroEl.querySelector('.hero__cursor-dot');
-        const ring = heroEl.querySelector('.hero__cursor-ring');
+        const controller = heroEl.querySelector('.hero__ps5-cursor') as HTMLElement;
+        const leftStick = heroEl.querySelector('.hero__ps5-stick--left') as HTMLElement;
+        const rightStick = heroEl.querySelector('.hero__ps5-stick--right') as HTMLElement;
+        const shockwave = heroEl.querySelector('.hero__ps5-shockwave') as HTMLElement;
         const symbols = Array.from(heroEl.querySelectorAll<HTMLElement>('.hero__ps-symbol'));
-        if (!dot || !ring) return;
+        if (!controller) return;
 
-        const xDotTo = gsap.quickSetter(dot, 'x', 'px');
-        const yDotTo = gsap.quickSetter(dot, 'y', 'px');
+        const xTo = gsap.quickTo(controller, 'x', { duration: 0.18, ease: 'power2.out' });
+        const yTo = gsap.quickTo(controller, 'y', { duration: 0.18, ease: 'power2.out' });
+        const rotTo = gsap.quickTo(controller, 'rotation', { duration: 0.35, ease: 'power2.out' });
+        const tiltXTo = gsap.quickTo(controller, 'rotateX', { duration: 0.3, ease: 'power2.out' });
+        const tiltYTo = gsap.quickTo(controller, 'rotateY', { duration: 0.3, ease: 'power2.out' });
 
-        const xRingTo = gsap.quickTo(ring, 'x', { duration: 0.3, ease: 'power2.out' });
-        const yRingTo = gsap.quickTo(ring, 'y', { duration: 0.3, ease: 'power2.out' });
+        // Analog stick deflections
+        const stickLeftXTo = leftStick ? gsap.quickTo(leftStick, 'x', { duration: 0.2, ease: 'power2.out' }) : null;
+        const stickLeftYTo = leftStick ? gsap.quickTo(leftStick, 'y', { duration: 0.2, ease: 'power2.out' }) : null;
+        const stickRightXTo = rightStick ? gsap.quickTo(rightStick, 'x', { duration: 0.2, ease: 'power2.out' }) : null;
+        const stickRightYTo = rightStick ? gsap.quickTo(rightStick, 'y', { duration: 0.2, ease: 'power2.out' }) : null;
 
-        // Setup GSAP quickTo for symbols interactive cursor reaction
+        // Symbols magnetic repellent
         const symbolToX = symbols.map((s) => gsap.quickTo(s, 'x', { duration: 0.7, ease: 'power2.out' }));
         const symbolToY = symbols.map((s) => gsap.quickTo(s, 'y', { duration: 0.7, ease: 'power2.out' }));
+
+        let lastX = 0;
+        let lastY = 0;
+        let lastTime = performance.now();
 
         const handleMouseMove = (e: MouseEvent) => {
           const rect = heroEl.getBoundingClientRect();
           const relX = e.clientX - rect.left;
           const relY = e.clientY - rect.top;
 
-          xDotTo(relX);
-          yDotTo(relY);
-          xRingTo(relX);
-          yRingTo(relY);
+          const now = performance.now();
+          const dt = Math.max(now - lastTime, 16);
+          const vx = ((relX - lastX) / dt) * 16;
+          const vy = ((relY - lastY) / dt) * 16;
+          lastX = relX;
+          lastY = relY;
+          lastTime = now;
+
+          // Controller position
+          xTo(relX);
+          yTo(relY);
+
+          // 3D Banking & Tilt physics based on movement vector
+          const targetRot = Math.max(Math.min(vx * 1.4, 20), -20);
+          const targetTiltY = Math.max(Math.min(vx * 1.8, 25), -25);
+          const targetTiltX = Math.max(Math.min(-vy * 1.8, 25), -25);
+
+          rotTo(targetRot);
+          tiltYTo(targetTiltY);
+          tiltXTo(targetTiltX);
+
+          // Analog sticks shift in motion direction
+          const stickDx = Math.max(Math.min(vx * 0.4, 3), -3);
+          const stickDy = Math.max(Math.min(vy * 0.4, 3), -3);
+          if (stickLeftXTo && stickLeftYTo) {
+            stickLeftXTo(stickDx);
+            stickLeftYTo(stickDy);
+          }
+          if (stickRightXTo && stickRightYTo) {
+            stickRightXTo(stickDx);
+            stickRightYTo(stickDy);
+          }
 
           // Dynamic Cursor Repel + Glow Reaction on PlayStation & Xbox Symbols
           symbols.forEach((symbol, idx) => {
@@ -187,7 +227,6 @@ export function Hero() {
             const dy = relY - symCenterY;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            // Within 280px radius, symbols push away slightly and glow brighter
             if (dist < 280) {
               const power = (1 - dist / 280) * 35;
               const pushX = -(dx / dist) * power;
@@ -204,31 +243,49 @@ export function Hero() {
         };
 
         const handleMouseEnter = () => {
-          gsap.to([dot, ring], { autoAlpha: 1, duration: 0.3 });
+          gsap.to(controller, { autoAlpha: 1, scale: 1, duration: 0.3 });
         };
 
         const handleMouseLeave = () => {
-          gsap.to([dot, ring], { autoAlpha: 0, duration: 0.3 });
+          gsap.to(controller, { autoAlpha: 0, scale: 0.8, duration: 0.3 });
           symbols.forEach((_, idx) => {
             symbolToX[idx](0);
             symbolToY[idx](0);
           });
         };
 
+        // DualSense Haptic Trigger / Click feedback
+        const handleMouseDown = () => {
+          gsap.to(controller, { scale: 0.88, duration: 0.1, ease: 'power2.out' });
+          if (shockwave) {
+            gsap.fromTo(
+              shockwave,
+              { scale: 0.4, opacity: 0.9 },
+              { scale: 2.2, opacity: 0, duration: 0.45, ease: 'power2.out' }
+            );
+          }
+        };
+
+        const handleMouseUp = () => {
+          gsap.to(controller, { scale: 1, duration: 0.3, ease: 'back.out(2)' });
+        };
+
         heroEl.addEventListener('mousemove', handleMouseMove);
         heroEl.addEventListener('mouseenter', handleMouseEnter);
         heroEl.addEventListener('mouseleave', handleMouseLeave);
+        heroEl.addEventListener('mousedown', handleMouseDown);
+        heroEl.addEventListener('mouseup', handleMouseUp);
 
-        // Hover scale feedback on interactive elements
-        const interactiveItems = heroEl.querySelectorAll('a, button, input, .hero__showcase-card');
+        // Hover lock-on feedback on interactive elements
+        const interactiveItems = heroEl.querySelectorAll('a, button, input, .hero__showcase-card, .hero__mode-btn, .hero__search-pill');
         interactiveItems.forEach((item) => {
           item.addEventListener('mouseenter', () => {
-            gsap.to(ring, { scale: 1.6, borderColor: 'rgba(59, 130, 246, 0.9)', duration: 0.2 });
-            gsap.to(dot, { scale: 1.4, backgroundColor: '#60a5fa', duration: 0.2 });
+            controller.classList.add('hero__ps5-cursor--target-lock');
+            gsap.to(controller, { scale: 1.18, duration: 0.25, ease: 'back.out(1.8)' });
           });
           item.addEventListener('mouseleave', () => {
-            gsap.to(ring, { scale: 1, borderColor: 'rgba(59, 130, 246, 0.4)', duration: 0.2 });
-            gsap.to(dot, { scale: 1, backgroundColor: 'var(--accent)', duration: 0.2 });
+            controller.classList.remove('hero__ps5-cursor--target-lock');
+            gsap.to(controller, { scale: 1, duration: 0.25, ease: 'power2.out' });
           });
         });
 
@@ -259,6 +316,8 @@ export function Hero() {
           heroEl.removeEventListener('mousemove', handleMouseMove);
           heroEl.removeEventListener('mouseenter', handleMouseEnter);
           heroEl.removeEventListener('mouseleave', handleMouseLeave);
+          heroEl.removeEventListener('mousedown', handleMouseDown);
+          heroEl.removeEventListener('mouseup', handleMouseUp);
         };
       });
     },
@@ -274,17 +333,120 @@ export function Hero() {
       background: `radial-gradient(circle, ${glowColor} 0%, transparent 70%)`,
       duration: 0.6,
     });
-    gsap.to('.hero__cursor-ring', { borderColor: accentColor, duration: 0.4 });
-    gsap.to('.hero__cursor-dot', { backgroundColor: accentColor, duration: 0.4 });
   };
 
   const current = HERO_FEATURED[activeSlide];
 
   return (
     <section className={`hero hero--${consoleMode}`} ref={containerRef}>
-      {/* Custom Gaming Cursor */}
-      <div className="hero__cursor-ring" />
-      <div className="hero__cursor-dot" />
+      {/* Interactive PS5 DualSense Controller Companion Cursor */}
+      <div className="hero__ps5-cursor" aria-hidden="true">
+        <div className="hero__ps5-shockwave" />
+        <svg
+          className="hero__ps5-svg"
+          viewBox="0 0 54 38"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <filter id="ps5-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="1.5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <radialGradient id="ps5-body-grad" cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stopColor="#1e242e" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#0c0f14" stopOpacity="0.9" />
+            </radialGradient>
+          </defs>
+
+          {/* L2 / R2 Trigger Bumpers */}
+          <path
+            d="M 12 5 C 15 4 17 5 18 6"
+            stroke="rgba(255, 255, 255, 0.5)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 42 5 C 39 4 37 5 36 6"
+            stroke="rgba(255, 255, 255, 0.5)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+
+          {/* DualSense Main Chassis Silhouette */}
+          <path
+            d="M 12 7 C 18 7 22 10 27 10 C 32 10 36 7 42 7 C 49 7 52 14 50 25 C 48 33 43 35 38 31 C 35 28 33 22 27 22 C 21 22 19 28 16 31 C 11 35 6 33 4 25 C 2 14 5 7 12 7 Z"
+            fill="url(#ps5-body-grad)"
+            stroke="rgba(255, 255, 255, 0.28)"
+            strokeWidth="1.1"
+          />
+
+          {/* Touchpad Plate */}
+          <rect
+            x="20.5"
+            y="9"
+            width="13"
+            height="7"
+            rx="1.5"
+            fill="rgba(255, 255, 255, 0.08)"
+            stroke="rgba(255, 255, 255, 0.16)"
+            strokeWidth="0.8"
+          />
+
+          {/* Signature DualSense Glowing Lightbar Strip */}
+          <path
+            className="hero__ps5-lightbar"
+            d="M 19 11.5 Q 27 15 35 11.5"
+            fill="none"
+            stroke="var(--hero-accent, #3b82f6)"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            filter="url(#ps5-glow)"
+          />
+
+          {/* D-Pad (Left Directional) */}
+          <path
+            d="M 13 14 h 2 v 2 h -2 v 2 h -2 v -2 h -2 v -2 h 2 v -2 h 2 z"
+            fill="rgba(255, 255, 255, 0.45)"
+          />
+
+          {/* PlayStation Action Buttons (Right: △ ◯ ✕ ▢) */}
+          {/* Triangle △ */}
+          <polygon points="41,12 42.5,14.5 39.5,14.5" fill="none" stroke="#00f0ff" strokeWidth="0.75" />
+          {/* Circle ◯ */}
+          <circle cx="43.8" cy="15.8" r="1.1" fill="none" stroke="#f59e0b" strokeWidth="0.75" />
+          {/* Cross ✕ */}
+          <line x1="40" y1="17.2" x2="42" y2="19.2" stroke="#3b82f6" strokeWidth="0.75" />
+          <line x1="42" y1="17.2" x2="40" y2="19.2" stroke="#3b82f6" strokeWidth="0.75" />
+          {/* Square ▢ */}
+          <rect x="37.8" y="14.8" width="1.8" height="1.8" fill="none" stroke="#ec4899" strokeWidth="0.75" />
+
+          {/* Left Movable Analog Thumbstick */}
+          <g className="hero__ps5-stick hero__ps5-stick--left">
+            <circle cx="19.5" cy="22" r="4.2" fill="#0d1015" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="0.9" />
+            <circle cx="19.5" cy="22" r="2.3" fill="#242c38" />
+            <circle cx="19.5" cy="22" r="0.8" fill="rgba(255, 255, 255, 0.6)" />
+          </g>
+
+          {/* Right Movable Analog Thumbstick */}
+          <g className="hero__ps5-stick hero__ps5-stick--right">
+            <circle cx="34.5" cy="22" r="4.2" fill="#0d1015" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="0.9" />
+            <circle cx="34.5" cy="22" r="2.3" fill="#242c38" />
+            <circle cx="34.5" cy="22" r="0.8" fill="rgba(255, 255, 255, 0.6)" />
+          </g>
+
+          {/* Center PS Home Indicator Dot */}
+          <circle cx="27" cy="18.5" r="0.9" fill="rgba(255, 255, 255, 0.7)" />
+        </svg>
+
+        {/* Reticle Target HUD Corners (Active on Hover) */}
+        <div className="hero__ps5-reticle">
+          <span className="hero__ps5-bracket hero__ps5-bracket--tl" />
+          <span className="hero__ps5-bracket hero__ps5-bracket--tr" />
+          <span className="hero__ps5-bracket hero__ps5-bracket--bl" />
+          <span className="hero__ps5-bracket hero__ps5-bracket--br" />
+        </div>
+      </div>
 
       {/* Background Gradients & Glow */}
       <div className="hero__image-wrap">

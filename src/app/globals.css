@@ -1294,41 +1294,123 @@ a {
   box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
 }
 
-/* ── Custom Subtle Gaming Cursor ── */
-.hero__cursor-ring {
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   HERO PS5 DUALSENSE COMPANION RETICLE CURSOR
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.hero__ps5-cursor {
   position: absolute;
   top: 0;
   left: 0;
-  width: 36px;
-  height: 36px;
-  margin-top: -18px;
-  margin-left: -18px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(59, 130, 246, 0.45);
-  box-shadow: 0 0 16px rgba(59, 130, 246, 0.2);
+  width: 54px;
+  height: 38px;
+  margin-top: -19px;
+  margin-left: -27px;
   pointer-events: none;
-  z-index: 10;
+  z-index: 20;
   opacity: 0;
+  transform-origin: center center;
+  transform-style: preserve-3d;
   will-change: transform, opacity;
-  transition: border-color var(--duration-fast), scale var(--duration-fast);
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.75));
 }
 
-.hero__cursor-dot {
+@media (max-width: 1023px) {
+  .hero__ps5-cursor {
+    display: none !important;
+  }
+}
+
+.hero__ps5-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.hero__ps5-lightbar {
+  transition: stroke var(--duration-fast);
+  animation: ps5LightPulse 3s ease-in-out infinite;
+}
+
+@keyframes ps5LightPulse {
+  0%, 100% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 4px var(--hero-accent, #3b82f6));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px var(--hero-accent, #3b82f6));
+  }
+}
+
+.hero__ps5-stick {
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* Haptic Shockwave Click Pulse */
+.hero__ps5-shockwave {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  margin-left: -20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--hero-accent, #3b82f6);
+  box-shadow: 0 0 14px var(--hero-accent, #3b82f6);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Reticle Target HUD on Hover */
+.hero__ps5-reticle {
+  position: absolute;
+  inset: -8px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.hero__ps5-cursor--target-lock .hero__ps5-reticle {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.hero__ps5-cursor--target-lock .hero__ps5-lightbar {
+  stroke: #00f0ff !important;
+  filter: drop-shadow(0 0 12px #00f0ff) !important;
+}
+
+.hero__ps5-bracket {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: rgba(0, 240, 255, 0.75);
+  border-style: solid;
+}
+
+.hero__ps5-bracket--tl {
   top: 0;
   left: 0;
-  width: 6px;
-  height: 6px;
-  margin-top: -3px;
-  margin-left: -3px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
-  pointer-events: none;
-  z-index: 11;
-  opacity: 0;
-  will-change: transform, opacity;
-  transition: background-color var(--duration-fast), scale var(--duration-fast);
+  border-width: 1.5px 0 0 1.5px;
+}
+.hero__ps5-bracket--tr {
+  top: 0;
+  right: 0;
+  border-width: 1.5px 1.5px 0 0;
+}
+.hero__ps5-bracket--bl {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 1.5px 1.5px;
+}
+.hero__ps5-bracket--br {
+  bottom: 0;
+  right: 0;
+  border-width: 0 1.5px 1.5px 0;
 }
 
 .hero__image-wrap {
