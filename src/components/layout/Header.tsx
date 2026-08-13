@@ -10,12 +10,17 @@ import {
 } from '@phosphor-icons/react';
 import { useCartStore } from '@/store/cart';
 import { useWishlistStore } from '@/store/wishlist';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SearchModal } from './SearchModal';
+import { MegaMenu } from './MegaMenu';
+import { MobileDrawer } from './MobileDrawer';
 
 export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [megaMenuTab, setMegaMenuTab] = useState<'shop' | 'brands'>('shop');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const cartItemCount = useCartStore((s) => s.getItemCount());
   const openCart = useCartStore((s) => s.openCart);
   const wishlistCount = useWishlistStore((s) => s.items.length);
@@ -24,10 +29,31 @@ export function Header() {
     setMounted(true);
   }, []);
 
+  const handleMegaMenu = useCallback((tab: 'shop' | 'brands') => {
+    if (megaMenuOpen && megaMenuTab === tab) {
+      setMegaMenuOpen(false);
+    } else {
+      setMegaMenuTab(tab);
+      setMegaMenuOpen(true);
+    }
+  }, [megaMenuOpen, megaMenuTab]);
+
+  const closeMegaMenu = useCallback(() => setMegaMenuOpen(false), []);
+
   return (
     <>
       <header className="header" id="site-header">
         <div className="container header__inner">
+          {/* Mobile hamburger */}
+          <button
+            className="header__hamburger"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open menu"
+            type="button"
+          >
+            <List size={22} weight="bold" />
+          </button>
+
           {/* Logo */}
           <Link href="/" className="header__logo">
             Naveed<span>Games</span>
@@ -35,19 +61,30 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="header__nav" aria-label="Main navigation">
-            <Link href="/products" className="header__nav-link">
+            <button
+              className={`header__nav-link header__nav-link--trigger ${megaMenuOpen && megaMenuTab === 'shop' ? 'header__nav-link--active' : ''}`}
+              onClick={() => handleMegaMenu('shop')}
+              type="button"
+            >
               Shop
-            </Link>
-            <Link href="/categories/consoles" className="header__nav-link">
+            </button>
+            <button
+              className={`header__nav-link header__nav-link--trigger ${megaMenuOpen && megaMenuTab === 'brands' ? 'header__nav-link--active' : ''}`}
+              onClick={() => handleMegaMenu('brands')}
+              type="button"
+            >
+              Brands
+            </button>
+            <Link href="/shop/consoles" className="header__nav-link" onClick={closeMegaMenu}>
               Consoles
             </Link>
-            <Link href="/categories/gaming-pcs" className="header__nav-link">
-              Gaming PCs
-            </Link>
-            <Link href="/categories/games" className="header__nav-link">
+            <Link href="/shop/games" className="header__nav-link" onClick={closeMegaMenu}>
               Games
             </Link>
-            <Link href="/products?filter=deals" className="header__nav-link">
+            <Link href="/shop/gaming-pcs" className="header__nav-link" onClick={closeMegaMenu}>
+              PCs
+            </Link>
+            <Link href="/shop?filter=deals" className="header__nav-link" onClick={closeMegaMenu}>
               Deals
             </Link>
           </nav>
@@ -56,7 +93,7 @@ export function Header() {
           <div className="header__actions">
             <button
               className="header__action-btn"
-              onClick={() => setSearchOpen(true)}
+              onClick={() => { setSearchOpen(true); closeMegaMenu(); }}
               aria-label="Search"
               type="button"
             >
@@ -65,10 +102,9 @@ export function Header() {
 
             <Link
               href="/wishlist"
-              className="header__action-btn"
+              className="header__action-btn header__action-btn--desktop"
               aria-label={`Wishlist (${mounted ? wishlistCount : 0} items)`}
-              style={{ display: 'none' }}
-              data-desktop-only=""
+              onClick={closeMegaMenu}
             >
               <Heart size={20} weight={mounted && wishlistCount > 0 ? 'fill' : 'bold'} />
               {mounted && wishlistCount > 0 && (
@@ -78,7 +114,7 @@ export function Header() {
 
             <button
               className="header__action-btn"
-              onClick={openCart}
+              onClick={() => { openCart(); closeMegaMenu(); }}
               aria-label={`Cart (${mounted ? cartItemCount : 0} items)`}
               type="button"
             >
@@ -90,12 +126,10 @@ export function Header() {
 
             <a
               href="https://wa.me/923339348891"
-              className="header__action-btn"
+              className="header__action-btn header__action-btn--desktop"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contact via WhatsApp"
-              style={{ display: 'none' }}
-              data-desktop-only=""
             >
               <WhatsappLogo size={20} weight="fill" />
             </a>
@@ -103,18 +137,14 @@ export function Header() {
         </div>
       </header>
 
-      {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
+      {/* Mega Menu */}
+      <MegaMenu isOpen={megaMenuOpen} onClose={closeMegaMenu} activeTab={megaMenuTab} />
 
-      <style jsx>{`
-        [data-desktop-only] {
-          display: none !important;
-        }
-        @media (min-width: 1024px) {
-          [data-desktop-only] {
-            display: flex !important;
-          }
-        }
-      `}</style>
+      {/* Mobile Drawer */}
+      <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+
+      {/* Search Modal */}
+      {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
     </>
   );
 }

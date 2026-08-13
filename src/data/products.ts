@@ -1,4 +1,6 @@
-import type { Product } from '@/types';
+import type { Product, ProductFilters, SortOption } from '@/types';
+export { categories } from './categories';
+export { brands } from './brands';
 
 export const products: Product[] = [
   // ─── CONSOLES ────────────────────────────────────────
@@ -21,6 +23,8 @@ export const products: Product[] = [
     featured: true,
     bestseller: true,
     isNew: true,
+    condition: 'new',
+    platform: 'PS5',
     specs: [
       { label: 'CPU', value: 'AMD Zen 2, 8 cores / 16 threads, 3.85 GHz' },
       { label: 'GPU', value: '16.7 TFLOPS, 67% more CUs than PS5' },
@@ -54,6 +58,8 @@ export const products: Product[] = [
     featured: true,
     bestseller: true,
     isNew: false,
+    condition: 'new',
+    platform: 'PS5',
     specs: [
       { label: 'CPU', value: 'AMD Zen 2, 8 cores, 3.5 GHz' },
       { label: 'GPU', value: '10.28 TFLOPS' },
@@ -84,6 +90,8 @@ export const products: Product[] = [
     featured: false,
     bestseller: false,
     isNew: false,
+    condition: 'new',
+    platform: 'Xbox',
     specs: [
       { label: 'CPU', value: 'AMD Zen 2, 8 cores, 3.8 GHz' },
       { label: 'GPU', value: '12 TFLOPS, RDNA 2' },
@@ -115,6 +123,8 @@ export const products: Product[] = [
     featured: true,
     bestseller: true,
     isNew: false,
+    condition: 'new',
+    platform: 'Nintendo Switch',
     specs: [
       { label: 'Screen', value: '7-inch OLED, 1280×720' },
       { label: 'Storage', value: '64GB internal' },
@@ -145,6 +155,8 @@ export const products: Product[] = [
     featured: true,
     bestseller: true,
     isNew: true,
+    condition: 'new',
+    platform: 'PC',
     specs: [
       { label: 'CPU', value: 'AMD Ryzen 7 7800X3D' },
       { label: 'GPU', value: 'NVIDIA RTX 4070 Super 12GB' },
@@ -176,6 +188,8 @@ export const products: Product[] = [
     featured: true,
     bestseller: false,
     isNew: true,
+    condition: 'new',
+    platform: 'PC',
     specs: [
       { label: 'CPU', value: 'Intel Core i9-14900K' },
       { label: 'GPU', value: 'NVIDIA RTX 4090 24GB' },
@@ -211,6 +225,8 @@ export const products: Product[] = [
     featured: false,
     bestseller: true,
     isNew: false,
+    condition: 'new',
+    platform: 'Multi-Platform',
     specs: [
       { label: 'Rotation', value: '900°' },
       { label: 'Force Feedback', value: 'TRUEFORCE' },
@@ -239,6 +255,8 @@ export const products: Product[] = [
     featured: true,
     bestseller: false,
     isNew: false,
+    condition: 'new',
+    platform: 'Multi-Platform',
     specs: [
       { label: 'Torque', value: '8Nm Direct Drive' },
       { label: 'Wheel', value: 'GT Licensed, 300mm' },
@@ -249,14 +267,14 @@ export const products: Product[] = [
     warranty: '2 Year Fanatec Warranty',
   },
 
-  // ─── HANDHELDS & VR ──────────────────────────────────
+  // ─── VR & AR ─────────────────────────────────────────
   {
     id: 'prod-9',
     slug: 'steam-deck-oled-512gb',
     name: 'Steam Deck OLED 512GB',
     brand: 'Valve',
-    category: 'Handhelds & VR',
-    categorySlug: 'handhelds-vr',
+    category: 'Gaming PCs',
+    categorySlug: 'gaming-pcs',
     price: 149999,
     description: 'HDR OLED display, 50% bigger battery, faster Wi-Fi 6E, lighter weight. Your entire Steam library in your hands.',
     shortDescription: '7.4" OLED display. Your Steam library, anywhere.',
@@ -269,6 +287,8 @@ export const products: Product[] = [
     featured: true,
     bestseller: true,
     isNew: false,
+    condition: 'new',
+    platform: 'PC',
     specs: [
       { label: 'Display', value: '7.4" HDR OLED, 1280×800, 90Hz' },
       { label: 'APU', value: 'AMD Zen 2 + RDNA 2' },
@@ -284,8 +304,8 @@ export const products: Product[] = [
     slug: 'meta-quest-3-128gb',
     name: 'Meta Quest 3 — 128GB',
     brand: 'Meta',
-    category: 'Handhelds & VR',
-    categorySlug: 'handhelds-vr',
+    category: 'VR & AR',
+    categorySlug: 'vr-ar',
     price: 134999,
     description: 'Mixed reality headset with full-color passthrough, Snapdragon XR2 Gen 2 processor, pancake lenses, 4K+ resolution per eye.',
     shortDescription: 'Mixed reality VR headset with full-color passthrough.',
@@ -298,6 +318,8 @@ export const products: Product[] = [
     featured: false,
     bestseller: true,
     isNew: false,
+    condition: 'new',
+    platform: 'Meta Quest',
     specs: [
       { label: 'Processor', value: 'Snapdragon XR2 Gen 2' },
       { label: 'Display', value: '2064×2208 per eye' },
@@ -312,8 +334,8 @@ export const products: Product[] = [
     slug: 'rog-ally-x',
     name: 'ASUS ROG Ally X',
     brand: 'ASUS',
-    category: 'Handhelds & VR',
-    categorySlug: 'handhelds-vr',
+    category: 'Gaming PCs',
+    categorySlug: 'gaming-pcs',
     price: 199999,
     description: 'AMD Z1 Extreme processor, 7" FHD 120Hz display, 24GB LPDDR5X RAM, 1TB SSD, 80Wh battery. The premium Windows handheld.',
     shortDescription: 'Premium Windows gaming handheld with Z1 Extreme.',
@@ -326,6 +348,8 @@ export const products: Product[] = [
     featured: false,
     bestseller: false,
     isNew: true,
+    condition: 'new',
+    platform: 'PC',
     specs: [
       { label: 'Processor', value: 'AMD Z1 Extreme' },
       { label: 'Display', value: '7" FHD, 120Hz' },
@@ -357,6 +381,8 @@ export const products: Product[] = [
     featured: true,
     bestseller: true,
     isNew: true,
+    condition: 'new',
+    platform: 'PS5',
     specs: [
       { label: 'Platform', value: 'PS5' },
       { label: 'Genre', value: 'Action / Open World' },
@@ -386,6 +412,8 @@ export const products: Product[] = [
     featured: false,
     bestseller: true,
     isNew: false,
+    condition: 'new',
+    platform: 'PS5',
     specs: [
       { label: 'Platform', value: 'PS5' },
       { label: 'Genre', value: 'Action / Adventure' },
@@ -412,6 +440,8 @@ export const products: Product[] = [
     featured: false,
     bestseller: true,
     isNew: false,
+    condition: 'new',
+    platform: 'Nintendo Switch',
     specs: [
       { label: 'Platform', value: 'Nintendo Switch' },
       { label: 'Genre', value: 'Action / Adventure' },
@@ -420,14 +450,14 @@ export const products: Product[] = [
     tags: ['switch', 'game', 'nintendo', 'zelda', 'adventure'],
   },
 
-  // ─── MONITORS ────────────────────────────────────────
+  // ─── TVS & DISPLAYS ─────────────────────────────────
   {
     id: 'prod-15',
     slug: 'samsung-odyssey-g9-oled',
     name: 'Samsung Odyssey OLED G9 49"',
     brand: 'Samsung',
-    category: 'Monitors',
-    categorySlug: 'monitors',
+    category: 'TVs & Displays',
+    categorySlug: 'tvs-displays',
     price: 389999,
     originalPrice: 429999,
     discount: 9,
@@ -442,6 +472,8 @@ export const products: Product[] = [
     featured: true,
     bestseller: false,
     isNew: false,
+    condition: 'new',
+    platform: 'Multi-Platform',
     specs: [
       { label: 'Panel', value: 'QD-OLED' },
       { label: 'Size', value: '49" (5120×1440)' },
@@ -458,8 +490,8 @@ export const products: Product[] = [
     slug: 'lg-27gr95qe-oled',
     name: 'LG UltraGear 27" OLED Gaming Monitor',
     brand: 'LG',
-    category: 'Monitors',
-    categorySlug: 'monitors',
+    category: 'TVs & Displays',
+    categorySlug: 'tvs-displays',
     price: 219999,
     description: '27-inch QHD OLED, 240Hz, 0.03ms, anti-glare & low reflection coating. G-SYNC and FreeSync Premium Pro.',
     shortDescription: '27" QHD OLED. 240Hz. Anti-glare coating.',
@@ -472,6 +504,8 @@ export const products: Product[] = [
     featured: false,
     bestseller: true,
     isNew: false,
+    condition: 'new',
+    platform: 'Multi-Platform',
     specs: [
       { label: 'Panel', value: 'OLED' },
       { label: 'Size', value: '27" (2560×1440)' },
@@ -503,6 +537,8 @@ export const products: Product[] = [
     featured: false,
     bestseller: true,
     isNew: false,
+    condition: 'new',
+    platform: 'PS5',
     specs: [
       { label: 'Driver', value: 'Planar Magnetic' },
       { label: 'Connection', value: 'PlayStation Link / Bluetooth' },
@@ -531,6 +567,8 @@ export const products: Product[] = [
     featured: false,
     bestseller: false,
     isNew: false,
+    condition: 'new',
+    platform: 'Multi-Platform',
     specs: [
       { label: 'Driver', value: '40mm Neodymium' },
       { label: 'ANC', value: '4-mic Hybrid ANC' },
@@ -541,14 +579,14 @@ export const products: Product[] = [
     warranty: '1 Year SteelSeries Warranty',
   },
 
-  // ─── CONTROLLERS & ACCESSORIES ───────────────────────
+  // ─── CONTROLLERS ─────────────────────────────────────
   {
     id: 'prod-19',
     slug: 'dualsense-edge',
     name: 'DualSense Edge Wireless Controller',
     brand: 'Sony',
-    category: 'Consoles',
-    categorySlug: 'consoles',
+    category: 'Controllers',
+    categorySlug: 'controllers',
     price: 54999,
     description: 'Ultra-customisable pro controller for PS5. Remappable back buttons, adjustable triggers, swappable stick caps, on-controller UI profiles.',
     shortDescription: 'Pro-level PS5 controller with back buttons.',
@@ -561,6 +599,8 @@ export const products: Product[] = [
     featured: false,
     bestseller: true,
     isNew: false,
+    condition: 'new',
+    platform: 'PS5',
     specs: [
       { label: 'Connectivity', value: 'Bluetooth 5.1 + USB-C' },
       { label: 'Back Buttons', value: '2x Remappable' },
@@ -571,14 +611,14 @@ export const products: Product[] = [
     warranty: '1 Year Sony Warranty',
   },
 
-  // ─── CHAIRS ──────────────────────────────────────────
+  // ─── GAMING FURNITURE ────────────────────────────────
   {
     id: 'prod-20',
     slug: 'secretlab-titan-evo-2024',
     name: 'Secretlab TITAN Evo 2024 Series',
     brand: 'Secretlab',
-    category: 'Chairs & Setup',
-    categorySlug: 'chairs-setup',
+    category: 'Gaming Furniture',
+    categorySlug: 'gaming-furniture',
     price: 119999,
     originalPrice: 134999,
     discount: 11,
@@ -593,6 +633,7 @@ export const products: Product[] = [
     featured: false,
     bestseller: true,
     isNew: false,
+    condition: 'new',
     specs: [
       { label: 'Material', value: 'Neo Hybrid Leatherette' },
       { label: 'Lumbar', value: '4-way L-ADAPT' },
@@ -623,6 +664,7 @@ export const products: Product[] = [
     featured: false,
     bestseller: false,
     isNew: false,
+    condition: 'new',
     specs: [
       { label: 'Height', value: '12 inches / 30cm' },
       { label: 'Material', value: 'Polystone, hand-painted' },
@@ -631,36 +673,39 @@ export const products: Product[] = [
     tags: ['collectible', 'statue', 'god-of-war', 'kratos'],
   },
 
-  // ─── SMART TECH ──────────────────────────────────────
+  // ─── SMART AI TECH ───────────────────────────────────
   {
     id: 'prod-22',
-    slug: 'apple-watch-ultra-2',
-    name: 'Apple Watch Ultra 2',
-    brand: 'Apple',
-    category: 'Smart Tech',
-    categorySlug: 'smart-tech',
-    price: 184999,
-    description: 'The most capable Apple Watch. Titanium case, 3000 nit display, precision dual-frequency GPS, 36-hour battery, depth gauge.',
-    shortDescription: 'Titanium. 3000 nits. 36-hour battery.',
-    images: ['/images/products/watch-ultra-2-1.jpg', '/images/products/watch-ultra-2-2.jpg'],
-    rating: 4.7,
-    reviewCount: 45,
+    slug: 'ray-ban-meta-wayfarer',
+    name: 'Ray-Ban Meta Wayfarer Smart Glasses',
+    brand: 'Meta',
+    category: 'Smart AI Tech',
+    categorySlug: 'smart-ai-tech',
+    price: 84999,
+    description: 'Smart glasses with Meta AI, 12MP ultra-wide camera, livestreaming, open-ear speakers, and hands-free calls. Classic Wayfarer design.',
+    shortDescription: 'Smart glasses with Meta AI and 12MP camera.',
+    images: ['/images/products/rayban-meta-1.jpg', '/images/products/rayban-meta-2.jpg'],
+    rating: 4.3,
+    reviewCount: 28,
     inStock: true,
     stockQuantity: 5,
-    sku: 'NG-AWU2-022',
+    sku: 'NG-RBM-022',
     featured: false,
     bestseller: false,
-    isNew: false,
+    isNew: true,
+    condition: 'new',
     specs: [
-      { label: 'Case', value: '49mm Titanium' },
-      { label: 'Display', value: '3000 nit max brightness' },
-      { label: 'Battery', value: '36 hours (72 Low Power)' },
-      { label: 'Water Resistance', value: '100m / EN13319' },
+      { label: 'Camera', value: '12MP Ultra-wide' },
+      { label: 'AI', value: 'Meta AI built-in' },
+      { label: 'Audio', value: 'Open-ear speakers' },
+      { label: 'Battery', value: 'Up to 4 hours' },
     ],
-    tags: ['smartwatch', 'apple', 'wearable'],
-    warranty: '1 Year Apple Warranty',
+    tags: ['smart-glasses', 'meta', 'ai', 'wearable'],
+    warranty: '1 Year Warranty',
   },
 ];
+
+// ─── UTILITY FUNCTIONS ─────────────────────────────────
 
 export function getProductBySlug(slug: string): Product | undefined {
   return products.find((p) => p.slug === slug);
@@ -668,6 +713,10 @@ export function getProductBySlug(slug: string): Product | undefined {
 
 export function getProductsByCategory(categorySlug: string): Product[] {
   return products.filter((p) => p.categorySlug === categorySlug);
+}
+
+export function getProductsByBrand(brandSlug: string): Product[] {
+  return products.filter((p) => p.brand.toLowerCase().replace(/\s+/g, '-') === brandSlug || p.brand.toLowerCase() === brandSlug);
 }
 
 export function getFeaturedProducts(): Product[] {
@@ -689,10 +738,105 @@ export function searchProducts(query: string): Product[] {
       p.name.toLowerCase().includes(q) ||
       p.brand.toLowerCase().includes(q) ||
       p.category.toLowerCase().includes(q) ||
-      p.tags.some((t) => t.includes(q))
+      p.categorySlug.toLowerCase().includes(q) ||
+      (p.platform && p.platform.toLowerCase().includes(q)) ||
+      p.tags.some((t) => t.includes(q)) ||
+      p.shortDescription.toLowerCase().includes(q)
   );
 }
 
 export function formatPrice(price: number): string {
   return `Rs. ${price.toLocaleString('en-PK')}`;
+}
+
+export function filterProducts(allProducts: Product[], filters: ProductFilters): Product[] {
+  let result = [...allProducts];
+
+  if (filters.category) {
+    result = result.filter((p) => p.categorySlug === filters.category);
+  }
+  if (filters.brand && filters.brand.length > 0) {
+    result = result.filter((p) =>
+      filters.brand!.some((b) => p.brand.toLowerCase().replace(/\s+/g, '-') === b || p.brand.toLowerCase() === b)
+    );
+  }
+  if (filters.priceMin !== undefined) {
+    result = result.filter((p) => p.price >= filters.priceMin!);
+  }
+  if (filters.priceMax !== undefined) {
+    result = result.filter((p) => p.price <= filters.priceMax!);
+  }
+  if (filters.inStock !== undefined) {
+    result = result.filter((p) => p.inStock === filters.inStock);
+  }
+  if (filters.platform && filters.platform.length > 0) {
+    result = result.filter((p) => p.platform && filters.platform!.includes(p.platform));
+  }
+  if (filters.condition && filters.condition.length > 0) {
+    result = result.filter((p) => filters.condition!.includes(p.condition));
+  }
+  if (filters.featured) {
+    result = result.filter((p) => p.featured);
+  }
+  if (filters.bestseller) {
+    result = result.filter((p) => p.bestseller);
+  }
+  if (filters.isNew) {
+    result = result.filter((p) => p.isNew);
+  }
+  if (filters.search) {
+    const q = filters.search.toLowerCase();
+    result = result.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q) ||
+        p.tags.some((t) => t.includes(q))
+    );
+  }
+
+  return result;
+}
+
+export function sortProducts(productList: Product[], sort: SortOption): Product[] {
+  const sorted = [...productList];
+  switch (sort) {
+    case 'price-asc':
+      return sorted.sort((a, b) => a.price - b.price);
+    case 'price-desc':
+      return sorted.sort((a, b) => b.price - a.price);
+    case 'newest':
+      return sorted.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+    case 'name-asc':
+      return sorted.sort((a, b) => a.name.localeCompare(b.name));
+    case 'name-desc':
+      return sorted.sort((a, b) => b.name.localeCompare(a.name));
+    case 'popularity':
+      return sorted.sort((a, b) => b.reviewCount - a.reviewCount);
+    case 'relevance':
+    default:
+      return sorted.sort((a, b) => {
+        if (a.featured !== b.featured) return b.featured ? 1 : -1;
+        if (a.bestseller !== b.bestseller) return b.bestseller ? 1 : -1;
+        return b.reviewCount - a.reviewCount;
+      });
+  }
+}
+
+export function getAvailablePlatforms(): string[] {
+  const platforms = new Set<string>();
+  products.forEach((p) => {
+    if (p.platform) platforms.add(p.platform);
+  });
+  return Array.from(platforms).sort();
+}
+
+export function getAvailableBrands(): string[] {
+  const brandSet = new Set<string>();
+  products.forEach((p) => brandSet.add(p.brand));
+  return Array.from(brandSet).sort();
+}
+
+export function getPriceRange(): { min: number; max: number } {
+  const prices = products.map((p) => p.price);
+  return { min: Math.min(...prices), max: Math.max(...prices) };
 }

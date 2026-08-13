@@ -1,6 +1,12 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { products } from '@/data/products';
 import { formatPrice } from '@/data/products';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+  title: 'Admin Dashboard — Naveed Games',
+};
 import {
   Coins,
   ShoppingBagOpen,

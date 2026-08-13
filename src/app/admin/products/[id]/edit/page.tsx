@@ -2,49 +2,68 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { use } from 'react';
 import { categories } from '@/data/categories';
 import { brands } from '@/data/brands';
+import { products } from '@/data/products';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { ArrowLeft, Plus, Trash } from '@phosphor-icons/react';
 import Link from 'next/link';
 
-export default function NewProductPage() {
+interface Props {
+  params: Promise<{ id: string }>;
+}
+
+export default function EditProductPage({ params }: Props) {
+  const { id } = use(params);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  const initial = products.find((p) => p.id === id);
+
+  const selectedCategoryObj = categories.find(
+    (c) => c.slug === (initial?.categorySlug || 'consoles')
+  );
+
   const [formData, setFormData] = useState({
-    name: '',
-    brand: brands[0]?.name || 'Sony',
-    categorySlug: 'consoles',
-    subcategorySlug: '',
-    price: '',
-    originalPrice: '',
-    salePrice: '',
-    costPrice: '',
-    discount: '',
-    stockQuantity: '10',
-    sku: `NG-PROD-${Math.floor(1000 + Math.random() * 9000)}`,
-    shortDescription: '',
-    description: '',
-    condition: 'new' as const,
-    platform: '',
-    status: 'published' as const,
-    warranty: '1 Year Official Warranty',
-    deliveryInfo: 'Ships within 1-2 business days',
-    featured: false,
-    bestseller: false,
-    isNew: true,
+    name: initial?.name || '',
+    brand: initial?.brand || 'Sony',
+    categorySlug: initial?.categorySlug || 'consoles',
+    subcategorySlug: initial?.subcategoryId || '',
+    price: initial?.price ? String(initial.price) : '',
+    originalPrice: initial?.originalPrice ? String(initial.originalPrice) : '',
+    salePrice: initial?.salePrice ? String(initial.salePrice) : '',
+    costPrice: initial?.costPrice ? String(initial.costPrice) : '',
+    stockQuantity: initial?.stockQuantity ? String(initial.stockQuantity) : '10',
+    sku: initial?.sku || `NG-PROD-${Math.floor(1000 + Math.random() * 9000)}`,
+    shortDescription: initial?.shortDescription || '',
+    description: initial?.description || '',
+    condition: initial?.condition || 'new',
+    platform: initial?.platform || '',
+    status: initial?.status || 'published',
+    warranty: initial?.warranty || '1 Year Official Warranty',
+    deliveryInfo: initial?.deliveryInfo || 'Ships within 1-2 business days',
+    featured: initial?.featured || false,
+    bestseller: initial?.bestseller || false,
+    isNew: initial?.isNew || false,
   });
 
-  const selectedCategoryObj = categories.find((c) => c.slug === formData.categorySlug);
-
-  const [images, setImages] = useState<string[]>(['/images/products/placeholder.jpg']);
+  const [images, setImages] = useState<string[]>(
+    initial?.images && initial.images.length > 0
+      ? initial.images
+      : ['/images/products/placeholder.jpg']
+  );
   const [newImageUrl, setNewImageUrl] = useState('');
 
-  const [specs, setSpecs] = useState<Array<{ label: string; value: string }>>([
-    { label: 'Platform / Type', value: '' },
-    { label: 'Storage / Spec', value: '' },
-  ]);
+  const [specs, setSpecs] = useState<Array<{ label: string; value: string }>>(
+    initial?.specs && initial.specs.length > 0
+      ? initial.specs
+      : [
+          { label: 'Platform / Type', value: '' },
+          { label: 'Storage / Spec', value: '' },
+        ]
+  );
 
   const handleAddSpec = () => {
     setSpecs([...specs, { label: '', value: '' }]);
@@ -82,44 +101,46 @@ export default function NewProductPage() {
 
     try {
       const supabase = createClient();
-      if (supabase) {
+      if (supabase && id.length > 15) {
         const slug = formData.name
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/(^-|-$)+/g, '');
 
-        await supabase.from('products').insert({
-          slug,
-          name: formData.name,
-          brand_name: formData.brand || 'Naveed Games',
-          category_slug: formData.categorySlug,
-          price: Number(formData.price),
-          original_price: formData.originalPrice ? Number(formData.originalPrice) : null,
-          sale_price: formData.salePrice ? Number(formData.salePrice) : null,
-          cost_price: formData.costPrice ? Number(formData.costPrice) : null,
-          discount: formData.discount ? Number(formData.discount) : 0,
-          short_description: formData.shortDescription || formData.name,
-          description: formData.description || formData.name,
-          stock_quantity: Number(formData.stockQuantity),
-          in_stock: Number(formData.stockQuantity) > 0,
-          sku: formData.sku,
-          condition: formData.condition,
-          platform: formData.platform || null,
-          status: formData.status,
-          featured: formData.featured,
-          bestseller: formData.bestseller,
-          is_new: formData.isNew,
-          images,
-          specs: specs.filter((s) => s.label && s.value),
-          warranty: formData.warranty,
-          delivery_info: formData.deliveryInfo,
-        });
+        await supabase
+          .from('products')
+          .update({
+            slug,
+            name: formData.name,
+            brand_name: formData.brand,
+            category_slug: formData.categorySlug,
+            price: Number(formData.price),
+            original_price: formData.originalPrice ? Number(formData.originalPrice) : null,
+            sale_price: formData.salePrice ? Number(formData.salePrice) : null,
+            cost_price: formData.costPrice ? Number(formData.costPrice) : null,
+            short_description: formData.shortDescription || formData.name,
+            description: formData.description || formData.name,
+            stock_quantity: Number(formData.stockQuantity),
+            in_stock: Number(formData.stockQuantity) > 0,
+            sku: formData.sku,
+            condition: formData.condition,
+            platform: formData.platform || null,
+            status: formData.status,
+            featured: formData.featured,
+            bestseller: formData.bestseller,
+            is_new: formData.isNew,
+            images,
+            specs: specs.filter((s) => s.label && s.value),
+            warranty: formData.warranty,
+            delivery_info: formData.deliveryInfo,
+          })
+          .eq('id', id);
       }
     } catch (err) {
-      console.warn('Supabase create product warning:', err);
+      console.warn('Supabase product edit warning:', err);
     }
 
-    alert(`Product "${formData.name}" created successfully!`);
+    alert(`Product "${formData.name}" updated successfully!`);
     setLoading(false);
     router.push('/admin/products');
   };
@@ -142,7 +163,7 @@ export default function NewProductPage() {
           Back to Products
         </Link>
         <h1 style={{ fontSize: '1.75rem', marginTop: '8px', color: 'var(--white)' }}>
-          Create New Product
+          Edit Product: {initial?.name || id}
         </h1>
       </div>
 
@@ -156,7 +177,6 @@ export default function NewProductPage() {
             <input
               type="text"
               className="checkout__input"
-              placeholder="e.g. PlayStation 5 Slim 1TB Disc Edition"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -252,7 +272,7 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Pricing & Inventory */}
+        {/* Pricing & Stock */}
         <div className="admin-form-card">
           <h2 className="admin-form-card__title">Pricing & Inventory</h2>
 
@@ -262,7 +282,6 @@ export default function NewProductPage() {
               <input
                 type="number"
                 className="checkout__input"
-                placeholder="249999"
                 required
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
@@ -274,7 +293,6 @@ export default function NewProductPage() {
               <input
                 type="number"
                 className="checkout__input"
-                placeholder="269999"
                 value={formData.originalPrice}
                 onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
               />
@@ -285,7 +303,6 @@ export default function NewProductPage() {
               <input
                 type="number"
                 className="checkout__input"
-                placeholder="239999"
                 value={formData.salePrice}
                 onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
               />
@@ -296,7 +313,6 @@ export default function NewProductPage() {
               <input
                 type="number"
                 className="checkout__input"
-                placeholder="210000"
                 value={formData.costPrice}
                 onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
               />
@@ -309,7 +325,6 @@ export default function NewProductPage() {
               <input
                 type="number"
                 className="checkout__input"
-                placeholder="10"
                 required
                 value={formData.stockQuantity}
                 onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
@@ -369,7 +384,6 @@ export default function NewProductPage() {
             <input
               type="text"
               className="checkout__input"
-              placeholder="One line summary for hero and cards"
               value={formData.shortDescription}
               onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
             />
@@ -379,13 +393,12 @@ export default function NewProductPage() {
             <label className="checkout__label">Full Product Description</label>
             <textarea
               className="checkout__textarea"
-              placeholder="Detailed description of features, compatibility, included accessories..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
           </div>
 
-          {/* Dynamic Specifications list */}
+          {/* Dynamic Specs */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <label className="checkout__label">Specifications Sheet</label>
@@ -426,13 +439,13 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Buttons & Status Badges */}
+        {/* Form Footer */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Link href="/admin/products" className="button button--ghost">
             Cancel
           </Link>
           <Button variant="primary" size="lg" type="submit" loading={loading}>
-            Save & Publish Product
+            Update Product
           </Button>
         </div>
       </form>

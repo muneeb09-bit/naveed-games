@@ -36,7 +36,7 @@ export function CategoryNav() {
           {categories.map((cat) => (
             <Link
               key={cat.id}
-              href={`/categories/${cat.slug}`}
+              href={`/shop/${cat.slug}`}
               className="category-nav__item"
             >
               <span className="category-nav__icon">

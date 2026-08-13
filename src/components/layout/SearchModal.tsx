@@ -69,8 +69,36 @@ export function SearchModal({ onClose }: SearchModalProps) {
               >
                 <div
                   className="search-modal__result-image"
-                  style={{ background: 'var(--graphite-light)' }}
-                />
+                  style={{
+                    background: 'var(--graphite-light)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                    borderRadius: '4px',
+                  }}
+                >
+                  {product.images?.[0] ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : null}
+                  <span
+                    style={{
+                      fontSize: '0.5625rem',
+                      fontWeight: 700,
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {product.brand}
+                  </span>
+                </div>
                 <div className="search-modal__result-info">
                   <div className="search-modal__result-name">
                     {product.name}

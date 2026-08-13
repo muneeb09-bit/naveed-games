@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatPrice } from '@/data/products';
+import { createClient } from '@/lib/supabase/client';
 import { WhatsappLogo, Check, Clock, Truck, Prohibit } from '@phosphor-icons/react';
 
 interface Order {
@@ -71,15 +72,82 @@ const initialOrders: Order[] = [
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [filter, setFilter] = useState<string>('all');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadOrders() {
+      try {
+        const supabase = createClient();
+        if (!supabase) return;
+
+        setLoading(true);
+        const { data: dbOrders, error } = await supabase
+          .from('orders')
+          .select('*, order_items(*)')
+          .order('created_at', { ascending: false });
+
+        if (!error && dbOrders && dbOrders.length > 0) {
+          const mappedOrders: Order[] = dbOrders.map((o: any) => {
+            const itemNames = (o.order_items || [])
+              .map((item: any) => `${item.product_name} × ${item.quantity}`)
+              .join(', ');
+
+            const createdDate = new Date(o.created_at);
+            const formattedDate = isNaN(createdDate.getTime())
+              ? 'Recently'
+              : createdDate.toLocaleDateString('en-PK', {
+                  day: 'numeric',
+                  month: 'short',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                });
+
+            return {
+              id: o.id,
+              orderNumber: o.order_number,
+              customerName: o.customer_name,
+              customerPhone: o.customer_phone,
+              city: o.customer_city || 'Peshawar',
+              address: o.customer_address,
+              items: itemNames || 'Store Items',
+              total: Number(o.total),
+              status: o.status || 'pending',
+              date: formattedDate,
+            };
+          });
+
+          setOrders([...mappedOrders, ...initialOrders]);
+        }
+      } catch (err) {
+        console.warn('Could not fetch Supabase orders:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadOrders();
+  }, []);
 
   const filteredOrders = orders.filter(
     (o) => filter === 'all' || o.status === filter
   );
 
-  const handleStatusChange = (orderId: string, newStatus: Order['status']) => {
+  const handleStatusChange = async (orderId: string, newStatus: Order['status']) => {
     setOrders(
       orders.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
     );
+
+    try {
+      const supabase = createClient();
+      if (supabase && orderId.length > 15) {
+        await supabase
+          .from('orders')
+          .update({ status: newStatus })
+          .eq('id', orderId);
+      }
+    } catch (err) {
+      console.warn('Order status update warning:', err);
+    }
   };
 
   const getWhatsAppNotifyUrl = (order: Order) => {

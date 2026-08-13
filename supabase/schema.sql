@@ -11,6 +11,7 @@ CREATE TYPE user_role AS ENUM ('customer', 'admin');
 CREATE TYPE product_status AS ENUM ('draft', 'published', 'archived');
 CREATE TYPE order_status AS ENUM ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled');
 CREATE TYPE payment_method AS ENUM ('cod', 'bank_transfer', 'easypaisa', 'jazzcash');
+CREATE TYPE product_condition AS ENUM ('new', 'used', 'refurbished', 'pre-owned');
 
 -- ─── 1. PROFILES ───
 CREATE TABLE IF NOT EXISTS public.profiles (
@@ -28,7 +29,12 @@ CREATE TABLE IF NOT EXISTS public.brands (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   slug TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
+  description TEXT,
   logo TEXT,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  sort_order INT NOT NULL DEFAULT 0,
+  meta_title TEXT,
+  meta_description TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -41,6 +47,10 @@ CREATE TABLE IF NOT EXISTS public.categories (
   image TEXT,
   icon TEXT,
   parent_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  meta_title TEXT,
+  meta_description TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -50,10 +60,14 @@ CREATE TABLE IF NOT EXISTS public.products (
   slug TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   brand_name TEXT NOT NULL,
+  brand_id UUID REFERENCES public.brands(id) ON DELETE SET NULL,
   category_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
   category_slug TEXT NOT NULL,
+  subcategory_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
   price DECIMAL(12, 2) NOT NULL,
   original_price DECIMAL(12, 2),
+  sale_price DECIMAL(12, 2),
+  cost_price DECIMAL(12, 2),
   discount INT DEFAULT 0,
   description TEXT NOT NULL,
   short_description TEXT NOT NULL,
@@ -66,10 +80,15 @@ CREATE TABLE IF NOT EXISTS public.products (
   featured BOOLEAN DEFAULT false,
   bestseller BOOLEAN DEFAULT false,
   is_new BOOLEAN DEFAULT false,
+  condition product_condition NOT NULL DEFAULT 'new',
+  platform TEXT,
+  release_year INT,
   specs JSONB DEFAULT '[]'::jsonb,
   tags TEXT[] DEFAULT '{}',
   warranty TEXT,
   delivery_info TEXT,
+  meta_title TEXT,
+  meta_description TEXT,
   status product_status NOT NULL DEFAULT 'published',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -134,6 +153,15 @@ CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category_slu
 CREATE INDEX IF NOT EXISTS idx_products_status ON public.products(status);
 CREATE INDEX IF NOT EXISTS idx_products_featured ON public.products(featured) WHERE featured = true;
 CREATE INDEX IF NOT EXISTS idx_products_bestseller ON public.products(bestseller) WHERE bestseller = true;
+CREATE INDEX IF NOT EXISTS idx_products_brand_id ON public.products(brand_id);
+CREATE INDEX IF NOT EXISTS idx_products_subcategory ON public.products(subcategory_id);
+CREATE INDEX IF NOT EXISTS idx_products_price ON public.products(price);
+CREATE INDEX IF NOT EXISTS idx_products_platform ON public.products(platform);
+CREATE INDEX IF NOT EXISTS idx_products_condition ON public.products(condition);
+CREATE INDEX IF NOT EXISTS idx_categories_sort ON public.categories(sort_order);
+CREATE INDEX IF NOT EXISTS idx_categories_parent ON public.categories(parent_id);
+CREATE INDEX IF NOT EXISTS idx_brands_sort ON public.brands(sort_order);
+CREATE INDEX IF NOT EXISTS idx_brands_active ON public.brands(is_active) WHERE is_active = true;
 CREATE INDEX IF NOT EXISTS idx_orders_number ON public.orders(order_number);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders(status);
 

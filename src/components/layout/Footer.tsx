@@ -34,37 +34,40 @@ export function Footer() {
 
           {/* Shop links */}
           <div>
-            <h3 className="footer__heading">Shop</h3>
+            <h3 className="footer__heading">Shop Categories</h3>
             <ul className="footer__links">
-              <li><Link href="/categories/consoles" className="footer__link">Consoles</Link></li>
-              <li><Link href="/categories/gaming-pcs" className="footer__link">Gaming PCs</Link></li>
-              <li><Link href="/categories/games" className="footer__link">Games</Link></li>
-              <li><Link href="/categories/monitors" className="footer__link">Monitors</Link></li>
-              <li><Link href="/categories/handhelds-vr" className="footer__link">Handhelds & VR</Link></li>
-              <li><Link href="/categories/racing-simulators" className="footer__link">Racing</Link></li>
+              <li><Link href="/shop/consoles" className="footer__link">Consoles</Link></li>
+              <li><Link href="/shop/games" className="footer__link">Games</Link></li>
+              <li><Link href="/shop/controllers" className="footer__link">Controllers</Link></li>
+              <li><Link href="/shop/vr-ar" className="footer__link">VR & AR</Link></li>
+              <li><Link href="/shop/gaming-pcs" className="footer__link">Gaming PCs</Link></li>
+              <li><Link href="/shop/racing-simulators" className="footer__link">Racing Simulators</Link></li>
+              <li><Link href="/shop/rc-cars" className="footer__link">RC Cars</Link></li>
             </ul>
           </div>
 
-          {/* More links */}
+          {/* Brands links */}
           <div>
-            <h3 className="footer__heading">Categories</h3>
+            <h3 className="footer__heading">Top Brands</h3>
             <ul className="footer__links">
-              <li><Link href="/categories/audio" className="footer__link">Audio</Link></li>
-              <li><Link href="/categories/chairs-setup" className="footer__link">Chairs & Setup</Link></li>
-              <li><Link href="/categories/collectibles" className="footer__link">Collectibles</Link></li>
-              <li><Link href="/categories/rc-drones" className="footer__link">RC & Drones</Link></li>
-              <li><Link href="/categories/smart-tech" className="footer__link">Smart Tech</Link></li>
+              <li><Link href="/brand/playstation" className="footer__link">PlayStation</Link></li>
+              <li><Link href="/brand/xbox" className="footer__link">Xbox</Link></li>
+              <li><Link href="/brand/nintendo" className="footer__link">Nintendo</Link></li>
+              <li><Link href="/brand/dji" className="footer__link">DJI Drones</Link></li>
+              <li><Link href="/brand/meta" className="footer__link">Meta VR</Link></li>
+              <li><Link href="/brand/traxxas" className="footer__link">Traxxas RC</Link></li>
+              <li><Link href="/brand/logitech" className="footer__link">Logitech</Link></li>
             </ul>
           </div>
 
-          {/* Help */}
+          {/* Quick links */}
           <div>
-            <h3 className="footer__heading">Help</h3>
+            <h3 className="footer__heading">Explore</h3>
             <ul className="footer__links">
-              <li><Link href="/products" className="footer__link">All Products</Link></li>
-              <li><Link href="/products?filter=deals" className="footer__link">Deals</Link></li>
+              <li><Link href="/shop" className="footer__link">All Products</Link></li>
+              <li><Link href="/shop?filter=deals" className="footer__link">Deals & Offers</Link></li>
+              <li><Link href="/shop?featured=true" className="footer__link">Featured Products</Link></li>
               <li><Link href="/wishlist" className="footer__link">Wishlist</Link></li>
-              <li><Link href="/checkout" className="footer__link">Cart</Link></li>
             </ul>
           </div>
         </div>

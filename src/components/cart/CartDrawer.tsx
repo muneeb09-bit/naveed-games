@@ -59,8 +59,37 @@ export function CartDrawer() {
               <div key={item.product.id} className="cart-drawer__item">
                 <div
                   className="cart-drawer__item-image"
-                  style={{ background: 'var(--graphite-light)' }}
-                />
+                  style={{
+                    background: 'var(--graphite-light)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                    borderRadius: '4px',
+                  }}
+                >
+                  {item.product.images?.[0] ? (
+                    <img
+                      src={item.product.images[0]}
+                      alt={item.product.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : null}
+                  <span
+                    style={{
+                      fontSize: '0.625rem',
+                      fontWeight: 700,
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {item.product.brand}
+                  </span>
+                </div>
                 <div className="cart-drawer__item-info">
                   <div className="cart-drawer__item-name">
                     {item.product.name}

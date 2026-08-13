@@ -5,6 +5,7 @@ import { useCartStore } from '@/store/cart';
 import { formatPrice } from '@/data/products';
 import { generateWhatsAppOrderUrl } from '@/lib/whatsapp';
 import { generateOrderNumber } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { WhatsappLogo, CheckCircle, ArrowLeft } from '@phosphor-icons/react';
 import Link from 'next/link';
@@ -23,6 +24,7 @@ export default function CheckoutPage() {
     notes: '',
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<{
     orderNumber: string;
     whatsappUrl: string;
@@ -34,14 +36,54 @@ export default function CheckoutPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.phone || !formData.address) {
       alert('Please fill in all required fields (Name, Phone, Address).');
       return;
     }
 
+    setIsSubmitting(true);
     const orderNumber = generateOrderNumber();
+
+    // Insert order into Supabase database if configured
+    try {
+      const supabase = createClient();
+      if (supabase) {
+        const { data: orderData, error: orderError } = await supabase
+          .from('orders')
+          .insert({
+            order_number: orderNumber,
+            customer_name: formData.name,
+            customer_phone: formData.phone,
+            customer_address: formData.address,
+            customer_city: formData.city,
+            notes: formData.notes || null,
+            subtotal,
+            delivery_fee: deliveryFee,
+            total,
+            status: 'pending',
+            payment_method: 'cod',
+          })
+          .select('id')
+          .single();
+
+        if (!orderError && orderData?.id) {
+          const orderItems = items.map((item) => ({
+            order_id: orderData.id,
+            product_name: item.product.name,
+            product_image: item.product.images?.[0] || null,
+            price: item.product.price,
+            quantity: item.quantity,
+          }));
+
+          await supabase.from('order_items').insert(orderItems);
+        }
+      }
+    } catch (err) {
+      console.warn('Supabase DB order insert warning:', err);
+    }
+
     const whatsappUrl = generateWhatsAppOrderUrl({
       orderNumber,
       items,
@@ -56,6 +98,7 @@ export default function CheckoutPage() {
     });
 
     setPlacedOrder({ orderNumber, whatsappUrl });
+    setIsSubmitting(false);
     clearCart();
   };
 
@@ -254,7 +297,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <Button variant="primary" size="lg" type="submit" fullWidth style={{ marginTop: 'var(--space-md)' }}>
+            <Button variant="primary" size="lg" type="submit" loading={isSubmitting} fullWidth style={{ marginTop: 'var(--space-md)' }}>
               Place Order (Cash on Delivery)
             </Button>
           </form>

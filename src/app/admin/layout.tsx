@@ -1,20 +1,102 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Gauge,
   Package,
   ShoppingBagOpen,
-  SquaresFour,
   SignOut,
   House,
+  FolderOpen,
+  Tag,
 } from '@phosphor-icons/react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  // Allow /admin/login without auth check
+  const isLoginPage = pathname === '/admin/login';
+
+  useEffect(() => {
+    if (isLoginPage) {
+      setAuthChecked(true);
+      setIsAuthed(true); // login page is always accessible
+      return;
+    }
+
+    async function checkAuth() {
+      try {
+        const supabase = createClient();
+        if (!supabase) {
+          // If Supabase is not configured, allow access (dev mode)
+          setIsAuthed(true);
+          setAuthChecked(true);
+          return;
+        }
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setIsAuthed(true);
+        } else {
+          router.replace('/admin/login');
+        }
+      } catch {
+        router.replace('/admin/login');
+      } finally {
+        setAuthChecked(true);
+      }
+    }
+
+    checkAuth();
+  }, [isLoginPage, router]);
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient();
+      if (supabase) {
+        await supabase.auth.signOut();
+      }
+    } catch {
+      // Continue to login page regardless
+    }
+    router.push('/admin/login');
+  };
+
+  // Show nothing while checking auth (prevents flash of admin content)
+  if (!authChecked || (!isAuthed && !isLoginPage)) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--black)',
+          color: 'var(--muted)',
+          fontFamily: 'var(--font-display)',
+          fontSize: '0.875rem',
+        }}
+      >
+        Verifying access...
+      </div>
+    );
+  }
+
+  // Login page renders without admin chrome
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="admin-layout">
       {/* Sidebar */}
@@ -34,13 +116,17 @@ export default function AdminLayout({
             <Package size={18} weight="bold" />
             <span>Products</span>
           </Link>
+          <Link href="/admin/categories" className="admin-sidebar__link">
+            <FolderOpen size={18} weight="bold" />
+            <span>Categories</span>
+          </Link>
+          <Link href="/admin/brands" className="admin-sidebar__link">
+            <Tag size={18} weight="bold" />
+            <span>Brands</span>
+          </Link>
           <Link href="/admin/orders" className="admin-sidebar__link">
             <ShoppingBagOpen size={18} weight="bold" />
             <span>Orders</span>
-          </Link>
-          <Link href="/categories/consoles" className="admin-sidebar__link">
-            <SquaresFour size={18} weight="bold" />
-            <span>Categories</span>
           </Link>
         </nav>
 
@@ -49,10 +135,15 @@ export default function AdminLayout({
             <House size={18} weight="bold" />
             <span>View Store</span>
           </Link>
-          <Link href="/admin/login" className="admin-sidebar__link" style={{ color: 'var(--error)' }}>
+          <button
+            className="admin-sidebar__link"
+            onClick={handleLogout}
+            style={{ color: 'var(--error)', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
+            type="button"
+          >
             <SignOut size={18} weight="bold" />
             <span>Logout</span>
-          </Link>
+          </button>
         </div>
       </aside>
 

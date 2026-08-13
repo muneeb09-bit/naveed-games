@@ -1,12 +1,22 @@
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// NAVEED GAMES — TypeScript Types
+// Complete product taxonomy types for gaming ecommerce
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// ─── PRODUCT ───
 export interface Product {
   id: string;
   slug: string;
   name: string;
   brand: string;
+  brandId?: string;
   category: string;
   categorySlug: string;
+  subcategoryId?: string;
   price: number;
   originalPrice?: number;
+  salePrice?: number;
+  costPrice?: number;
   discount?: number;
   description: string;
   shortDescription: string;
@@ -19,12 +29,21 @@ export interface Product {
   featured: boolean;
   bestseller: boolean;
   isNew: boolean;
+  condition: ProductCondition;
+  platform?: string;
+  releaseYear?: number;
   specs: ProductSpec[];
   variants?: ProductVariant[];
   tags: string[];
   warranty?: string;
   deliveryInfo?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  status?: ProductStatus;
 }
+
+export type ProductCondition = 'new' | 'used' | 'refurbished' | 'pre-owned';
+export type ProductStatus = 'draft' | 'published' | 'archived';
 
 export interface ProductSpec {
   label: string;
@@ -45,6 +64,7 @@ export interface VariantOption {
   inStock: boolean;
 }
 
+// ─── CATEGORY ───
 export interface Category {
   id: string;
   slug: string;
@@ -52,6 +72,11 @@ export interface Category {
   description: string;
   image: string;
   icon: string;
+  parentId?: string;
+  sortOrder: number;
+  isActive: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
   productCount: number;
   subcategories?: Subcategory[];
 }
@@ -60,20 +85,72 @@ export interface Subcategory {
   id: string;
   slug: string;
   name: string;
+  parentId?: string;
+  sortOrder: number;
   productCount: number;
 }
 
+// ─── BRAND ───
+export interface Brand {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  logo?: string;
+  isActive: boolean;
+  sortOrder: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  productCount?: number;
+}
+
+// ─── FILTERS ───
+export interface ProductFilters {
+  category?: string;
+  subcategory?: string;
+  brand?: string[];
+  priceMin?: number;
+  priceMax?: number;
+  inStock?: boolean;
+  platform?: string[];
+  condition?: ProductCondition[];
+  releaseYear?: number;
+  featured?: boolean;
+  bestseller?: boolean;
+  isNew?: boolean;
+  search?: string;
+  tags?: string[];
+}
+
+export type SortOption =
+  | 'relevance'
+  | 'price-asc'
+  | 'price-desc'
+  | 'newest'
+  | 'name-asc'
+  | 'name-desc'
+  | 'popularity';
+
+export interface FilterOption {
+  value: string;
+  label: string;
+  count: number;
+}
+
+// ─── CART ───
 export interface CartItem {
   product: Product;
   quantity: number;
   selectedVariants?: Record<string, string>;
 }
 
+// ─── WISHLIST ───
 export interface WishlistItem {
   product: Product;
   addedAt: string;
 }
 
+// ─── CUSTOMER ───
 export interface Customer {
   name: string;
   phone: string;
@@ -82,6 +159,7 @@ export interface Customer {
   notes?: string;
 }
 
+// ─── ORDER ───
 export interface Order {
   id: string;
   orderNumber: string;
@@ -112,8 +190,19 @@ export type OrderStatus =
   | 'delivered'
   | 'cancelled';
 
+// ─── SEARCH ───
 export interface SearchSuggestion {
   type: 'product' | 'category' | 'brand';
   text: string;
   slug: string;
+  image?: string;
+  price?: number;
+}
+
+// ─── NAVIGATION ───
+export interface NavCategory {
+  slug: string;
+  name: string;
+  icon: string;
+  subcategories: { slug: string; name: string }[];
 }
