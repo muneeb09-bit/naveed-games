@@ -1204,7 +1204,7 @@ a {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   HOMEPAGE: SECTION 01 — HERO (CLEAN)
+   HOMEPAGE: SECTION 01 — HERO (INTERACTIVE PS5)
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .hero-clean {
@@ -1212,6 +1212,7 @@ a {
   padding: 36px 0 52px;
   overflow: hidden;
   background: var(--bg-canvas);
+  transition: background-color var(--duration-normal);
 }
 
 @media (min-width: 1024px) {
@@ -1229,9 +1230,151 @@ a {
   right: 5%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle at center, rgba(0, 112, 209, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(0, 112, 209, 0.14) 0%, transparent 70%);
   filter: blur(60px);
   pointer-events: none;
+  transition: all var(--duration-normal);
+}
+
+.hero-clean--xbox .hero-clean__bg-ambient {
+  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.14) 0%, transparent 70%);
+}
+
+/* Floating PS5 Geometric Symbols (△ ○ ✕ □) */
+.ps5-symbols-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.ps5-symbol {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 0 8px currentColor);
+  will-change: transform;
+}
+
+/* Interactive DualSense Controller Cursor Follower */
+.ps5-controller-cursor {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  margin-left: -24px;
+  margin-top: -24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 90;
+  will-change: transform;
+  transition: transform 0.05s linear;
+}
+
+.ps5-cursor-brackets {
+  position: absolute;
+  inset: -6px;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ps5-bracket {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: var(--accent);
+  border-style: solid;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.ps5-bracket--tl { top: 0; left: 0; border-width: 1.5px 0 0 1.5px; }
+.ps5-bracket--tr { top: 0; right: 0; border-width: 1.5px 1.5px 0 0; }
+.ps5-bracket--bl { bottom: 0; left: 0; border-width: 0 0 1.5px 1.5px; }
+.ps5-bracket--br { bottom: 0; right: 0; border-width: 0 1.5px 1.5px 0; }
+
+.ps5-controller-cursor--hover .ps5-cursor-brackets {
+  inset: -2px;
+}
+.ps5-controller-cursor--hover .ps5-bracket {
+  opacity: 1;
+  border-color: #38BDF8 !important;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+}
+
+.ps5-cursor-controller {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ps5-controller-cursor--hover .ps5-cursor-controller {
+  transform: scale(1.15);
+}
+
+.ps5-controller-cursor--click .ps5-cursor-controller {
+  transform: scale(0.92);
+}
+
+/* Mode Switcher Pill */
+.hero-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  margin-bottom: 16px;
+  width: fit-content;
+  box-shadow: var(--shadow-sm);
+  z-index: 2;
+  position: relative;
+}
+
+.hero-mode-toggle__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: none;
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.hero-mode-toggle__btn:hover {
+  color: #ffffff;
+}
+
+.hero-mode-toggle__btn--active {
+  background: var(--accent);
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(0, 112, 209, 0.4);
+}
+
+.hero-mode-toggle__btn--active-xbox {
+  background: #10B981;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+}
+
+.hero-clean--xbox .hero-clean__highlight {
+  color: #10B981;
+}
+
+.hero-clean--xbox .hero-clean__btn-primary {
+  background: #10B981;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+.hero-clean--xbox .hero-clean__btn-primary:hover {
+  background: #059669;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
 }
 
 .hero-clean__container {
@@ -1239,6 +1382,8 @@ a {
   grid-template-columns: 1fr;
   gap: 36px;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 @media (min-width: 1024px) {
