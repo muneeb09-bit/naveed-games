@@ -1967,27 +1967,59 @@ a {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   SECTION 04 — PROMOTIONAL BANNER
+   SECTION 04 — PROMOTIONAL BANNER (PS5 GLOW)
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .promo-clean-section {
-  padding: 24px 0;
+  padding: 32px 0;
 }
 
 .promo-clean-banner {
   position: relative;
-  background: linear-gradient(135deg, #0C1017 0%, #121824 50%, #0C1017 100%);
+  background: #06080C;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
-  padding: 40px 24px;
+  padding: 60px 24px;
   text-align: center;
   overflow: hidden;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 380px;
 }
 
 @media (min-width: 768px) {
   .promo-clean-banner {
-    padding: 56px 40px;
+    padding: 80px 40px;
+    min-height: 440px;
   }
+}
+
+.promo-clean-banner__bg-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.promo-clean-banner__bg-img {
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.85;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+}
+
+.promo-clean-banner:hover .promo-clean-banner__bg-img {
+  transform: scale(1.03);
+  opacity: 0.95;
+}
+
+.promo-clean-banner__overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(6, 8, 12, 0.45) 0%, rgba(6, 8, 12, 0.88) 75%, #06080C 100%);
+  pointer-events: none;
 }
 
 .promo-clean-banner__glow {
@@ -1995,17 +2027,18 @@ a {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 500px;
-  height: 300px;
-  background: radial-gradient(circle at center, rgba(0, 112, 209, 0.18) 0%, transparent 70%);
-  filter: blur(50px);
+  width: 600px;
+  height: 350px;
+  background: radial-gradient(circle at center, rgba(0, 112, 209, 0.28) 0%, transparent 70%);
+  filter: blur(60px);
   pointer-events: none;
+  z-index: 1;
 }
 
 .promo-clean-banner__content {
   position: relative;
   z-index: 2;
-  max-width: 620px;
+  max-width: 680px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -2019,28 +2052,39 @@ a {
   font-family: var(--font-display);
   font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 10px;
+  color: #38BDF8;
+  background: rgba(0, 112, 209, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: 14px;
+  box-shadow: 0 0 16px rgba(0, 112, 209, 0.3);
 }
 
 .promo-clean-banner__title {
-  font-size: clamp(1.85rem, 4vw, 3rem);
+  font-size: clamp(2.2rem, 5vw, 3.75rem);
   letter-spacing: -0.03em;
+  font-weight: 900;
   color: #ffffff;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 112, 209, 0.35);
 }
 
 .promo-clean-banner__desc {
-  font-size: 0.9375rem;
-  color: var(--text-secondary);
-  margin-bottom: 20px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #CBD5E1;
+  margin-bottom: 24px;
+  max-width: 560px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
 }
 
 .promo-clean-banner__btn {
-  padding: 12px 28px;
-  font-size: 0.875rem;
+  padding: 14px 32px;
+  font-size: 0.9375rem;
+  box-shadow: 0 4px 20px rgba(0, 112, 209, 0.5), 0 0 0 1px rgba(56, 189, 248, 0.3);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

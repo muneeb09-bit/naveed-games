@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Lightning } from '@phosphor-icons/react/dist/ssr';
 
 export function EditorialCampaign() {
@@ -6,6 +7,19 @@ export function EditorialCampaign() {
     <section className="promo-clean-section">
       <div className="container">
         <div className="promo-clean-banner">
+          {/* Glowing PS5 Symbols Background Image */}
+          <div className="promo-clean-banner__bg-wrap" aria-hidden="true">
+            <Image
+              src="/images/banners/ps5-symbols-banner.jpg"
+              alt="PlayStation 5 Console and Glowing Symbols"
+              fill
+              className="promo-clean-banner__bg-img"
+              priority
+              sizes="(max-width: 1200px) 100vw, 1200px"
+            />
+            <div className="promo-clean-banner__overlay" />
+          </div>
+
           <div className="promo-clean-banner__glow" aria-hidden="true" />
           
           <div className="promo-clean-banner__content">
