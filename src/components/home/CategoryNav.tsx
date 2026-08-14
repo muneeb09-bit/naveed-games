@@ -8,131 +8,177 @@ import {
   Headphones,
   Eye,
   Lightning,
-  ArrowRight,
+  Sparkle,
+  Camera,
+  SteeringWheel,
+  DeviceMobile,
+  Car,
 } from '@phosphor-icons/react';
 
 interface CategoryItem {
   id: string;
-  title: string;
+  name: string;
+  subtitle: string;
   slug: string;
   image: string;
-  icon: React.ReactNode;
   accentColor: string;
   glowColor: string;
-  borderColor: string;
+  icon: React.ReactNode;
 }
 
-const CATEGORIES: CategoryItem[] = [
+const DEPARTMENTS: CategoryItem[] = [
   {
-    id: 'playstation',
-    title: 'PlayStation',
-    slug: 'playstation',
-    image: '/images/categories/playstation.png',
+    id: 'consoles',
+    name: 'CONSOLES',
+    subtitle: 'PlayStation • Xbox • Nintendo',
+    slug: 'consoles',
+    image: '/images/categories/consoles.webp',
     accentColor: '#0070D1',
     glowColor: 'rgba(0, 112, 209, 0.35)',
-    borderColor: 'rgba(0, 112, 209, 0.25)',
-    icon: (
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="#0070D1">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15.5v-7l5 3.5-5 3.5z" />
-      </svg>
-    ),
-  },
-  {
-    id: 'xbox',
-    title: 'Xbox',
-    slug: 'xbox',
-    image: '/images/categories/xbox.png',
-    accentColor: '#10B981',
-    glowColor: 'rgba(16, 185, 129, 0.35)',
-    borderColor: 'rgba(16, 185, 129, 0.25)',
-    icon: (
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="#10B981">
-        <path d="M12 2C6.48 2 2 6.48 2 12c0 3.32 1.63 6.27 4.14 8.08C7.54 18.23 9.49 16 12 16s4.46 2.23 5.86 4.08C20.37 18.27 22 15.32 22 12c0-5.52-4.48-10-10-10zm-2.8 4.2c1.03.77 1.8 1.8 2.8 3.3 1-1.5 1.77-2.53 2.8-3.3C16.8 4.7 19 6.2 19 8.5c0 2.2-1.5 4.5-3.5 6.5-1.5-1.5-2.5-2.8-3.5-4.5-1 1.7-2 3-3.5 4.5C6.5 13 5 10.7 5 8.5c0-2.3 2.2-3.8 4.2-2.3z" />
-      </svg>
-    ),
+    icon: <GameController size={20} weight="fill" />,
   },
   {
     id: 'gaming-pcs',
-    title: 'Gaming PCs',
+    name: 'GAMING PCS',
+    subtitle: 'Custom Rigs • RTX 4090 • Laptops',
     slug: 'gaming-pcs',
-    image: '/images/categories/gaming-pcs.png',
+    image: '/images/categories/gaming-pcs.webp',
     accentColor: '#A855F7',
     glowColor: 'rgba(168, 85, 247, 0.35)',
-    borderColor: 'rgba(168, 85, 247, 0.25)',
-    icon: (
-      <Desktop size={28} weight="fill" color="#A855F7" />
-    ),
+    icon: <Desktop size={20} weight="fill" />,
   },
   {
-    id: 'accessories',
-    title: 'Accessories',
-    slug: 'accessories',
-    image: '/images/categories/accessories.png',
-    accentColor: '#F97316',
-    glowColor: 'rgba(249, 115, 22, 0.35)',
-    borderColor: 'rgba(249, 115, 22, 0.25)',
-    icon: (
-      <Headphones size={28} weight="fill" color="#F97316" />
-    ),
-  },
-  {
-    id: 'vr',
-    title: 'VR',
+    id: 'vr-ar',
+    name: 'VR & SPATIAL',
+    subtitle: 'Meta Quest • PS VR2 • Vision',
     slug: 'vr-ar',
-    image: '/images/categories/vr.png',
+    image: '/images/categories/vr.webp',
     accentColor: '#06B6D4',
     glowColor: 'rgba(6, 182, 212, 0.35)',
-    borderColor: 'rgba(6, 182, 212, 0.25)',
-    icon: (
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#06B6D4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 8H3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h4.5a3.5 3.5 0 0 1 7 0H21a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2z" />
-        <circle cx="7.5" cy="13" r="1.5" fill="#06B6D4" />
-        <circle cx="16.5" cy="13" r="1.5" fill="#06B6D4" />
-      </svg>
-    ),
+    icon: <Eye size={20} weight="fill" />,
+  },
+  {
+    id: 'drones',
+    name: 'DRONES & CAMERAS',
+    subtitle: 'DJI • Osmo • Creator Gear',
+    slug: 'drones',
+    image: '/images/categories/drones.webp',
+    accentColor: '#38BDF8',
+    glowColor: 'rgba(56, 189, 248, 0.35)',
+    icon: <Camera size={20} weight="fill" />,
+  },
+  {
+    id: 'controllers',
+    name: 'PRO CONTROLLERS',
+    subtitle: 'DualSense Edge • Elite • Custom',
+    slug: 'controllers',
+    image: '/images/categories/controllers.webp',
+    accentColor: '#6366F1',
+    glowColor: 'rgba(99, 102, 241, 0.35)',
+    icon: <Lightning size={20} weight="fill" />,
+  },
+  {
+    id: 'audio',
+    name: 'GAMING AUDIO',
+    subtitle: 'SteelSeries • Sony • Studio Sound',
+    slug: 'accessories',
+    image: '/images/categories/audio.webp',
+    accentColor: '#F97316',
+    glowColor: 'rgba(249, 115, 22, 0.35)',
+    icon: <Headphones size={20} weight="fill" />,
+  },
+  {
+    id: 'racing',
+    name: 'RACING SIMULATORS',
+    subtitle: 'Logitech G • Fanatec • Moza',
+    slug: 'accessories',
+    image: '/images/categories/racing.webp',
+    accentColor: '#EF4444',
+    glowColor: 'rgba(239, 68, 68, 0.35)',
+    icon: <SteeringWheel size={20} weight="fill" />,
+  },
+  {
+    id: 'smart-tech',
+    name: 'SMART & ROBOTICS',
+    subtitle: 'Ray-Ban Meta • EMO AI • Tech',
+    slug: 'accessories',
+    image: '/images/categories/smart-tech.webp',
+    accentColor: '#10B981',
+    glowColor: 'rgba(16, 185, 129, 0.35)',
+    icon: <Sparkle size={20} weight="fill" />,
+  },
+  {
+    id: 'handhelds',
+    name: 'HANDHELDS',
+    subtitle: 'Steam Deck • ROG Ally • OLED',
+    slug: 'gaming',
+    image: '/images/categories/handhelds.webp',
+    accentColor: '#EC4899',
+    glowColor: 'rgba(236, 72, 153, 0.35)',
+    icon: <DeviceMobile size={20} weight="fill" />,
+  },
+  {
+    id: 'rc-monsters',
+    name: 'RC & HOBBY',
+    subtitle: 'Traxxas • 60+ MPH • 4WD',
+    slug: 'accessories',
+    image: '/images/categories/rc-cars.webp',
+    accentColor: '#F59E0B',
+    glowColor: 'rgba(245, 158, 11, 0.35)',
+    icon: <Car size={20} weight="fill" />,
   },
 ];
 
 export function CategoryNav() {
   return (
-    <section className="category-strip-section" id="categories">
+    <section className="dept-showcase-section" id="categories">
       <div className="container">
-        <div className="category-strip-grid">
-          {CATEGORIES.map((cat) => (
+        <div className="dept-showcase-header">
+          <div>
+            <span className="dept-showcase-badge">STORE DEPARTMENTS</span>
+            <h2 className="dept-showcase-title">Shop by Category</h2>
+          </div>
+          <Link href="/shop" className="dept-showcase-all-link">
+            <span>Browse All Departments</span>
+            <span className="dept-showcase-all-arrow">→</span>
+          </Link>
+        </div>
+
+        {/* 10 Department Cards Grid (Mobile Horizontal Snap / Desktop 5x2 Grid) */}
+        <div className="dept-showcase-grid">
+          {DEPARTMENTS.map((dept) => (
             <Link
-              key={cat.id}
-              href={`/shop/${cat.slug}`}
-              className="category-strip-card"
+              key={dept.id}
+              href={`/shop/${dept.slug}`}
+              className="dept-card"
               style={{
-                '--cat-accent': cat.accentColor,
-                '--cat-glow': cat.glowColor,
-                '--cat-border': cat.borderColor,
+                '--dept-accent': dept.accentColor,
+                '--dept-glow': dept.glowColor,
               } as React.CSSProperties}
             >
-              {/* Subtle ambient light gradient */}
-              <div className="category-strip-card__glow" aria-hidden="true" />
+              {/* Subtle top ambient glow */}
+              <div className="dept-card__ambient" aria-hidden="true" />
 
-              {/* Left Content Side */}
-              <div className="category-strip-card__content">
-                <div className="category-strip-card__icon" aria-hidden="true">
-                  {cat.icon}
+              {/* Header Info */}
+              <div className="dept-card__header">
+                <div className="dept-card__icon" style={{ color: dept.accentColor }}>
+                  {dept.icon}
                 </div>
-                <h3 className="category-strip-card__title">{cat.title}</h3>
-                <div className="category-strip-card__link">
-                  <span>Shop Now</span>
-                  <ArrowRight size={13} weight="bold" className="category-strip-card__arrow" />
+                <div className="dept-card__text">
+                  <h3 className="dept-card__title">{dept.name}</h3>
+                  <p className="dept-card__subtitle">{dept.subtitle}</p>
                 </div>
               </div>
 
-              {/* Right Image Cutout Side */}
-              <div className="category-strip-card__image-wrap">
+              {/* Large Product Visual (Hero Element) */}
+              <div className="dept-card__visual">
                 <Image
-                  src={cat.image}
-                  alt={`${cat.title} hardware and consoles`}
-                  width={140}
-                  height={130}
-                  className="category-strip-card__image"
-                  priority
+                  src={dept.image}
+                  alt={`${dept.name} hardware and products`}
+                  width={320}
+                  height={240}
+                  className="dept-card__img"
+                  loading="lazy"
                 />
               </div>
             </Link>
