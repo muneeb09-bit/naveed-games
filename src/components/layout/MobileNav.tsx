@@ -6,7 +6,7 @@ import {
   House,
   SquaresFour,
   MagnifyingGlass,
-  ShoppingBagOpen,
+  ShoppingBag,
   Heart,
 } from '@phosphor-icons/react';
 import { useCartStore } from '@/store/cart';
@@ -31,22 +31,28 @@ export function MobileNav() {
     return null;
   }
 
+  const isHome = pathname === '/';
+  const isShop = pathname.startsWith('/shop') || pathname.startsWith('/products') || pathname.startsWith('/categories');
+  const isWishlist = pathname === '/wishlist';
+
   return (
     <>
       <nav className="bottom-nav" aria-label="Mobile navigation">
         <Link
           href="/"
-          className={`bottom-nav__item ${pathname === '/' ? 'bottom-nav__item--active' : ''}`}
+          className={`bottom-nav__item ${isHome ? 'bottom-nav__item--active' : ''}`}
+          aria-label="Home"
         >
-          <House size={20} weight={pathname === '/' ? 'fill' : 'bold'} />
+          <House size={22} weight={isHome ? 'fill' : 'bold'} />
           <span>Home</span>
         </Link>
 
         <Link
           href="/shop"
-          className={`bottom-nav__item ${pathname.startsWith('/shop') || pathname.startsWith('/products') ? 'bottom-nav__item--active' : ''}`}
+          className={`bottom-nav__item ${isShop ? 'bottom-nav__item--active' : ''}`}
+          aria-label="Shop catalog"
         >
-          <SquaresFour size={20} weight={pathname.startsWith('/shop') ? 'fill' : 'bold'} />
+          <SquaresFour size={22} weight={isShop ? 'fill' : 'bold'} />
           <span>Shop</span>
         </Link>
 
@@ -54,18 +60,19 @@ export function MobileNav() {
           className="bottom-nav__item"
           onClick={() => setSearchOpen(true)}
           type="button"
-          aria-label="Open search"
+          aria-label="Search catalog (Ctrl+K)"
         >
-          <MagnifyingGlass size={20} weight="bold" />
+          <MagnifyingGlass size={22} weight="bold" />
           <span>Search</span>
         </button>
 
         <Link
           href="/wishlist"
-          className={`bottom-nav__item ${pathname === '/wishlist' ? 'bottom-nav__item--active' : ''}`}
+          className={`bottom-nav__item ${isWishlist ? 'bottom-nav__item--active' : ''}`}
+          aria-label={`Wishlist (${mounted ? wishlistItems.length : 0} items)`}
         >
           <div className="bottom-nav__icon-wrap">
-            <Heart size={20} weight={pathname === '/wishlist' ? 'fill' : 'bold'} />
+            <Heart size={22} weight={isWishlist ? 'fill' : 'bold'} />
             {mounted && wishlistItems.length > 0 && (
               <span className="bottom-nav__badge">{wishlistItems.length}</span>
             )}
@@ -77,12 +84,12 @@ export function MobileNav() {
           className="bottom-nav__item"
           onClick={openCart}
           type="button"
-          aria-label="Open cart"
+          aria-label={`Cart (${mounted ? cartItemCount : 0} items)`}
         >
           <div className="bottom-nav__icon-wrap">
-            <ShoppingBagOpen size={20} weight="bold" />
+            <ShoppingBag size={22} weight="bold" />
             {mounted && cartItemCount > 0 && (
-              <span className="bottom-nav__badge bottom-nav__badge--accent">
+              <span className="bottom-nav__badge">
                 {cartItemCount}
               </span>
             )}
