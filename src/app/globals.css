@@ -1376,18 +1376,19 @@ a {
 }
 
 .hero-clean__container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 36px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
   position: relative;
   z-index: 2;
 }
 
 @media (min-width: 1024px) {
   .hero-clean__container {
+    display: grid;
     grid-template-columns: 1.15fr 0.85fr;
     gap: 56px;
+    align-items: center;
   }
 }
 
@@ -1406,20 +1407,33 @@ a {
   border: 1px solid var(--accent-border);
   color: #38BDF8;
   font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   width: fit-content;
 }
 
+@media (min-width: 768px) {
+  .hero-clean__badge {
+    font-size: 0.75rem;
+    margin-bottom: 16px;
+  }
+}
+
 .hero-clean__title {
-  font-size: clamp(2.35rem, 5.5vw, 4.25rem);
+  font-size: clamp(1.875rem, 7.5vw, 4.25rem);
   line-height: 1.05;
   letter-spacing: -0.03em;
   color: #ffffff;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 768px) {
+  .hero-clean__title {
+    margin-bottom: 16px;
+  }
 }
 
 .hero-clean__highlight {
@@ -1427,47 +1441,102 @@ a {
 }
 
 .hero-clean__desc {
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 0.875rem;
+  line-height: 1.55;
   color: var(--text-secondary);
   max-width: 520px;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+  .hero-clean__desc {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
 }
 
 .hero-clean__actions {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 28px;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .hero-clean__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
 }
 
 .hero-clean__btn-primary {
-  padding: 13px 28px;
-  font-size: 0.9375rem;
+  width: 100%;
+  justify-content: center;
+  padding: 12px 20px;
+  font-size: 0.875rem;
+  min-height: 44px;
+}
+
+@media (min-width: 480px) {
+  .hero-clean__btn-primary {
+    width: auto;
+    padding: 13px 28px;
+    font-size: 0.9375rem;
+  }
 }
 
 .hero-clean__btn-secondary {
-  padding: 13px 24px;
-  font-size: 0.9375rem;
+  width: 100%;
+  justify-content: center;
+  padding: 12px 20px;
+  font-size: 0.875rem;
+  min-height: 44px;
+}
+
+@media (min-width: 480px) {
+  .hero-clean__btn-secondary {
+    width: auto;
+    padding: 13px 24px;
+    font-size: 0.9375rem;
+  }
 }
 
 .hero-clean__trust {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 20px;
-  padding-top: 20px;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px;
   border-top: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 480px) {
+  .hero-clean__trust {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    padding-top: 20px;
+  }
 }
 
 .hero-clean__trust-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--text-secondary);
+}
+
+@media (min-width: 768px) {
+  .hero-clean__trust-item {
+    font-size: 0.8125rem;
+  }
 }
 
 .hero-clean__trust-icon {
@@ -1500,7 +1569,7 @@ a {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
   }
 }
 
@@ -1512,11 +1581,17 @@ a {
   width: 90%;
   height: 80%;
   border-radius: 50%;
-  filter: blur(70px);
+  filter: blur(50px);
   pointer-events: none;
   z-index: 1;
   opacity: 0.7;
   transition: background 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+}
+
+@media (min-width: 768px) {
+  .hero-clean__aura {
+    filter: blur(70px);
+  }
 }
 
 .hero-clean__aura--ps {
@@ -1533,13 +1608,20 @@ a {
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
-  height: 40px;
+  height: 30px;
   border-radius: 50%;
-  filter: blur(25px);
+  filter: blur(20px);
   pointer-events: none;
   z-index: 1;
   opacity: 0.6;
   transition: background 0.6s ease;
+}
+
+@media (min-width: 768px) {
+  .hero-clean__floor-glow {
+    height: 40px;
+    filter: blur(25px);
+  }
 }
 
 .hero-clean__floor-glow--ps {
@@ -1555,14 +1637,33 @@ a {
   z-index: 2;
   width: 100%;
   height: auto;
-  max-height: 460px;
+  max-height: 240px;
   object-fit: contain;
-  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 25px rgba(0, 112, 209, 0.2));
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 20px rgba(0, 112, 209, 0.2));
   transition: filter 0.6s ease, transform 0.4s ease;
 }
 
+@media (min-width: 640px) {
+  .hero-clean__hardware-img {
+    max-height: 340px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-clean__hardware-img {
+    max-height: 460px;
+    filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 25px rgba(0, 112, 209, 0.2));
+  }
+}
+
 .hero-clean--xbox .hero-clean__hardware-img {
-  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 25px rgba(16, 185, 129, 0.25));
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 20px rgba(16, 185, 129, 0.25));
+}
+
+@media (min-width: 1024px) {
+  .hero-clean--xbox .hero-clean__hardware-img {
+    filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 25px rgba(16, 185, 129, 0.25));
+  }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2985,8 +3086,15 @@ a {
 .shop-grid--grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  gap: 10px;
 }
+
+@media (min-width: 480px) {
+  .shop-grid--grid {
+    gap: 14px;
+  }
+}
+
 @media (min-width: 768px) {
   .shop-grid--grid {
     grid-template-columns: repeat(3, 1fr);
@@ -2994,21 +3102,32 @@ a {
   }
 }
 
+@media (min-width: 1200px) {
+  .shop-grid--grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+}
+
 .shop-grid--list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
+
 .shop-grid--list .product-card-clean,
 .shop-grid--list .product-card {
   display: grid;
-  grid-template-columns: 160px 1fr;
+  grid-template-columns: 100px 1fr;
   height: auto;
+  gap: 8px;
 }
-@media (max-width: 640px) {
+
+@media (min-width: 640px) {
   .shop-grid--list .product-card-clean,
   .shop-grid--list .product-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: 160px 1fr;
+    gap: 12px;
   }
 }
 
