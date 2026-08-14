@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useWishlistStore } from '@/store/wishlist';
 import { ProductCard } from '@/components/product/ProductCard';
-import { Heart, ShoppingBag } from '@phosphor-icons/react';
+import { Heart, ShoppingBag, ArrowRight } from '@phosphor-icons/react';
 import Link from 'next/link';
 
 export default function WishlistPage() {
@@ -16,15 +16,13 @@ export default function WishlistPage() {
 
   if (!mounted) {
     return (
-      <div style={{ paddingTop: 'var(--space-xl)', paddingBottom: 'var(--space-3xl)' }}>
+      <div className="section-clean">
         <div className="container">
-          <div style={{ marginBottom: 'var(--space-xl)' }}>
-            <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.03em' }}>
-              My Wishlist
-            </h1>
-            <p style={{ marginTop: 'var(--space-sm)', fontSize: '0.875rem', color: 'var(--muted)' }}>
-              Loading saved items...
-            </p>
+          <div className="section-clean__header">
+            <div>
+              <h1 className="section-clean__title">My Wishlist</h1>
+              <p className="section-clean__subtitle">Loading your saved hardware...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -32,41 +30,39 @@ export default function WishlistPage() {
   }
 
   return (
-    <div style={{ paddingTop: 'var(--space-xl)', paddingBottom: 'var(--space-3xl)' }}>
+    <div className="section-clean">
       <div className="container">
-        <div style={{ marginBottom: 'var(--space-xl)' }}>
-          <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.03em' }}>
-            My Wishlist
-          </h1>
-          <p style={{ marginTop: 'var(--space-sm)', fontSize: '0.875rem', color: 'var(--muted-light)' }}>
-            {items.length} saved {items.length === 1 ? 'item' : 'items'}
-          </p>
+        <div className="section-clean__header">
+          <div>
+            <h1 className="section-clean__title">My Wishlist</h1>
+            <p className="section-clean__subtitle">
+              {items.length} saved hardware item{items.length !== 1 ? 's' : ''} in your collection
+            </p>
+          </div>
+          {items.length > 0 && (
+            <Link href="/shop" className="section-clean__link">
+              <span>Continue Browsing</span>
+              <ArrowRight size={14} weight="bold" />
+            </Link>
+          )}
         </div>
 
         {items.length === 0 ? (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 'var(--space-4xl) 0',
-              textAlign: 'center',
-              gap: 'var(--space-md)',
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '12px',
-            }}
-          >
-            <Heart size={48} weight="thin" style={{ color: 'var(--muted)' }} />
-            <p style={{ color: 'var(--muted-light)', fontSize: '0.9375rem' }}>Your wishlist is currently empty</p>
-            <Link href="/shop" className="button button--primary">
+          <div className="shop-empty">
+            <div className="shop-empty__icon-wrap">
+              <Heart size={48} weight="thin" />
+            </div>
+            <h2 className="shop-empty__title">Your wishlist is currently empty</h2>
+            <p className="shop-empty__desc">
+              Save your favorite consoles, graphics cards, controllers, and accessories here for quick tracking and checkout.
+            </p>
+            <Link href="/shop" className="btn-primary">
               <ShoppingBag size={18} weight="bold" />
-              <span>Explore Shop</span>
+              <span>Explore Hardware Catalog</span>
             </Link>
           </div>
         ) : (
-          <div className="product-grid">
+          <div className="product-clean-grid">
             {items.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
