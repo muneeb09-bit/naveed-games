@@ -29,6 +29,10 @@ export function Hero() {
 
   const isPlayStation = platformMode === 'playstation';
 
+  // Parallax offset for hero showcase
+  const parallaxX = (mousePos.x - 0.5) * 18;
+  const parallaxY = (mousePos.y - 0.5) * 14;
+
   return (
     <section className={`hero-clean ${isPlayStation ? 'hero-clean--ps' : 'hero-clean--xbox'}`} ref={heroRef}>
       {/* Ambient Lighting */}
@@ -104,34 +108,35 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Right Hardware Visual Column */}
+        {/* Right Hardware Visual Showcase (Unboxed Collage with Dynamic Blue/Green Aura & Parallax) */}
         <div className="hero-clean__visual">
-          <div className="hero-clean__visual-card">
-            <div className="hero-clean__visual-glow" aria-hidden="true" />
+          <div
+            className="hero-clean__showcase"
+            style={{
+              transform: `translate3d(${parallaxX}px, ${parallaxY}px, 0)`,
+            }}
+          >
+            {/* Dynamic Ambient Aura (Electric Blue or Acid Green) */}
+            <div
+              className={`hero-clean__aura ${isPlayStation ? 'hero-clean__aura--ps' : 'hero-clean__aura--xbox'}`}
+              aria-hidden="true"
+            />
+
+            {/* Glowing Reflected Base / Floor Light */}
+            <div
+              className={`hero-clean__floor-glow ${isPlayStation ? 'hero-clean__floor-glow--ps' : 'hero-clean__floor-glow--xbox'}`}
+              aria-hidden="true"
+            />
+
+            {/* Flagship Hardware Transparent Collage */}
             <Image
-              src={isPlayStation ? '/images/products/ps5-pro-1.jpg' : '/images/products/xbox-series-x-1.jpg'}
-              alt={isPlayStation ? 'PlayStation 5 Pro Console' : 'Xbox Series X Console'}
-              width={560}
-              height={560}
-              className="hero-clean__visual-img"
+              src="/images/hero/hardware-flagship.webp"
+              alt="Flagship Gaming and Creator Hardware Ecosystem"
+              width={680}
+              height={460}
+              className="hero-clean__hardware-img"
               priority
             />
-            <div className="hero-clean__visual-caption">
-              <div className="hero-clean__caption-info">
-                <span className="hero-clean__caption-tag">
-                  {isPlayStation ? 'NOW AVAILABLE' : 'FLAGSHIP CONSOLE'}
-                </span>
-                <span className="hero-clean__caption-name">
-                  {isPlayStation ? 'PlayStation 5 Pro · 2TB SSD' : 'Xbox Series X 1TB · 4K 120FPS'}
-                </span>
-              </div>
-              <Link
-                href={isPlayStation ? '/product/ps5-pro-2tb-console' : '/product/xbox-series-x-1tb'}
-                className="hero-clean__caption-link"
-              >
-                Explore →
-              </Link>
-            </div>
           </div>
         </div>
       </div>
