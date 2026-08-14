@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Gauge,
   Package,
@@ -39,7 +40,6 @@ export default function AdminLayout({
 
     async function checkAuth() {
       try {
-        // First check local admin session flag
         const hasLocalAuth =
           (typeof window !== 'undefined' && localStorage.getItem('ng_admin_authed') === 'true') ||
           (typeof document !== 'undefined' && document.cookie.includes('ng_admin_authed=true'));
@@ -104,13 +104,13 @@ export default function AdminLayout({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'var(--black)',
-          color: 'var(--muted)',
+          background: 'var(--bg-canvas)',
+          color: 'var(--text-secondary)',
           fontFamily: 'var(--font-display)',
           fontSize: '0.875rem',
         }}
       >
-        Verifying access...
+        Verifying console access...
       </div>
     );
   }
@@ -132,8 +132,17 @@ export default function AdminLayout({
       {/* Desktop Sidebar */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar__brand">
-          <Link href="/admin">
-            NG<span>ADMIN</span>
+          <Link href="/admin" className="admin-sidebar__brand-link">
+            <Image
+              src="/images/logo.png"
+              alt="Naveed Games Logo"
+              width={32}
+              height={32}
+              className="admin-sidebar__brand-img"
+            />
+            <span>
+              NG<strong>CONSOLE</strong>
+            </span>
           </Link>
         </div>
 
@@ -157,7 +166,7 @@ export default function AdminLayout({
         <div className="admin-sidebar__footer">
           <Link href="/" className="admin-sidebar__link">
             <House size={18} weight="bold" />
-            <span>View Store</span>
+            <span>View Storefront</span>
           </Link>
           <button
             className="admin-sidebar__link admin-sidebar__link--logout"
@@ -165,7 +174,7 @@ export default function AdminLayout({
             type="button"
           >
             <SignOut size={18} weight="bold" />
-            <span>Logout</span>
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
@@ -178,16 +187,16 @@ export default function AdminLayout({
               type="button"
               className="admin-header__hamburger"
               onClick={() => setMobileMenuOpen(true)}
-              aria-label="Open mobile menu"
+              aria-label="Open navigation menu"
             >
               <List size={22} weight="bold" />
             </button>
-            <div className="admin-header__title">Naveed Games Console</div>
+            <div className="admin-header__title">Store Administration</div>
           </div>
 
           <div className="admin-header__user">
             <span className="admin-header__avatar">M</span>
-            <span className="admin-header__username">Mujahid</span>
+            <span className="admin-header__username">Mujahid (Manager)</span>
           </div>
         </header>
 
@@ -204,8 +213,16 @@ export default function AdminLayout({
           <aside className="admin-mobile-drawer">
             <div className="admin-mobile-drawer__header">
               <div className="admin-sidebar__brand">
-                <Link href="/admin">
-                  NG<span>ADMIN</span>
+                <Link href="/admin" className="admin-sidebar__brand-link">
+                  <Image
+                    src="/images/logo.png"
+                    alt="Naveed Games Logo"
+                    width={28}
+                    height={28}
+                  />
+                  <span>
+                    NG<strong>CONSOLE</strong>
+                  </span>
                 </Link>
               </div>
               <button
@@ -237,7 +254,7 @@ export default function AdminLayout({
             <div className="admin-sidebar__footer">
               <Link href="/" className="admin-sidebar__link">
                 <House size={18} weight="bold" />
-                <span>View Store</span>
+                <span>View Storefront</span>
               </Link>
               <button
                 className="admin-sidebar__link admin-sidebar__link--logout"
@@ -245,7 +262,7 @@ export default function AdminLayout({
                 type="button"
               >
                 <SignOut size={18} weight="bold" />
-                <span>Logout</span>
+                <span>Sign Out</span>
               </button>
             </div>
           </aside>
@@ -256,14 +273,14 @@ export default function AdminLayout({
         .admin-layout {
           display: flex;
           min-height: 100vh;
-          background: var(--black);
-          color: var(--off-white);
+          background: var(--bg-canvas);
+          color: var(--text-primary);
         }
 
         .admin-sidebar {
           width: 240px;
-          background: var(--graphite);
-          border-right: 1px solid var(--graphite-border);
+          background: var(--bg-surface);
+          border-right: 1px solid var(--border-default);
           display: flex;
           flex-direction: column;
           position: fixed;
@@ -274,15 +291,25 @@ export default function AdminLayout({
         }
 
         .admin-sidebar__brand {
-          padding: 20px;
-          font-family: var(--font-display);
-          font-size: 1.125rem;
-          font-weight: 900;
-          letter-spacing: 0.04em;
+          padding: 18px 20px;
           border-bottom: 1px solid var(--border-subtle);
         }
-        .admin-sidebar__brand a { color: var(--white); text-decoration: none; }
-        .admin-sidebar__brand span { color: var(--accent); }
+
+        .admin-sidebar__brand-link {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-family: var(--font-display);
+          font-size: 1rem;
+          font-weight: 700;
+          color: #ffffff;
+          text-decoration: none;
+        }
+
+        .admin-sidebar__brand-link strong {
+          color: var(--accent);
+          font-weight: 800;
+        }
 
         .admin-sidebar__nav {
           padding: 16px 12px;
@@ -297,21 +324,25 @@ export default function AdminLayout({
           align-items: center;
           gap: 12px;
           padding: 10px 12px;
-          border-radius: 6px;
+          border-radius: var(--radius-sm);
           font-family: var(--font-display);
           font-size: 0.8125rem;
           font-weight: 600;
-          color: var(--muted-light);
+          color: var(--text-secondary);
           text-decoration: none;
           transition: all var(--duration-fast);
         }
         .admin-sidebar__link:hover,
         .admin-sidebar__link--active {
-          color: var(--white);
-          background: rgba(59, 130, 246, 0.15);
+          color: #ffffff;
+          background: var(--accent-subtle);
+        }
+        .admin-sidebar__link--active {
+          color: var(--accent);
+          border-left: 3px solid var(--accent);
         }
         .admin-sidebar__link--logout {
-          color: var(--error);
+          color: var(--danger);
           background: none;
           border: none;
           cursor: pointer;
@@ -337,7 +368,7 @@ export default function AdminLayout({
 
         .admin-header {
           height: 64px;
-          background: var(--bg-secondary);
+          background: var(--bg-surface);
           border-bottom: 1px solid var(--border-subtle);
           display: flex;
           align-items: center;
@@ -355,7 +386,7 @@ export default function AdminLayout({
           display: none;
           background: none;
           border: none;
-          color: var(--white);
+          color: var(--text-primary);
           cursor: pointer;
           padding: 4px;
         }
@@ -364,9 +395,8 @@ export default function AdminLayout({
           font-family: var(--font-display);
           font-size: 0.875rem;
           font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-          color: var(--muted);
+          letter-spacing: 0.04em;
+          color: var(--text-secondary);
         }
 
         .admin-header__user {
@@ -374,7 +404,7 @@ export default function AdminLayout({
           align-items: center;
           gap: 10px;
           font-size: 0.8125rem;
-          color: var(--white);
+          color: var(--text-primary);
           font-weight: 600;
         }
 
@@ -383,7 +413,7 @@ export default function AdminLayout({
           height: 32px;
           border-radius: 50%;
           background: var(--accent);
-          color: var(--white);
+          color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -392,7 +422,7 @@ export default function AdminLayout({
         }
 
         .admin-main {
-          padding: 24px;
+          padding: 28px 24px;
           flex: 1;
         }
 
@@ -412,8 +442,8 @@ export default function AdminLayout({
           left: 0;
           width: 260px;
           z-index: 151;
-          background: var(--graphite);
-          border-right: 1px solid var(--graphite-border);
+          background: var(--bg-surface);
+          border-right: 1px solid var(--border-default);
           display: flex;
           flex-direction: column;
         }
@@ -428,7 +458,7 @@ export default function AdminLayout({
         .admin-mobile-drawer__close {
           background: none;
           border: none;
-          color: var(--muted);
+          color: var(--text-secondary);
           cursor: pointer;
         }
 

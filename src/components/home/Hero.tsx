@@ -1,465 +1,74 @@
 'use client';
 
-import { useRef, useMemo, useState, useEffect, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowRight, CaretRight, Sparkle, MagnifyingGlass, GameController, Lightning } from '@phosphor-icons/react';
 import Link from 'next/link';
-
-gsap.registerPlugin(useGSAP, ScrollTrigger);
-
-function getParticlePositions(count: number) {
-  const particles: Array<{ x: number; y: number; size: number }> = [];
-  for (let i = 0; i < count; i++) {
-    const hash = ((i * 2654435761) >>> 0) / 4294967296;
-    const hash2 = (((i + 7) * 2654435761) >>> 0) / 4294967296;
-    particles.push({
-      x: hash * 100,
-      y: hash2 * 100,
-      size: 1.5 + hash * 1.5,
-    });
-  }
-  return particles;
-}
-
-const HERO_FEATURED = [
-  {
-    slug: 'ps5-pro',
-    title: 'PlayStation 5 Pro',
-    category: 'Flagship Console',
-    price: 'Rs. 249,999',
-    badge: 'FLAGSHIP GAMING',
-    image: '/images/products/ps5-pro-1.jpg',
-    tagline: '67% More Compute Units • 2TB Custom SSD • PSSR AI Upscaling',
-    theme: 'ps',
-  },
-  {
-    slug: 'dji-mini-4-pro-fly-more-combo',
-    title: 'DJI Mini 4 Pro (Fly More Combo)',
-    category: 'Aerial Creator Studio',
-    price: 'Rs. 314,999',
-    badge: 'DRONE INNOVATION',
-    image: '/images/products/dji-mini-4-pro-1.jpg',
-    tagline: 'Under 249g • 4K/60fps HDR • Omnidirectional Sensing • RC 2 Screen',
-    theme: 'ps',
-  },
-  {
-    slug: 'meta-quest-3-512gb',
-    title: 'Meta Quest 3 (512GB)',
-    category: 'Spatial Mixed Reality',
-    price: 'Rs. 174,999',
-    badge: 'SMART SPATIAL TECH',
-    image: '/images/products/meta-quest-3-1.jpg',
-    tagline: '4K+ Infinite Display • Snapdragon XR2 Gen 2 • Full-Color Passthrough',
-    theme: 'ps',
-  },
-  {
-    slug: 'traxxas-xrt-8s-brushless-race-truck',
-    title: 'Traxxas XRT 8S (60+ MPH)',
-    category: 'Extreme 4WD Brushless',
-    price: 'Rs. 369,999',
-    badge: 'EXTREME RC MONSTER',
-    image: '/images/products/traxxas-xrt-1.jpg',
-    tagline: '8S Velineon 1200XL Power • All-Metal Drivetrain • 60+ MPH Top Speed',
-    theme: 'xbox',
-  },
-];
+import Image from 'next/image';
+import { ArrowRight, ShieldCheck, Truck, Sparkle } from '@phosphor-icons/react';
 
 export function Hero() {
-  const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const particles = useMemo(() => getParticlePositions(24), []);
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [consoleMode, setConsoleMode] = useState<'ps' | 'xbox'>('ps');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((prev) => {
-        const next = (prev + 1) % HERO_FEATURED.length;
-        setConsoleMode(HERO_FEATURED[next].theme as 'ps' | 'xbox');
-        return next;
-      });
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const handleSearchSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      router.push('/shop');
-    }
-  };
-
-  const navigateToSearch = (term: string) => {
-    router.push(`/shop?search=${encodeURIComponent(term)}`);
-  };
-
-  useGSAP(
-    () => {
-      const heroEl = containerRef.current;
-      if (!heroEl) return;
-
-      const mm = gsap.matchMedia();
-
-      mm.add(
-        {
-          isDesktop: '(min-width: 1024px)',
-          reduceMotion: '(prefers-reduced-motion: reduce)',
-        },
-        (context) => {
-          const { reduceMotion } = context.conditions || {};
-
-          if (reduceMotion) {
-            gsap.set(
-              '.hero__subtitle, .hero__title-word, .hero__search-form, .hero__showcase-card',
-              { autoAlpha: 1, y: 0 }
-            );
-            return;
-          }
-
-          // Main Entrance Timeline
-          const tl = gsap.timeline({
-            defaults: { duration: 0.8, ease: 'power3.out' },
-          });
-
-          tl.to('.hero__glow', { autoAlpha: 1, scale: 1.1, duration: 1.5 });
-          tl.from('.hero__subtitle', { autoAlpha: 0, y: 20 }, 0.2);
-          tl.from(
-            '.hero__title-word',
-            { yPercent: 100, duration: 0.8, stagger: 0.1, ease: 'power4.out' },
-            0.3
-          );
-          tl.from('.hero__search-form', { autoAlpha: 0, y: 15 }, 0.6);
-          tl.from('.hero__showcase', { autoAlpha: 0, x: 30, duration: 1 }, 0.4);
-
-          // Ambient floating loop for PlayStation △ ◯ ✕ ▢ and Xbox symbols
-          gsap.to('.hero__ps-symbol', {
-            y: 'random(-15, 15)',
-            rotation: 'random(-25, 25)',
-            duration: 'random(5, 9)',
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-            stagger: { amount: 2, from: 'random' },
-          });
-        }
-      );
-
-      // Custom Gaming Cursor & Symbol Magnetic Cursor Interaction (Desktop only)
-      mm.add('(min-width: 1024px)', () => {
-        const dot = heroEl.querySelector('.hero__cursor-dot');
-        const ring = heroEl.querySelector('.hero__cursor-ring');
-        const symbols = Array.from(heroEl.querySelectorAll<HTMLElement>('.hero__ps-symbol'));
-        if (!dot || !ring) return;
-
-        const xDotTo = gsap.quickSetter(dot, 'x', 'px');
-        const yDotTo = gsap.quickSetter(dot, 'y', 'px');
-
-        const xRingTo = gsap.quickTo(ring, 'x', { duration: 0.3, ease: 'power2.out' });
-        const yRingTo = gsap.quickTo(ring, 'y', { duration: 0.3, ease: 'power2.out' });
-
-        // Setup GSAP quickTo for symbols interactive cursor reaction
-        const symbolToX = symbols.map((s) => gsap.quickTo(s, 'x', { duration: 0.7, ease: 'power2.out' }));
-        const symbolToY = symbols.map((s) => gsap.quickTo(s, 'y', { duration: 0.7, ease: 'power2.out' }));
-
-        const handleMouseMove = (e: MouseEvent) => {
-          const rect = heroEl.getBoundingClientRect();
-          const relX = e.clientX - rect.left;
-          const relY = e.clientY - rect.top;
-
-          xDotTo(relX);
-          yDotTo(relY);
-          xRingTo(relX);
-          yRingTo(relY);
-
-          // Dynamic Cursor Repel + Glow Reaction on PlayStation & Xbox Symbols
-          symbols.forEach((symbol, idx) => {
-            const symRect = symbol.getBoundingClientRect();
-            const symCenterX = symRect.left + symRect.width / 2 - rect.left;
-            const symCenterY = symRect.top + symRect.height / 2 - rect.top;
-
-            const dx = relX - symCenterX;
-            const dy = relY - symCenterY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            // Within 280px radius, symbols push away slightly and glow brighter
-            if (dist < 280) {
-              const power = (1 - dist / 280) * 35;
-              const pushX = -(dx / dist) * power;
-              const pushY = -(dy / dist) * power;
-              symbolToX[idx](pushX);
-              symbolToY[idx](pushY);
-              gsap.to(symbol, { opacity: 0.8, scale: 1.15, duration: 0.3 });
-            } else {
-              symbolToX[idx](0);
-              symbolToY[idx](0);
-              gsap.to(symbol, { opacity: 0.4, scale: 1, duration: 0.6 });
-            }
-          });
-        };
-
-        const handleMouseEnter = () => {
-          gsap.to([dot, ring], { autoAlpha: 1, duration: 0.3 });
-        };
-
-        const handleMouseLeave = () => {
-          gsap.to([dot, ring], { autoAlpha: 0, duration: 0.3 });
-          symbols.forEach((_, idx) => {
-            symbolToX[idx](0);
-            symbolToY[idx](0);
-          });
-        };
-
-        heroEl.addEventListener('mousemove', handleMouseMove);
-        heroEl.addEventListener('mouseenter', handleMouseEnter);
-        heroEl.addEventListener('mouseleave', handleMouseLeave);
-
-        // Hover scale feedback on interactive elements
-        const interactiveItems = heroEl.querySelectorAll('a, button, input, .hero__showcase-card');
-        interactiveItems.forEach((item) => {
-          item.addEventListener('mouseenter', () => {
-            gsap.to(ring, { scale: 1.6, borderColor: 'rgba(59, 130, 246, 0.9)', duration: 0.2 });
-            gsap.to(dot, { scale: 1.4, backgroundColor: '#60a5fa', duration: 0.2 });
-          });
-          item.addEventListener('mouseleave', () => {
-            gsap.to(ring, { scale: 1, borderColor: 'rgba(59, 130, 246, 0.4)', duration: 0.2 });
-            gsap.to(dot, { scale: 1, backgroundColor: 'var(--accent)', duration: 0.2 });
-          });
-        });
-
-        // 3D Parallax Tilt Effect on Showcase Card
-        const card = heroEl.querySelector('.hero__showcase-card') as HTMLElement;
-        if (card) {
-          const handleTilt = (e: MouseEvent) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
-            gsap.to(card, {
-              rotateY: (x / rect.width) * 14,
-              rotateX: -(y / rect.height) * 14,
-              duration: 0.4,
-              ease: 'power2.out',
-            });
-          };
-
-          const resetTilt = () => {
-            gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'power2.out' });
-          };
-
-          card.addEventListener('mousemove', handleTilt);
-          card.addEventListener('mouseleave', resetTilt);
-        }
-
-        return () => {
-          heroEl.removeEventListener('mousemove', handleMouseMove);
-          heroEl.removeEventListener('mouseenter', handleMouseEnter);
-          heroEl.removeEventListener('mouseleave', handleMouseLeave);
-        };
-      });
-    },
-    { scope: containerRef }
-  );
-
-  const switchTheme = (mode: 'ps' | 'xbox') => {
-    setConsoleMode(mode);
-    const accentColor = mode === 'ps' ? '#3b82f6' : '#22c55e';
-    const glowColor = mode === 'ps' ? 'rgba(59, 130, 246, 0.18)' : 'rgba(34, 197, 94, 0.18)';
-
-    gsap.to('.hero__glow', {
-      background: `radial-gradient(circle, ${glowColor} 0%, transparent 70%)`,
-      duration: 0.6,
-    });
-    gsap.to('.hero__cursor-ring', { borderColor: accentColor, duration: 0.4 });
-    gsap.to('.hero__cursor-dot', { backgroundColor: accentColor, duration: 0.4 });
-  };
-
-  const current = HERO_FEATURED[activeSlide];
-
   return (
-    <section className={`hero hero--${consoleMode}`} ref={containerRef}>
-      {/* Custom Gaming Cursor */}
-      <div className="hero__cursor-ring" />
-      <div className="hero__cursor-dot" />
+    <section className="hero-clean">
+      {/* Subtle Ambient Radial Lighting */}
+      <div className="hero-clean__bg-ambient" aria-hidden="true" />
 
-      {/* Background Gradients & Glow */}
-      <div className="hero__image-wrap">
-        <div className="hero__image" />
-        <div className="hero__gradient" />
-      </div>
-
-      <div className="hero__glow" />
-
-      {/* Floating PlayStation & Xbox Sacred Symbols (Cursor-Interactive) */}
-      <div className="hero__symbols-layer">
-        {/* PlayStation Triangle △ (Repositioned to the right side of the screen) */}
-        <svg className="hero__ps-symbol hero__ps-symbol--triangle" viewBox="0 0 40 40" style={{ top: '16%', right: '28%' }}>
-          <polygon points="20,4 36,36 4,36" fill="none" stroke="#00f0ff" strokeWidth="2.5" opacity="0.4" />
-        </svg>
-
-        {/* PlayStation Circle ◯ */}
-        <svg className="hero__ps-symbol hero__ps-symbol--circle" viewBox="0 0 40 40" style={{ top: '65%', left: '8%' }}>
-          <circle cx="20" cy="20" r="15" fill="none" stroke="#f59e0b" strokeWidth="2.5" opacity="0.35" />
-        </svg>
-
-        {/* PlayStation Cross ✕ */}
-        <svg className="hero__ps-symbol hero__ps-symbol--cross" viewBox="0 0 40 40" style={{ top: '22%', right: '10%' }}>
-          <line x1="8" y1="8" x2="32" y2="32" stroke="#3b82f6" strokeWidth="3" opacity="0.4" />
-          <line x1="32" y1="8" x2="8" y2="32" stroke="#3b82f6" strokeWidth="3" opacity="0.4" />
-        </svg>
-
-        {/* PlayStation Square ▢ */}
-        <svg className="hero__ps-symbol hero__ps-symbol--square" viewBox="0 0 40 40" style={{ top: '72%', right: '16%' }}>
-          <rect x="7" y="7" width="26" height="26" fill="none" stroke="#ec4899" strokeWidth="2.5" opacity="0.35" />
-        </svg>
-
-        {/* Xbox Sphere Ring */}
-        <div className="hero__ps-symbol hero__xbox-ring" style={{ top: '48%', right: '6%' }} />
-      </div>
-
-      {/* Ambient Particle Grid */}
-      <div className="hero__particles">
-        {particles.map((p, i) => (
-          <div
-            key={i}
-            className="hero__particle"
-            style={{
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Hero 2-Column Content */}
-      <div className="hero__content container">
-        <div className="hero__grid">
-          {/* Left Main Copy */}
-          <div className="hero__left">
-            {/* PlayStation vs Xbox Interactive Mode Toggle */}
-            <div className="hero__mode-bar">
-              <button
-                type="button"
-                className={`hero__mode-btn ${consoleMode === 'ps' ? 'hero__mode-btn--active-ps' : ''}`}
-                onClick={() => switchTheme('ps')}
-              >
-                <GameController size={14} weight="fill" />
-                <span>PlayStation Mode</span>
-              </button>
-
-              <button
-                type="button"
-                className={`hero__mode-btn ${consoleMode === 'xbox' ? 'hero__mode-btn--active-xbox' : ''}`}
-                onClick={() => switchTheme('xbox')}
-              >
-                <Lightning size={14} weight="fill" />
-                <span>Xbox Velocity</span>
-              </button>
-            </div>
-
-            <div className="hero__subtitle">
-              <Sparkle size={14} weight="fill" style={{ color: consoleMode === 'ps' ? '#3b82f6' : '#22c55e' }} />
-              <span>Naveed Games — Premier Hardware Destination</span>
-            </div>
-
-            <h1 className="hero__title">
-              <span className="hero__title-line">
-                <span className="hero__title-word">PLAY</span>
-              </span>
-              <span className="hero__title-line">
-                <span className="hero__title-word">WITHOUT</span>
-              </span>
-              <span className="hero__title-line">
-                <span className="hero__title-word">LIMITS.</span>
-              </span>
-            </h1>
-
-            <p className="hero__description">
-              Peshawar&apos;s leading gaming store. Search genuine PS5 Pro, Xbox Series X, Custom Gaming PCs, VR & Accessories with nationwide Cash on Delivery.
-            </p>
-
-            {/* Interactive Hero Search Form */}
-            <form onSubmit={handleSearchSubmit} className="hero__search-form">
-              <div className="hero__search-input-wrap">
-                <MagnifyingGlass size={20} className="hero__search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search PS5 Pro, Xbox, Gaming PCs, VR..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="hero__search-input"
-                />
-                <button type="submit" className="hero__search-submit-btn">
-                  <span>Search</span>
-                  <ArrowRight size={16} weight="bold" />
-                </button>
-              </div>
-
-              {/* Popular Quick Search Pills */}
-              <div className="hero__search-pills">
-                <span className="hero__search-label">Popular:</span>
-                <button type="button" onClick={() => navigateToSearch('PS5 Pro')} className="hero__search-pill">
-                  PS5 Pro
-                </button>
-                <button type="button" onClick={() => navigateToSearch('DJI')} className="hero__search-pill">
-                  DJI Drones
-                </button>
-                <button type="button" onClick={() => navigateToSearch('Quest')} className="hero__search-pill">
-                  Meta Quest 3
-                </button>
-                <button type="button" onClick={() => navigateToSearch('Traxxas')} className="hero__search-pill">
-                  Traxxas RC
-                </button>
-                <button type="button" onClick={() => navigateToSearch('Logitech')} className="hero__search-pill">
-                  G923 Racing Wheel
-                </button>
-              </div>
-            </form>
+      <div className="container hero-clean__container">
+        {/* Left Content Column */}
+        <div className="hero-clean__content">
+          <div className="hero-clean__badge">
+            <Sparkle size={14} weight="fill" />
+            <span>Official Gaming & Creator Hardware</span>
           </div>
 
-          {/* Right Column 3D Showcase Banner Card */}
-          <div className="hero__showcase">
-            <div className="hero__showcase-card">
-              <div className="hero__showcase-badge">{current.badge}</div>
+          <h1 className="hero-clean__title">
+            PLAY WITHOUT <span className="hero-clean__highlight">LIMITS.</span>
+          </h1>
 
-              <div className="hero__showcase-img-wrap">
-                <img src={current.image} alt={current.title} className="hero__showcase-img" />
-              </div>
+          <p className="hero-clean__desc">
+            Pakistan&apos;s premier destination for authentic PlayStation, Xbox, custom high-performance PC rigs, VR systems, and creator tech with verified local warranty.
+          </p>
 
-              <div className="hero__showcase-details">
-                <span className="hero__showcase-cat">{current.category}</span>
-                <h3 className="hero__showcase-title">{current.title}</h3>
-                <p className="hero__showcase-tagline">{current.tagline}</p>
-                <div className="hero__showcase-footer">
-                  <div className="hero__showcase-price">{current.price}</div>
-                  <Link href={`/products/${current.slug}`} className="hero__showcase-btn">
-                    <span>Explore Hardware</span>
-                    <CaretRight size={14} weight="bold" />
-                  </Link>
-                </div>
-              </div>
+          <div className="hero-clean__actions">
+            <Link href="/shop" className="btn-primary hero-clean__btn-primary">
+              <span>SHOP NOW</span>
+              <ArrowRight size={16} weight="bold" />
+            </Link>
+            <Link href="/deals" className="btn-secondary hero-clean__btn-secondary">
+              VIEW DEALS
+            </Link>
+          </div>
 
-              {/* Dots Indicator */}
-              <div className="hero__showcase-dots">
-                {HERO_FEATURED.map((_, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    className={`hero__showcase-dot ${idx === activeSlide ? 'hero__showcase-dot--active' : ''}`}
-                    onClick={() => {
-                      setActiveSlide(idx);
-                      setConsoleMode(HERO_FEATURED[idx].theme as 'ps' | 'xbox');
-                    }}
-                    aria-label={`Slide ${idx + 1}`}
-                  />
-                ))}
+          {/* Clean Trust Pillars */}
+          <div className="hero-clean__trust">
+            <div className="hero-clean__trust-item">
+              <ShieldCheck size={18} weight="fill" className="hero-clean__trust-icon" />
+              <span>100% Genuine Stock</span>
+            </div>
+            <div className="hero-clean__trust-item">
+              <Truck size={18} weight="fill" className="hero-clean__trust-icon" />
+              <span>Express Delivery in Pakistan</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Hardware Visual Column */}
+        <div className="hero-clean__visual">
+          <div className="hero-clean__visual-card">
+            <div className="hero-clean__visual-glow" aria-hidden="true" />
+            <Image
+              src="/images/products/ps5-pro-1.jpg"
+              alt="PlayStation 5 Pro Console"
+              width={560}
+              height={560}
+              className="hero-clean__visual-img"
+              priority
+            />
+            <div className="hero-clean__visual-caption">
+              <div className="hero-clean__caption-info">
+                <span className="hero-clean__caption-tag">NOW AVAILABLE</span>
+                <span className="hero-clean__caption-name">PlayStation 5 Pro · 2TB SSD</span>
               </div>
+              <Link href="/product/ps5-pro-2tb-console" className="hero-clean__caption-link">
+                Explore →
+              </Link>
             </div>
           </div>
         </div>

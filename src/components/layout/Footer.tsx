@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { WhatsappLogo, MapPin, Phone } from '@phosphor-icons/react';
+import { WhatsappLogo, MapPin, Phone, ShieldCheck, Truck, Certificate } from '@phosphor-icons/react';
 
 export function Footer() {
   const pathname = usePathname();
@@ -10,83 +11,124 @@ export function Footer() {
   if (pathname?.startsWith('/admin')) {
     return null;
   }
+
   return (
-    <footer className="footer" id="site-footer">
+    <footer className="footer-clean" id="site-footer">
       <div className="container">
-        <div className="footer__grid">
-          {/* Brand column */}
-          <div>
-            <div className="footer__brand-name">
-              Naveed Games
+        {/* Top Trust Bar */}
+        <div className="footer-clean__trust-bar">
+          <div className="footer-clean__trust-col">
+            <ShieldCheck size={24} weight="fill" className="footer-clean__trust-icon" />
+            <div>
+              <strong>100% Genuine Guaranteed</strong>
+              <span>Direct factory-sealed inventory</span>
             </div>
-            <p className="footer__brand-tagline">
-              Gaming Heaven — Peshawar&apos;s premier gaming destination since day one.
+          </div>
+          <div className="footer-clean__trust-col">
+            <Truck size={24} weight="fill" className="footer-clean__trust-icon" />
+            <div>
+              <strong>Express Delivery</strong>
+              <span>Nationwide insured shipping</span>
+            </div>
+          </div>
+          <div className="footer-clean__trust-col">
+            <Certificate size={24} weight="fill" className="footer-clean__trust-icon" />
+            <div>
+              <strong>Official Warranty</strong>
+              <span>Dedicated after-sales support</span>
+            </div>
+          </div>
+          <div className="footer-clean__trust-col">
+            <WhatsappLogo size={24} weight="fill" className="footer-clean__trust-icon" />
+            <div>
+              <strong>Expert Consultation</strong>
+              <span>Real-time WhatsApp assistance</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Footer Columns */}
+        <div className="footer-clean__grid">
+          {/* Brand & Address */}
+          <div className="footer-clean__brand-col">
+            <Link href="/" className="footer-clean__logo">
+              <Image
+                src="/images/logo.png"
+                alt="Naveed Games Logo"
+                width={36}
+                height={36}
+                className="footer-clean__logo-img"
+              />
+              <span className="footer-clean__logo-text">
+                NAVEED<span>GAMES</span>
+              </span>
+            </Link>
+            <p className="footer-clean__tagline">
+              Pakistan&apos;s premier destination for authentic PlayStation, Xbox, custom gaming PCs, VR, and creator hardware.
             </p>
-            <div className="footer__contact-info">
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
-                <MapPin size={16} weight="bold" style={{ flexShrink: 0, marginTop: '3px', color: 'var(--accent)' }} />
+            <div className="footer-clean__contact-block">
+              <div className="footer-clean__contact-item">
+                <MapPin size={16} weight="fill" />
                 <span>Shop No 75, S.S Plaza, Karkhano Market, Jamrud Road, Peshawar, KPK</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <Phone size={16} weight="bold" style={{ flexShrink: 0, color: 'var(--accent)' }} />
-                <span>091-5810832</span>
+              <div className="footer-clean__contact-item">
+                <Phone size={16} weight="fill" />
+                <span>PTCL: 091-5810832 · Manager: +92 313 9467708</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <WhatsappLogo size={16} weight="fill" style={{ flexShrink: 0, color: 'var(--whatsapp)' }} />
-                <a href="https://wa.me/923339348891" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--whatsapp)' }}>
-                  +92 333 9348891
+              <div className="footer-clean__contact-item">
+                <WhatsappLogo size={16} weight="fill" />
+                <a href="https://wa.me/923339348891" target="_blank" rel="noopener noreferrer">
+                  +92 333 9348891 (WhatsApp Support)
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Shop links */}
+          {/* Shop Hardware */}
           <div>
-            <h3 className="footer__heading">Shop Categories</h3>
-            <ul className="footer__links">
-              <li><Link href="/shop/consoles" className="footer__link">Consoles</Link></li>
-              <li><Link href="/shop/games" className="footer__link">Games</Link></li>
-              <li><Link href="/shop/controllers" className="footer__link">Controllers</Link></li>
-              <li><Link href="/shop/vr-ar" className="footer__link">VR & AR</Link></li>
-              <li><Link href="/shop/gaming-pcs" className="footer__link">Gaming PCs</Link></li>
-              <li><Link href="/shop/racing-simulators" className="footer__link">Racing Simulators</Link></li>
-              <li><Link href="/shop/rc-cars" className="footer__link">RC Cars</Link></li>
+            <h3 className="footer-clean__heading">Hardware & Gear</h3>
+            <ul className="footer-clean__links">
+              <li><Link href="/shop/playstation">PlayStation 5 Consoles</Link></li>
+              <li><Link href="/shop/xbox">Xbox Series X | S</Link></li>
+              <li><Link href="/shop/gaming-pcs">Custom Gaming PCs</Link></li>
+              <li><Link href="/shop/controllers">Pro & Custom Controllers</Link></li>
+              <li><Link href="/shop/vr-ar">VR & Spatial Computing</Link></li>
+              <li><Link href="/shop/accessories">Headsets & Audio Gear</Link></li>
             </ul>
           </div>
 
-          {/* Brands links */}
+          {/* Top Brands */}
           <div>
-            <h3 className="footer__heading">Top Brands</h3>
-            <ul className="footer__links">
-              <li><Link href="/brand/playstation" className="footer__link">PlayStation</Link></li>
-              <li><Link href="/brand/xbox" className="footer__link">Xbox</Link></li>
-              <li><Link href="/brand/nintendo" className="footer__link">Nintendo</Link></li>
-              <li><Link href="/brand/dji" className="footer__link">DJI Drones</Link></li>
-              <li><Link href="/brand/meta" className="footer__link">Meta VR</Link></li>
-              <li><Link href="/brand/traxxas" className="footer__link">Traxxas RC</Link></li>
-              <li><Link href="/brand/logitech" className="footer__link">Logitech</Link></li>
+            <h3 className="footer-clean__heading">Flagship Brands</h3>
+            <ul className="footer-clean__links">
+              <li><Link href="/brand/playstation">Sony PlayStation</Link></li>
+              <li><Link href="/brand/xbox">Microsoft Xbox</Link></li>
+              <li><Link href="/brand/nintendo">Nintendo Switch</Link></li>
+              <li><Link href="/brand/dji">DJI Drones & Gimbals</Link></li>
+              <li><Link href="/brand/meta">Meta Quest & Ray-Ban</Link></li>
+              <li><Link href="/brand/razer">Razer Gaming</Link></li>
+              <li><Link href="/brand/logitech">Logitech G</Link></li>
             </ul>
           </div>
 
-          {/* Quick links */}
+          {/* Customer Service & Store */}
           <div>
-            <h3 className="footer__heading">Explore</h3>
-            <ul className="footer__links">
-              <li><Link href="/shop" className="footer__link">All Products</Link></li>
-              <li><Link href="/shop?filter=deals" className="footer__link">Deals & Offers</Link></li>
-              <li><Link href="/shop?featured=true" className="footer__link">Featured Products</Link></li>
-              <li><Link href="/wishlist" className="footer__link">Wishlist</Link></li>
+            <h3 className="footer-clean__heading">Customer Care</h3>
+            <ul className="footer-clean__links">
+              <li><Link href="/shop">Browse All Products</Link></li>
+              <li><Link href="/deals">Deals & Weekly Offers</Link></li>
+              <li><Link href="/wishlist">Your Wishlist</Link></li>
+              <li><Link href="/checkout">Track & Checkout Order</Link></li>
+              <li><a href="https://wa.me/923339348891" target="_blank" rel="noopener noreferrer">Request a Custom PC Quote</a></li>
+              <li><Link href="/admin/login">Staff & Admin Login</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="footer__bottom">
-          <p className="footer__copyright">
-            &copy; {new Date().getFullYear()} Naveed Games. All rights reserved.
-          </p>
-          <p className="footer__copyright">
-            Gaming Heaven — Peshawar, Pakistan
-          </p>
+        {/* Bottom Copyright */}
+        <div className="footer-clean__bottom">
+          <p>© {new Date().getFullYear()} Naveed Games (Private) Ltd. All rights reserved.</p>
+          <p>Peshawar, KPK · Pakistan · Premium Gaming Hardware Destination</p>
         </div>
       </div>
     </footer>

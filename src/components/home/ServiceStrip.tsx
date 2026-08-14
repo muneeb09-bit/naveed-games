@@ -1,44 +1,50 @@
 import {
   Truck,
   ShieldCheck,
-  WhatsappLogo,
   Certificate,
+  WhatsappLogo,
 } from '@phosphor-icons/react/dist/ssr';
 
 export function ServiceStrip() {
-  const services = [
+  const benefits = [
     {
-      icon: <Truck size={28} weight="bold" />,
-      label: 'Fast Delivery',
-      desc: 'Across Pakistan',
+      icon: <Truck size={24} weight="fill" />,
+      title: 'Fast Delivery',
+      desc: 'Safe & tracked shipping across all cities in Pakistan',
     },
     {
-      icon: <ShieldCheck size={28} weight="bold" />,
-      label: 'Genuine Products',
-      desc: '100% Authentic',
+      icon: <ShieldCheck size={24} weight="fill" />,
+      title: 'Genuine Products',
+      desc: '100% authentic, sealed factory-direct stock',
     },
     {
-      icon: <Certificate size={28} weight="bold" />,
-      label: 'Warranty',
-      desc: 'Official Coverage',
+      icon: <Certificate size={24} weight="fill" />,
+      title: 'Official Warranty',
+      desc: 'Verified coverage and dedicated customer support',
     },
     {
-      icon: <WhatsappLogo size={28} weight="fill" />,
-      label: 'WhatsApp Support',
-      desc: 'Quick Response',
+      icon: <WhatsappLogo size={24} weight="fill" />,
+      title: 'WhatsApp Support',
+      desc: 'Instant assistance from gaming specialists',
     },
   ];
 
   return (
-    <section id="services">
-      <div className="service-strip">
-        {services.map((service) => (
-          <div key={service.label} className="service-strip__item">
-            <span className="service-strip__icon">{service.icon}</span>
-            <span className="service-strip__label">{service.label}</span>
-            <span className="service-strip__desc">{service.desc}</span>
-          </div>
-        ))}
+    <section className="section-clean section-clean--benefits" id="why-naveed-games">
+      <div className="container">
+        <div className="benefits-clean-grid">
+          {benefits.map((b) => (
+            <div key={b.title} className="benefit-clean-card">
+              <div className="benefit-clean-card__icon-wrap">
+                {b.icon}
+              </div>
+              <div className="benefit-clean-card__content">
+                <h3 className="benefit-clean-card__title">{b.title}</h3>
+                <p className="benefit-clean-card__desc">{b.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

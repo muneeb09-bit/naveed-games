@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, ShoppingBag, Eye, Lightning, Check } from '@phosphor-icons/react';
-import { Badge } from '@/components/ui/Badge';
+import { Heart, ShoppingBag, Check } from '@phosphor-icons/react';
 import { Rating } from '@/components/ui/Rating';
 import { useCartStore } from '@/store/cart';
 import { useWishlistStore } from '@/store/wishlist';
@@ -32,7 +31,7 @@ export function ProductCard({ product }: ProductCardProps) {
     e.stopPropagation();
     addItem(product);
     setAddedAnimation(true);
-    setTimeout(() => setAddedAnimation(false), 1500);
+    setTimeout(() => setAddedAnimation(false), 1400);
     openCart();
   };
 
@@ -42,53 +41,44 @@ export function ProductCard({ product }: ProductCardProps) {
     toggleWishlist(product);
   };
 
-  // Top highlight spec
-  const topSpec = product.specs?.[0]?.value || null;
-
   return (
-    <article className="product-card">
-      <div className="product-card__glow-border" />
-
-      {/* Image Wrap */}
-      <div className="product-card__image-wrap">
+    <article className="product-card-clean">
+      {/* 55-60% Image Container */}
+      <div className="product-card-clean__img-wrap">
         <Link
           href={`/products/${product.slug}`}
-          className="product-card__image-link"
+          className="product-card-clean__img-link"
         >
-          <div className="product-card__image-container">
-            {product.images?.[0] ? (
-              <img
-                src={product.images[0]}
-                alt={product.name}
-                className="product-card__img"
-                loading="lazy"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                  const fallback = (e.target as HTMLElement).nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'flex';
-                }}
-              />
-            ) : null}
-            <div className="product-card__fallback">
-              <span>{product.brand}</span>
-            </div>
+          {product.images?.[0] ? (
+            <img
+              src={product.images[0]}
+              alt={product.name}
+              className="product-card-clean__img"
+              loading="lazy"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+                const fallback = (e.target as HTMLElement).nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div className="product-card-clean__fallback">
+            <span>{product.brand}</span>
           </div>
         </Link>
 
-        {/* Floating Badges */}
-        <div className="product-card__badges">
-          {product.isNew && <Badge variant="new">New</Badge>}
+        {/* Minimal Badges */}
+        <div className="product-card-clean__badges">
+          {product.isNew && <span className="badge-new">NEW</span>}
           {product.discount ? (
-            <Badge variant="discount">-{product.discount}%</Badge>
+            <span className="badge-sale">-{product.discount}%</span>
           ) : null}
-          {product.condition === 'used' || product.condition === 'pre-owned' ? (
-            <span className="product-card__badge-used">Pre-Owned</span>
-          ) : null}
+          {!product.inStock && <span className="badge-out">SOLD OUT</span>}
         </div>
 
-        {/* Quick Wishlist Button */}
+        {/* Wishlist Button */}
         <button
-          className={`product-card__wishlist ${mounted && isWishlisted ? 'product-card__wishlist--active' : ''}`}
+          className={`product-card-clean__wishlist ${mounted && isWishlisted ? 'product-card-clean__wishlist--active' : ''}`}
           onClick={handleWishlistToggle}
           aria-label={mounted && isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           type="button"
@@ -97,82 +87,60 @@ export function ProductCard({ product }: ProductCardProps) {
         </button>
       </div>
 
-      {/* Body */}
-      <div className="product-card__body">
-        <div className="product-card__meta">
-          <span className="product-card__brand">{product.brand}</span>
-          {product.platform && (
-            <span className="product-card__platform">{product.platform}</span>
-          )}
-        </div>
+      {/* Body: Brand -> Name -> Rating -> Price -> Stock -> CTA */}
+      <div className="product-card-clean__body">
+        <span className="product-card-clean__brand">{product.brand}</span>
 
-        <h3 className="product-card__name">
+        <h3 className="product-card-clean__name">
           <Link href={`/products/${product.slug}`}>{product.name}</Link>
         </h3>
 
-        {/* Micro Spec Highlight */}
-        {topSpec && (
-          <div className="product-card__micro-spec" title={topSpec}>
-            <Lightning size={12} weight="fill" style={{ color: 'var(--accent)', flexShrink: 0 }} />
-            <span>{topSpec}</span>
-          </div>
-        )}
-
-        <div className="product-card__rating-row">
+        <div className="product-card-clean__rating">
           <Rating value={product.rating} count={product.reviewCount} size={12} />
         </div>
 
-        <div className="product-card__footer-row">
-          <div className="product-card__pricing">
-            <span className="product-card__price">
+        <div className="product-card-clean__price-row">
+          <div className="product-card-clean__pricing">
+            <span className="product-card-clean__price">
               {formatPrice(product.price)}
             </span>
             {product.originalPrice && (
-              <span className="product-card__original-price">
+              <span className="product-card-clean__orig-price">
                 {formatPrice(product.originalPrice)}
               </span>
             )}
           </div>
 
-          <div className="product-card__stock-status">
+          <div className="product-card-clean__stock">
             {product.inStock ? (
-              product.stockQuantity <= 3 ? (
-                <span className="product-card__stock product-card__stock--low">
-                  <span className="stock-dot stock-dot--low" />
-                  {product.stockQuantity} left
-                </span>
-              ) : (
-                <span className="product-card__stock product-card__stock--in">
-                  <span className="stock-dot stock-dot--in" />
-                  In Stock
-                </span>
-              )
+              <span className="stock-in">
+                <span className="stock-dot stock-dot--in" />
+                In Stock
+              </span>
             ) : (
-              <span className="product-card__stock product-card__stock--out">
+              <span className="stock-out">
                 <span className="stock-dot stock-dot--out" />
-                Sold Out
+                Out of Stock
               </span>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Quick Add to Cart Action */}
-      <div className="product-card__actions">
+        {/* Quick Add to Cart Action */}
         <button
-          className={`button button--secondary product-card__add-to-cart ${addedAnimation ? 'button--success' : ''}`}
+          className={`product-card-clean__btn ${addedAnimation ? 'product-card-clean__btn--added' : ''}`}
           onClick={handleAddToCart}
           disabled={!product.inStock}
           type="button"
         >
           {addedAnimation ? (
             <>
-              <Check size={15} weight="bold" />
-              <span>Added to Cart!</span>
+              <Check size={14} weight="bold" />
+              <span>Added!</span>
             </>
           ) : (
             <>
-              <ShoppingBag size={15} weight="bold" />
+              <ShoppingBag size={14} weight="bold" />
               <span>Add to Cart</span>
             </>
           )}

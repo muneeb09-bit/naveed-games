@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   MagnifyingGlass,
   Heart,
@@ -13,7 +14,6 @@ import { useWishlistStore } from '@/store/wishlist';
 import { useState, useEffect, useCallback } from 'react';
 import { SearchModal } from './SearchModal';
 import { usePathname } from 'next/navigation';
-import { MegaMenu } from './MegaMenu';
 import { MobileDrawer } from './MobileDrawer';
 
 export function Header() {
@@ -21,8 +21,6 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
-  const [megaMenuTab, setMegaMenuTab] = useState<'shop' | 'brands'>('shop');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const cartItemCount = useCartStore((s) => s.getItemCount());
@@ -33,7 +31,7 @@ export function Header() {
     setMounted(true);
 
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 15);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -56,17 +54,6 @@ export function Header() {
     return null;
   }
 
-  const handleMegaMenu = useCallback((tab: 'shop' | 'brands') => {
-    if (megaMenuOpen && megaMenuTab === tab) {
-      setMegaMenuOpen(false);
-    } else {
-      setMegaMenuTab(tab);
-      setMegaMenuOpen(true);
-    }
-  }, [megaMenuOpen, megaMenuTab]);
-
-  const closeMegaMenu = useCallback(() => setMegaMenuOpen(false), []);
-
   return (
     <>
       <header
@@ -84,51 +71,70 @@ export function Header() {
             <List size={22} weight="bold" />
           </button>
 
-          {/* Logo */}
+          {/* Clean Logo with Provided NG Icon */}
           <Link href="/" className="header__logo">
-            Naveed<span>Games</span>
+            <div className="header__logo-icon-wrap">
+              <Image
+                src="/images/logo.png"
+                alt="Naveed Games"
+                width={36}
+                height={36}
+                className="header__logo-img"
+                priority
+              />
+            </div>
+            <span className="header__logo-text">
+              NAVEED<span>GAMES</span>
+            </span>
           </Link>
 
-          {/* Desktop Navigation: SHOP | BRANDS | DEALS | USED | CONTACT */}
+          {/* Unified Clean Desktop Navigation */}
           <nav className="header__nav" aria-label="Main navigation">
-            <button
-              className={`header__nav-link header__nav-link--trigger ${megaMenuOpen && megaMenuTab === 'shop' ? 'header__nav-link--active' : ''}`}
-              onClick={() => handleMegaMenu('shop')}
-              type="button"
-            >
-              SHOP
-            </button>
             <Link
-              href="/brands"
-              className="header__nav-link"
-              onClick={closeMegaMenu}
+              href="/shop"
+              className={`header__nav-link ${pathname === '/shop' ? 'header__nav-link--active' : ''}`}
             >
-              BRANDS
+              Shop
             </Link>
-            <Link href="/deals" className="header__nav-link" onClick={closeMegaMenu}>
-              DEALS
-            </Link>
-            <Link href="/shop?condition=used" className="header__nav-link" onClick={closeMegaMenu}>
-              USED
-            </Link>
-            <a
-              href="https://wa.me/923339348891"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="header__nav-link"
-              onClick={closeMegaMenu}
+            <Link
+              href="/shop/playstation"
+              className={`header__nav-link ${pathname?.includes('/playstation') ? 'header__nav-link--active' : ''}`}
             >
-              CONTACT
-            </a>
+              PlayStation
+            </Link>
+            <Link
+              href="/shop/xbox"
+              className={`header__nav-link ${pathname?.includes('/xbox') ? 'header__nav-link--active' : ''}`}
+            >
+              Xbox
+            </Link>
+            <Link
+              href="/shop/gaming-pcs"
+              className={`header__nav-link ${pathname?.includes('/gaming-pcs') ? 'header__nav-link--active' : ''}`}
+            >
+              Gaming PCs
+            </Link>
+            <Link
+              href="/shop/accessories"
+              className={`header__nav-link ${pathname?.includes('/accessories') ? 'header__nav-link--active' : ''}`}
+            >
+              Accessories
+            </Link>
+            <Link
+              href="/deals"
+              className={`header__nav-link header__nav-link--deals ${pathname === '/deals' ? 'header__nav-link--active' : ''}`}
+            >
+              Deals
+            </Link>
           </nav>
 
-          {/* Actions */}
+          {/* Right Utilities */}
           <div className="header__actions">
-            {/* Desktop Instant Search Trigger */}
+            {/* Desktop Search Trigger */}
             <button
               className="header__search-trigger-pill"
-              onClick={() => { setSearchOpen(true); closeMegaMenu(); }}
-              aria-label="Search catalog (Press Ctrl+K)"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search hardware, games, and brands (Ctrl+K)"
               type="button"
             >
               <MagnifyingGlass size={16} weight="bold" />
@@ -139,18 +145,18 @@ export function Header() {
             {/* Mobile Search Button */}
             <button
               className="header__action-btn header__search-mobile-btn"
-              onClick={() => { setSearchOpen(true); closeMegaMenu(); }}
+              onClick={() => setSearchOpen(true)}
               aria-label="Search"
               type="button"
             >
               <MagnifyingGlass size={20} weight="bold" />
             </button>
 
+            {/* Wishlist Button */}
             <Link
               href="/wishlist"
               className="header__action-btn header__action-btn--desktop"
               aria-label={`Wishlist (${mounted ? wishlistCount : 0} items)`}
-              onClick={closeMegaMenu}
             >
               <Heart size={20} weight={mounted && wishlistCount > 0 ? 'fill' : 'bold'} />
               {mounted && wishlistCount > 0 && (
@@ -158,9 +164,10 @@ export function Header() {
               )}
             </Link>
 
+            {/* Cart Button */}
             <button
-              className="header__action-btn"
-              onClick={() => { openCart(); closeMegaMenu(); }}
+              className="header__action-btn header__cart-btn"
+              onClick={openCart}
               aria-label={`Cart (${mounted ? cartItemCount : 0} items)`}
               type="button"
             >
@@ -170,21 +177,20 @@ export function Header() {
               )}
             </button>
 
+            {/* WhatsApp Quick Support */}
             <a
               href="https://wa.me/923339348891"
-              className="header__action-btn header__action-btn--desktop"
+              className="header__action-btn header__action-btn--desktop header__whatsapp-btn"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Contact via WhatsApp"
+              aria-label="Direct WhatsApp Support"
+              title="Chat with an Expert on WhatsApp"
             >
               <WhatsappLogo size={20} weight="fill" />
             </a>
           </div>
         </div>
       </header>
-
-      {/* Mega Menu */}
-      <MegaMenu isOpen={megaMenuOpen} onClose={closeMegaMenu} activeTab={megaMenuTab} />
 
       {/* Mobile Drawer */}
       <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
