@@ -1260,48 +1260,46 @@ a {
 /* Interactive DualSense Controller Cursor Follower */
 .ps5-controller-cursor {
   position: absolute;
-  width: 48px;
-  height: 48px;
-  margin-left: -24px;
-  margin-top: -24px;
+  width: 64px;
+  height: 64px;
+  margin-left: -32px;
+  margin-top: -32px;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
   z-index: 90;
   will-change: transform;
-  transition: transform 0.05s linear;
 }
 
 .ps5-cursor-brackets {
   position: absolute;
-  inset: -6px;
+  inset: -4px;
   pointer-events: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ps5-bracket {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  border-color: var(--accent);
+  width: 10px;
+  height: 10px;
   border-style: solid;
-  opacity: 0.6;
+  opacity: 0.7;
   transition: all 0.2s ease;
 }
 
-.ps5-bracket--tl { top: 0; left: 0; border-width: 1.5px 0 0 1.5px; }
-.ps5-bracket--tr { top: 0; right: 0; border-width: 1.5px 1.5px 0 0; }
-.ps5-bracket--bl { bottom: 0; left: 0; border-width: 0 0 1.5px 1.5px; }
-.ps5-bracket--br { bottom: 0; right: 0; border-width: 0 1.5px 1.5px 0; }
+.ps5-bracket--tl { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.ps5-bracket--tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.ps5-bracket--bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+.ps5-bracket--br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
 
 .ps5-controller-cursor--hover .ps5-cursor-brackets {
-  inset: -2px;
+  inset: 0px;
 }
 .ps5-controller-cursor--hover .ps5-bracket {
   opacity: 1;
   border-color: #38BDF8 !important;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
 }
 
 .ps5-cursor-controller {
@@ -1309,11 +1307,11 @@ a {
 }
 
 .ps5-controller-cursor--hover .ps5-cursor-controller {
-  transform: scale(1.15);
+  transform: scale(1.12);
 }
 
 .ps5-controller-cursor--click .ps5-cursor-controller {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 /* Mode Switcher Pill */
